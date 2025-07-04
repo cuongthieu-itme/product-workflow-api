@@ -23,8 +23,8 @@ export class SignupEmailQueueProcessorService extends WorkerHost {
     const user = await this.userService.findUserByEmail(data.email);
     const payload = new SendEmailDTO(
       user.email,
-      'Welcome To Our E-Commerce Application',
-      `E-Commerce Is Platform To Manage Your Products and Sell Them As Vendor And Also Give You Report About Your Income. For Using This Platform First You Should Verify Your Account. Your Verification Code is ${user.verifiedToken}`,
+      'Chào mừng đến với ứng dụng Workflow',
+      `Workflow là nền tảng quản lý. Để sử dụng nền tảng này, bạn cần đợi quản trị viên xác thực tài khoản.`,
     );
     this.eventEmitter.emit(SEND_EMAIL_NOTIFICATION, payload);
   }

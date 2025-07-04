@@ -19,12 +19,12 @@ export class UserService {
   async createUser(dto: CreateUserDTO) {
     const duplicatedEmailAddress = await this.findUserByEmail(dto.email);
     if (duplicatedEmailAddress) {
-      throw new ConflictException('User Duplicated Email Address');
+      throw new ConflictException('Email đã được sử dụng');
     }
 
     const duplicatedUsername = await this.findUserByUsername(dto.userName);
     if (duplicatedUsername) {
-      throw new ConflictException('User Duplicated Username');
+      throw new ConflictException('Tên đăng nhập đã được sử dụng');
     }
 
     const passwordHashed = await this.hashService.encode(dto.password);
@@ -82,9 +82,7 @@ export class UserService {
       user.password,
     );
     if (!isPasswordMatching) {
-      throw new NotFoundException(
-        'User Is Not Found With This Email Address And Password',
-      );
+      throw new NotFoundException('Email hoặc mật khẩu không đúng');
     }
     return user;
   }
@@ -92,7 +90,7 @@ export class UserService {
   async findUserByEmail(email: string, throwError: boolean = false) {
     const user = await this.prismaService.user.findUnique({ where: { email } });
     if (!user && throwError) {
-      throw new NotFoundException('User Not Found With This Email Address');
+      throw new NotFoundException('Không tìm thấy người dùng với email này');
     }
     return user;
   }
@@ -100,7 +98,7 @@ export class UserService {
   async findUserById(id: number) {
     const user = await this.prismaService.user.findUnique({ where: { id } });
     if (!user) {
-      throw new NotFoundException('User Not Found With This Id');
+      throw new NotFoundException('Không tìm thấy người dùng với ID này');
     }
     return user;
   }
@@ -110,7 +108,7 @@ export class UserService {
       where: { userName: username },
     });
     if (!user && throwError) {
-      throw new NotFoundException('User Not Found With This Username');
+      throw new NotFoundException('Không tìm thấy người dùng với username này');
     }
     return user;
   }
@@ -127,7 +125,7 @@ export class UserService {
 
     if (!user) {
       throw new NotFoundException(
-        'User Not Found With This Email Address Or Username',
+        'Không tìm thấy người dùng với email hoặc username này',
       );
     }
 
@@ -136,9 +134,7 @@ export class UserService {
       user.password,
     );
     if (!isPasswordMatching) {
-      throw new NotFoundException(
-        'User Is Not Found With This Email Address Or Username And Password',
-      );
+      throw new NotFoundException('Email/Username hoặc mật khẩu không đúng');
     }
     return user;
   }

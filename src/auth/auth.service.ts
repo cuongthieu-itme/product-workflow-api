@@ -55,7 +55,7 @@ export class AuthService {
     );
     if (!user.isVerifiedAccount) {
       throw new BadRequestException(
-        'First Verify Your Account By Email Address',
+        'Vui lòng xác thực tài khoản qua email trước',
       );
     }
     const accessToken = await this.tokenService.decodeAuthToken({
@@ -87,7 +87,7 @@ export class AuthService {
   async verifyAccount(dto: VerifyAccountDTO) {
     const user = await this.userService.findUserByEmail(dto.email, true);
     if (user.verifiedToken !== dto.verificationCode) {
-      throw new NotFoundException('Code Not Match With Any User');
+      throw new NotFoundException('Mã xác thực không đúng');
     }
     await this.userService.updateVerificationState(user.id, true);
   }

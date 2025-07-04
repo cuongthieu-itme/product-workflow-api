@@ -23,8 +23,8 @@ export class LoginEmailQueueProcessorService extends WorkerHost {
     const user = await this.userService.findUserByEmail(data.email);
     const sendEmailPayload = new SendEmailDTO(
       user.email,
-      `Someone Logged Into Your Account`,
-      `${user.fullName} Someone Entered Your Account At ${user.lastLoginDate}`,
+      `Ai đó đã đăng nhập vào tài khoản của bạn`,
+      `${user.fullName} Ai đó đã đăng nhập vào tài khoản của bạn vào ${user.lastLoginDate}`,
     );
     this.eventEmitter.emit(SEND_EMAIL_NOTIFICATION, sendEmailPayload);
   }
