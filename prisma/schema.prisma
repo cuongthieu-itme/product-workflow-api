@@ -16,7 +16,9 @@ enum UserRole {
 model User {
   id                Int          @id @default(autoincrement())
   fullName          String
+  userName          String       @unique
   email             String       @unique
+  phoneNumber       String?      @unique
   password          String
   isVerifiedAccount Boolean      @default(false)
   verifiedDate      DateTime?
@@ -27,6 +29,8 @@ model User {
   sessions          UserSession? @relation("user_session_relation")
 
   @@index([email])
+  @@index([userName])
+  @@index([phoneNumber])
   @@map("_users")
 }
 

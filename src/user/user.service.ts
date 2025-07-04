@@ -21,6 +21,12 @@ export class UserService {
     if (duplicatedEmailAddress) {
       throw new ConflictException('User Duplicated Email Address');
     }
+
+    const duplicatedUsername = await this.findUserByUsername(dto.userName);
+    if (duplicatedUsername) {
+      throw new ConflictException('User Duplicated Username');
+    }
+
     const passwordHashed = await this.hashService.encode(dto.password);
     const verificationCode = this.tokenService.generateVerificationToken();
     return this.prismaService.user.create({
@@ -28,6 +34,8 @@ export class UserService {
         email: dto.email,
         password: passwordHashed,
         fullName: dto.fullName,
+        userName: dto.userName,
+        phoneNumber: dto.phoneNumber,
         role: dto.role,
         verifiedToken: verificationCode,
       },
@@ -93,6 +101,44 @@ export class UserService {
     const user = await this.prismaService.user.findUnique({ where: { id } });
     if (!user) {
       throw new NotFoundException('User Not Found With This Id');
+    }
+    return user;
+  }
+
+  async findUserByUsername(username: string, throwError: boolean = false) {
+    const user = await this.prismaService.user.findUnique({
+      where: { userName: username },
+    });
+    if (!user && throwError) {
+      throw new NotFoundException('User Not Found With This Username');
+    }
+    return user;
+  }
+
+  async findUserByEmailOrUsernameAndPassword(
+    emailOrUsername: string,
+    password: string,
+  ) {
+    let user = await this.findUserByEmail(emailOrUsername);
+
+    if (!user) {
+      user = await this.findUserByUsername(emailOrUsername);
+    }
+
+    if (!user) {
+      throw new NotFoundException(
+        'User Not Found With This Email Address Or Username',
+      );
+    }
+
+    const isPasswordMatching = await this.hashService.compare(
+      password,
+      user.password,
+    );
+    if (!isPasswordMatching) {
+      throw new NotFoundException(
+        'User Is Not Found With This Email Address Or Username And Password',
+      );
     }
     return user;
   }

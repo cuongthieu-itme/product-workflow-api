@@ -7,7 +7,8 @@ export const LoginNotification = () => {
     descriptor.value = async function (...args) {
       const queue = this.loginEmailQueueService as Queue;
       const result = await originalMethod.apply(this, args);
-      queue.add('send-email', new LoginEmailQueuePayloadDTO(args[0].email));
+
+      queue.add('send-email', new LoginEmailQueuePayloadDTO(result.userEmail));
       return result;
     };
     return descriptor;

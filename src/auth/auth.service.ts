@@ -49,8 +49,8 @@ export class AuthService {
 
   @LoginNotification()
   async login(dto: LoginDTO) {
-    const user = await this.userService.findUserByEmailAndPassword(
-      dto.email,
+    const user = await this.userService.findUserByEmailOrUsernameAndPassword(
+      dto.emailOrUsername,
       dto.password,
     );
     if (!user.isVerifiedAccount) {
@@ -66,7 +66,7 @@ export class AuthService {
     await this.userService.updateUserById(user.id, {
       lastLoginDate: new Date(),
     });
-    return { accessToken };
+    return { accessToken, userEmail: user.email };
   }
 
   @ForgetPasswordNotification()

@@ -14,6 +14,11 @@ export class CreateUserDTO {
   fullName: string;
 
   @IsNotEmpty()
+  @IsString()
+  @MinLength(4)
+  userName: string;
+
+  @IsNotEmpty()
   @IsEmail()
   email: string;
 
@@ -25,4 +30,9 @@ export class CreateUserDTO {
   @IsNotEmpty()
   @IsEnum(UserRole)
   role: UserRole;
+
+  @IsNotEmpty()
+  @IsString()
+  @MinLength(10)
+  phoneNumber: string;
 }
