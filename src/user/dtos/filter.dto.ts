@@ -1,5 +1,11 @@
 import { UserRole } from '@prisma/client';
-import { IsEnum, IsOptional, IsString, IsBoolean } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  IsBoolean,
+  IsInt,
+} from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -57,4 +63,22 @@ export class FilterDTO {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @ApiProperty({
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  page?: number;
+
+  @ApiProperty({
+    example: 10,
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  limit?: number;
 }

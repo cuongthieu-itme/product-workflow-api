@@ -27,11 +27,8 @@ export class UserController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(
-    @PaginationQuery() { limit, page }: IPaginationQuery,
-    @Query() filters: FilterDTO,
-  ) {
-    return this.userService.findAll(page, limit, filters);
+  async findAll(@Query() filters: FilterDTO) {
+    return this.userService.findAll(filters);
   }
 
   @ApiOperation({
