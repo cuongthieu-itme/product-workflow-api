@@ -22,7 +22,21 @@ export class TokenService {
   }
 
   verifyToken(token: string): DecodeAuthTokenDTO {
-    return this.jwtService.verify(token, { secret: this._getSecretKey() });
+    if (!token || typeof token !== 'string') {
+      throw new Error('Token phải là một chuỗi hợp lệ');
+    }
+
+    const trimmedToken = token.trim();
+    if (!trimmedToken) {
+      throw new Error('Token không thể để trống');
+    }
+
+    const secret = this._getSecretKey();
+    if (!secret) {
+      throw new Error('Khóa bí mật JWT chưa được cấu hình');
+    }
+
+    return this.jwtService.verify(trimmedToken, { secret });
   }
 
   generateVerificationToken() {

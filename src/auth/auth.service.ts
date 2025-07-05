@@ -146,4 +146,107 @@ export class AuthService {
     }
     await this.userService.updateVerificationState(user.id, true);
   }
+
+  async logout(userId: number) {
+    await this.prismaService.userSession.deleteMany({
+      where: { userId },
+    });
+    return { message: 'Đăng xuất thành công' };
+  }
+
+  async logoutAll(userId: number) {
+    const deletedSessions = await this.prismaService.userSession.deleteMany({
+      where: { userId },
+    });
+    return {
+      message: 'Đăng xuất khỏi tất cả thiết bị thành công',
+      sessionsTerminated: deletedSessions.count,
+    };
+  }
+
+  async logoutFromCurrentDevice(userId: number, currentToken: string) {
+    const deletedSession = await this.prismaService.userSession.deleteMany({
+      where: {
+        userId,
+        token: currentToken,
+      },
+    });
+    return {
+      message: 'Đăng xuất khỏi thiết bị hiện tại thành công',
+      sessionTerminated: deletedSession.count > 0,
+    };
+  }
+
+  async getMe(userId: number) {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+    const { password, verifiedToken, ...userInfo } = user;
+    return userInfo;
+  }
+
+  async verifyTokenDebug(token: string) {
+    if (!token) {
+      return {
+        valid: false,
+        error: 'Token is required',
+        tokenLength: 0,
+      };
+    }
+
+    try {
+      const verifiedToken = this.tokenService.verifyToken(token);
+      const user = await this.userService.findUserById(verifiedToken.userId);
+
+      return {
+        valid: true,
+        decoded: verifiedToken,
+        userExists: !!user,
+        userVerified: user?.isVerifiedAccount || false,
+        tokenLength: token.length,
+        tokenPreview: token.substring(0, 20) + '...',
+      };
+    } catch (error) {
+      return {
+        valid: false,
+        error: error.message,
+        errorName: error.name,
+        tokenLength: token.length,
+        tokenPreview: token.substring(0, 20) + '...',
+      };
+    }
+  }
+
+  async getActiveSessions(userId: number) {
+    const sessions = await this.prismaService.userSession.findMany({
+      where: { userId },
+      select: {
+        token: true,
+      },
+    });
+
+    const sessionsInfo = sessions.map((session) => {
+      try {
+        const decoded = this.tokenService.verifyToken(session.token) as any;
+        return {
+          tokenPreview: session.token.substring(0, 20) + '...',
+          issuedAt: decoded.iat ? new Date(decoded.iat * 1000) : null,
+          expiresAt: decoded.exp ? new Date(decoded.exp * 1000) : null,
+          valid: true,
+        };
+      } catch (error) {
+        return {
+          tokenPreview: session.token.substring(0, 20) + '...',
+          valid: false,
+          error: 'Token expired or invalid',
+        };
+      }
+    });
+
+    return {
+      totalSessions: sessions.length,
+      sessions: sessionsInfo,
+    };
+  }
 }

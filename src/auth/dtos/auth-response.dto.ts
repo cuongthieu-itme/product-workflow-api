@@ -108,5 +108,5 @@ export class SuccessResponseDTO {
   @ApiProperty({
     example: '',
   })
-  status: string;
+  status?: string;
 }
