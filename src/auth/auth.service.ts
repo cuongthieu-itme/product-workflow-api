@@ -55,7 +55,7 @@ export class AuthService {
     );
     if (!user.isVerifiedAccount) {
       throw new BadRequestException(
-        'Vui lòng xác thực tài khoản qua email trước',
+        'Vui lòng đợi quản trị viên xác thực tài khoản của bạn',
       );
     }
     const accessToken = await this.tokenService.decodeAuthToken({

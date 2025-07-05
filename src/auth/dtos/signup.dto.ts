@@ -38,6 +38,7 @@ export class SignupDTO extends PickType(CreateUserDTO, [
 
   @ApiProperty({
     example: '',
+    required: false,
   })
-  phoneNumber: string;
+  phoneNumber?: string;
 }

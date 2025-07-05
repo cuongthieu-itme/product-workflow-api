@@ -3,13 +3,20 @@ import { AppModule } from './app.module';
 import { ConfigService } from '@nestjs/config';
 import { ValidationPipe } from '@nestjs/common';
 import { setupSwagger } from './swagger.config';
+import { corsConfig } from './cors.config';
+import { CorsInterceptor } from './common/interceptors/cors.interceptor';
 
 const bootstrap = async () => {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    cors: corsConfig,
+  });
   const configService = app.get(ConfigService);
   const port = Number(configService.get('APP_PORT'));
 
-  app.enableCors();
+  app.enableCors(corsConfig);
+
+  app.useGlobalInterceptors(new CorsInterceptor());
+
   app.useGlobalPipes(
     new ValidationPipe({
       stopAtFirstError: true,
@@ -20,7 +27,6 @@ const bootstrap = async () => {
   );
   app.setGlobalPrefix('/api');
 
-  // Setup Swagger documentation
   setupSwagger(app);
 
   await app.listen(port, async () => {

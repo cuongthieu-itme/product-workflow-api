@@ -3,6 +3,7 @@ import {
   IsEmail,
   IsEnum,
   IsNotEmpty,
+  IsOptional,
   IsString,
   MinLength,
 } from 'class-validator';
@@ -10,10 +11,7 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateUserDTO {
   @ApiProperty({
-    description: 'User full name',
-    example: 'John Doe',
-    minLength: 4,
-    type: 'string',
+    example: '',
   })
   @IsNotEmpty()
   @IsString()
@@ -21,10 +19,7 @@ export class CreateUserDTO {
   fullName: string;
 
   @ApiProperty({
-    description: 'Username for login',
-    example: 'johndoe',
-    minLength: 4,
-    type: 'string',
+    example: '',
   })
   @IsNotEmpty()
   @IsString()
@@ -32,19 +27,14 @@ export class CreateUserDTO {
   userName: string;
 
   @ApiProperty({
-    description: 'User email address',
-    example: 'user@example.com',
-    type: 'string',
+    example: '',
   })
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
   @ApiProperty({
-    description: 'User password (minimum 8 characters)',
-    example: 'password123',
-    minLength: 8,
-    type: 'string',
+    example: '',
   })
   @IsNotEmpty()
   @IsString()
@@ -52,7 +42,6 @@ export class CreateUserDTO {
   password: string;
 
   @ApiProperty({
-    description: 'User role',
     example: 'USER',
     enum: UserRole,
   })
@@ -61,13 +50,11 @@ export class CreateUserDTO {
   role: UserRole;
 
   @ApiProperty({
-    description: 'User phone number',
-    example: '+1234567890',
-    minLength: 10,
-    type: 'string',
+    example: '',
+    required: false,
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MinLength(10)
-  phoneNumber: string;
+  phoneNumber?: string;
 }
