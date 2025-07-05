@@ -1,7 +1,7 @@
 import { CorsOptions } from '@nestjs/common/interfaces/external/cors-options.interface';
 
 export const corsConfig: CorsOptions = {
-  origin: '*', // Allow all origins
+  origin: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
   allowedHeaders: [
     'Accept',
@@ -29,6 +29,10 @@ export const corsConfig: CorsOptions = {
     'X-CSRF-Token',
     'X-Frame-Options',
     'X-Content-Type-Options',
+    'Access-Control-Allow-Origin',
+    'Access-Control-Allow-Methods',
+    'Access-Control-Allow-Headers',
+    'Access-Control-Allow-Credentials',
   ],
   exposedHeaders: [
     'Content-Length',
@@ -45,8 +49,9 @@ export const corsConfig: CorsOptions = {
     'X-Page-Count',
     'X-Per-Page',
     'X-Current-Page',
+    'Access-Control-Allow-Origin',
   ],
-  credentials: false,
+  credentials: true,
   maxAge: 86400,
   preflightContinue: false,
   optionsSuccessStatus: 204,
