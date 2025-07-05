@@ -1,15 +1,9 @@
 import { UserRole } from '@prisma/client';
-import {
-  IsEmail,
-  IsEnum,
-  IsOptional,
-  IsString,
-  IsBoolean,
-} from 'class-validator';
+import { IsEnum, IsOptional, IsString, IsBoolean } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilterUsersDTO {
+export class FilterDTO {
   @ApiProperty({
     example: '',
     required: false,

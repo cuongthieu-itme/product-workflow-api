@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
+import { DepartmentModule } from './department/department.module';
 import { CommonModule } from './common/common.module';
 import { NotificationModule } from './notification/notification.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
@@ -13,6 +14,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     ConfigModule.forRoot({ isGlobal: true }),
     AuthModule,
     UserModule,
+    DepartmentModule,
     CommonModule,
     NotificationModule,
     EventEmitterModule.forRoot(),

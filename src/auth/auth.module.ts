@@ -4,6 +4,7 @@ import { AuthController } from './auth.controller';
 import { UserModule } from 'src/user/user.module';
 import { BullModule } from '@nestjs/bullmq';
 import { QueueKeys } from 'src/queue/queue-keys.constant';
+import { AccessTokenGuard } from './guards';
 
 @Module({
   imports: [
@@ -13,7 +14,8 @@ import { QueueKeys } from 'src/queue/queue-keys.constant';
     BullModule.registerQueue({ name: QueueKeys.ForgetPasswordEmailQueue }),
     BullModule.registerQueue({ name: QueueKeys.VerifyAccountEmailQueue }),
   ],
-  providers: [AuthService],
+  providers: [AuthService, AccessTokenGuard],
   controllers: [AuthController],
+  exports: [AccessTokenGuard],
 })
 export class AuthModule {}

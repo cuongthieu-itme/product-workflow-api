@@ -8,7 +8,7 @@ import {
   UpdateUserByIdDTO,
   CreateDTO,
   UpdateDTO,
-  FilterUsersDTO,
+  FilterDTO,
 } from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { HashService } from 'src/common/hash/hash.service';
@@ -145,7 +145,7 @@ export class UserService {
     return user;
   }
 
-  async findAll(page: number, limit: number, filters?: FilterUsersDTO) {
+  async findAll(page: number, limit: number, filters?: FilterDTO) {
     const whereCondition: any = {};
 
     if (filters) {
