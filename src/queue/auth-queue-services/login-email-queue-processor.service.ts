@@ -24,7 +24,7 @@ export class LoginEmailQueueProcessorService extends WorkerHost {
     const sendEmailPayload = new SendEmailDTO(
       user.email,
       `Ai đó đã đăng nhập vào tài khoản của bạn`,
-      `${user.fullName} Ai đó đã đăng nhập vào tài khoản của bạn vào ${user.lastLoginDate}`,
+      `Xin chào ${user.fullName},\n\nChúng tôi phát hiện có người đăng nhập vào tài khoản của bạn vào lúc ${user.lastLoginDate}.\n\nNếu đây là bạn, bạn có thể bỏ qua thông báo này. Nếu không, vui lòng đổi mật khẩu ngay và liên hệ với bộ phận hỗ trợ.`,
     );
     this.eventEmitter.emit(SEND_EMAIL_NOTIFICATION, sendEmailPayload);
   }

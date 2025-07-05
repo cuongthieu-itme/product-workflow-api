@@ -5,11 +5,13 @@ import {
   Post,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import {
   ForgetPasswordDTO,
   LoginDTO,
+  ResetPasswordDTO,
   SignupDTO,
   VerifyAccountDTO,
   LoginResponseDTO,
@@ -40,13 +42,25 @@ export class AuthController {
     return this.authService.signup(dto);
   }
 
-  @Patch('forget-password')
+  @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({
-    summary: 'Quên mật khẩu',
+    summary: 'Quên mật khẩu - Gửi email reset password',
   })
-  forgetPassword(@Body() dto: ForgetPasswordDTO): Promise<void> {
+  forgetPassword(@Body() dto: ForgetPasswordDTO): Promise<{ message: string }> {
     return this.authService.forgetPassword(dto);
+  }
+
+  @Post('reset-password')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({
+    summary: 'Đặt lại mật khẩu với token',
+  })
+  resetPassword(
+    @Query('token') token: string,
+    @Body() dto: ResetPasswordDTO,
+  ): Promise<{ message: string }> {
+    return this.authService.resetPassword(token, dto);
   }
 
   @Patch('verify-account')

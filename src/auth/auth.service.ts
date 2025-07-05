@@ -6,11 +6,14 @@ import {
 import {
   ForgetPasswordDTO,
   LoginDTO,
+  ResetPasswordDTO,
   SignupDTO,
   VerifyAccountDTO,
 } from './dtos';
 import { TokenService } from 'src/common/token/token.service';
 import { UserService } from 'src/user/user.service';
+import { HashService } from 'src/common/hash/hash.service';
+import { PrismaService } from 'src/common/prisma/prisma.service';
 import {
   ForgetPasswordNotification,
   LoginNotification,
@@ -26,6 +29,8 @@ export class AuthService {
   constructor(
     private readonly tokenService: TokenService,
     private readonly userService: UserService,
+    private readonly hashService: HashService,
+    private readonly prismaService: PrismaService,
     @InjectQueue(QueueKeys.LoginEmailQueue)
     public readonly loginEmailQueueService: Queue,
     @InjectQueue(QueueKeys.SignupEmailQueue)
@@ -72,15 +77,65 @@ export class AuthService {
   @ForgetPasswordNotification()
   async forgetPassword(dto: ForgetPasswordDTO) {
     const user = await this.userService.findUserByEmail(dto.email, true);
-    const verifiedToken = this.tokenService.generateVerificationToken();
-    await this.userService.updateUserById(user.id, {
-      password: dto.newPassword,
+
+    if (!user.isVerifiedAccount) {
+      throw new BadRequestException(
+        'Tài khoản chưa được xác thực. Vui lòng liên hệ quản trị viên.',
+      );
+    }
+
+    await this.prismaService.resetPasswordToken.deleteMany({
+      where: { userId: user.id },
     });
-    await this.userService.updateVerificationState(
-      user.id,
-      false,
-      verifiedToken,
-    );
+
+    const resetToken = this.tokenService.generateVerificationToken();
+    const expirationTime = new Date();
+    expirationTime.setHours(expirationTime.getHours() + 1);
+
+    await this.prismaService.resetPasswordToken.create({
+      data: {
+        userId: user.id,
+        token: resetToken,
+        expiresAt: expirationTime,
+      },
+    });
+
+    return { message: 'Link quên mật khẩu đã được gửi đến email của bạn' };
+  }
+
+  async resetPassword(token: string, dto: ResetPasswordDTO) {
+    const resetPasswordToken =
+      await this.prismaService.resetPasswordToken.findUnique({
+        where: { token },
+        include: { user: true },
+      });
+
+    if (!resetPasswordToken) {
+      throw new NotFoundException('Token không hợp lệ');
+    }
+
+    if (resetPasswordToken.expiresAt < new Date()) {
+      await this.prismaService.resetPasswordToken.delete({
+        where: { id: resetPasswordToken.id },
+      });
+      throw new BadRequestException('Token đã hết hạn');
+    }
+
+    const hashedPassword = await this.hashService.encode(dto.newPassword);
+    await this.prismaService.user.update({
+      where: { id: resetPasswordToken.userId },
+      data: { password: hashedPassword },
+    });
+
+    await this.prismaService.userSession.deleteMany({
+      where: { userId: resetPasswordToken.userId },
+    });
+
+    await this.prismaService.resetPasswordToken.delete({
+      where: { id: resetPasswordToken.id },
+    });
+
+    return { message: 'Mật khẩu đã được đổi thành công' };
   }
 
   @VerifyAccountNotification()

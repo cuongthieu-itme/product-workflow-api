@@ -14,19 +14,20 @@ enum UserRole {
 }
 
 model User {
-  id                Int          @id @default(autoincrement())
-  fullName          String
-  userName          String       @unique
-  email             String       @unique
-  phoneNumber       String?      @unique
-  password          String
-  isVerifiedAccount Boolean      @default(false)
-  verifiedDate      DateTime?
-  verifiedToken     String?
-  createdAt         DateTime     @default(now())
-  role              UserRole
-  lastLoginDate     DateTime?
-  sessions          UserSession? @relation("user_session_relation")
+  id                  Int                  @id @default(autoincrement())
+  fullName            String
+  userName            String               @unique
+  email               String               @unique
+  phoneNumber         String?              @unique
+  password            String
+  isVerifiedAccount   Boolean              @default(false)
+  verifiedDate        DateTime?
+  verifiedToken       String?
+  createdAt           DateTime             @default(now())
+  role                UserRole
+  lastLoginDate       DateTime?
+  sessions            UserSession?         @relation("user_session_relation")
+  resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
 
   @@index([email])
   @@index([userName])
@@ -41,4 +42,15 @@ model UserSession {
 
   @@id([userId, token])
   @@map("_user_sessions")
+}
+
+model ResetPasswordToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], name: "user_reset_password_relation")
+  token     String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@map("_reset_password_tokens")
 }
