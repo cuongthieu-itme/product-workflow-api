@@ -140,11 +140,15 @@ export class AuthService {
 
   @VerifyAccountNotification()
   async verifyAccount(dto: VerifyAccountDTO) {
-    const user = await this.userService.findUserByEmail(dto.email, true);
-    if (user.verifiedToken !== dto.verificationCode) {
-      throw new NotFoundException('Mã xác thực không đúng');
-    }
-    await this.userService.updateVerificationState(user.id, true);
+    const user = await this.userService.findUserByEmail(
+      dto.email,
+      dto.isVerifiedAccount,
+    );
+
+    await this.userService.updateVerificationState(
+      user.id,
+      dto.isVerifiedAccount,
+    );
   }
 
   async logout(userId: number) {

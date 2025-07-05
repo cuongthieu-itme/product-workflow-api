@@ -3,7 +3,13 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDTO, UpdateUserByIdDTO, CreateDTO, UpdateDTO } from './dtos';
+import {
+  CreateUserDTO,
+  UpdateUserByIdDTO,
+  CreateDTO,
+  UpdateDTO,
+  FilterUsersDTO,
+} from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { HashService } from 'src/common/hash/hash.service';
 import { TokenService } from 'src/common/token/token.service';
@@ -139,9 +145,52 @@ export class UserService {
     return user;
   }
 
-  async findAll(page: number, limit: number) {
-    const total = await this.prismaService.user.count({});
+  async findAll(page: number, limit: number, filters?: FilterUsersDTO) {
+    const whereCondition: any = {};
+
+    if (filters) {
+      if (filters.fullName) {
+        whereCondition.fullName = {
+          contains: filters.fullName,
+          mode: 'insensitive',
+        };
+      }
+
+      if (filters.userName) {
+        whereCondition.userName = {
+          contains: filters.userName,
+          mode: 'insensitive',
+        };
+      }
+
+      if (filters.email) {
+        whereCondition.email = {
+          contains: filters.email,
+          mode: 'insensitive',
+        };
+      }
+
+      if (filters.phoneNumber) {
+        whereCondition.phoneNumber = {
+          contains: filters.phoneNumber,
+        };
+      }
+
+      if (filters.isVerifiedAccount !== undefined) {
+        whereCondition.isVerifiedAccount = filters.isVerifiedAccount;
+      }
+
+      if (filters.role) {
+        whereCondition.role = filters.role;
+      }
+    }
+
+    const total = await this.prismaService.user.count({
+      where: whereCondition,
+    });
+
     const data = await this.prismaService.user.findMany({
+      where: whereCondition,
       take: limit,
       skip: page * limit,
       orderBy: { createdAt: 'desc' },

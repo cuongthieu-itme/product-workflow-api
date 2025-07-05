@@ -8,12 +8,13 @@ import {
   Post,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { IPaginationQuery } from 'src/common/types';
 import { AuthGuard, PaginationQuery } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateDTO, UpdateDTO } from './dtos';
+import { CreateDTO, UpdateDTO, FilterUsersDTO } from './dtos';
 
 @ApiTags('User')
 @AuthGuard()
@@ -26,8 +27,11 @@ export class UserController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@PaginationQuery() { limit, page }: IPaginationQuery) {
-    return this.userService.findAll(page, limit);
+  async findAll(
+    @PaginationQuery() { limit, page }: IPaginationQuery,
+    @Query() filters: FilterUsersDTO,
+  ) {
+    return this.userService.findAll(page, limit, filters);
   }
 
   @ApiOperation({
