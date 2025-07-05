@@ -7,6 +7,7 @@ export const setupSwagger = (app: INestApplication): void => {
     .setDescription('Comprehensive API documentation for Workflow platform')
     .setVersion('1.0')
     .addTag('Authentication', 'Authentication endpoints')
+    .addTag('User', 'User endpoints')
     .addBearerAuth(
       {
         type: 'http',

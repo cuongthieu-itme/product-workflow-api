@@ -3,7 +3,7 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateUserDTO, UpdateUserByIdDTO } from './dtos';
+import { CreateUserDTO, UpdateUserByIdDTO, CreateDTO, UpdateDTO } from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { HashService } from 'src/common/hash/hash.service';
 import { TokenService } from 'src/common/token/token.service';
@@ -137,5 +137,132 @@ export class UserService {
       throw new NotFoundException('Email/Username hoặc mật khẩu không đúng');
     }
     return user;
+  }
+
+  async findAll(page: number, limit: number) {
+    const total = await this.prismaService.user.count({});
+    const data = await this.prismaService.user.findMany({
+      take: limit,
+      skip: page * limit,
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+      },
+    });
+    return { data, total };
+  }
+
+  async findOne(id: number) {
+    const data = await this.prismaService.user.findUnique({
+      where: { id },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+      },
+    });
+    return { data };
+  }
+
+  async create(dto: CreateDTO) {
+    const passwordHashed = await this.hashService.encode(dto.password);
+
+    const newUser = await this.prismaService.user.create({
+      data: {
+        email: dto.email,
+        password: passwordHashed,
+        fullName: dto.fullName,
+        userName: dto.userName,
+        phoneNumber: dto.phoneNumber,
+        role: dto.role,
+        verifiedToken: null,
+        isVerifiedAccount: true,
+        verifiedDate: new Date(),
+      },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+      },
+    });
+
+    return {
+      message: 'Tạo người dùng thành công',
+      data: newUser,
+    };
+  }
+
+  async update(id: number, dto: UpdateDTO) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+    if (!existingUser) {
+      throw new NotFoundException(`Không tìm thấy người dùng với ID ${id}`);
+    }
+
+    const updateData: any = { ...dto };
+    if (dto.password) {
+      updateData.password = await this.hashService.encode(dto.password);
+    }
+
+    const updatedUser = await this.prismaService.user.update({
+      where: { id },
+      data: updateData,
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+      },
+    });
+
+    return {
+      message: 'Cập nhật người dùng thành công',
+      data: updatedUser,
+    };
+  }
+
+  async delete(id: number) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { id },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException(`Không tìm thấy người dùng với ID ${id}`);
+    }
+    await this.prismaService.user.delete({ where: { id } });
+
+    return {
+      message: 'Xóa người dùng thành công',
+    };
   }
 }
