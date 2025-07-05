@@ -10,7 +10,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 export class DepartmentService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(page: number, limit: number, filters?: FilterDTO) {
+  async findAll(filters?: FilterDTO) {
     const whereCondition: any = {};
 
     if (filters) {
@@ -33,6 +33,9 @@ export class DepartmentService {
       }
     }
 
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 10;
+
     const total = await this.prismaService.department.count({
       where: whereCondition,
     });
@@ -40,7 +43,7 @@ export class DepartmentService {
     const data = await this.prismaService.department.findMany({
       where: whereCondition,
       take: limit,
-      skip: page * limit,
+      skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

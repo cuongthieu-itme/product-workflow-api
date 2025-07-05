@@ -12,8 +12,7 @@ import {
   Patch,
 } from '@nestjs/common';
 import { DepartmentService } from './department.service';
-import { IPaginationQuery } from 'src/common/types';
-import { AuthGuard, PaginationQuery } from 'src/common/decorators';
+import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { CreateDTO, UpdateDTO, FilterDTO } from './dtos';
 
@@ -28,11 +27,8 @@ export class DepartmentController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(
-    @PaginationQuery() { limit, page }: IPaginationQuery,
-    @Query() filters: FilterDTO,
-  ) {
-    return this.departmentService.findAll(page, limit, filters);
+  async findAll(@Query() filters: FilterDTO) {
+    return this.departmentService.findAll(filters);
   }
 
   @ApiOperation({
