@@ -1,15 +1,15 @@
 import { UserRole } from '@prisma/client';
 import {
-  IsEmail,
   IsEnum,
   IsOptional,
   IsString,
   IsBoolean,
+  IsInt,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilterUsersDTO {
+export class FilterDTO {
   @ApiProperty({
     example: '',
     required: false,
@@ -63,4 +63,22 @@ export class FilterUsersDTO {
   @IsOptional()
   @IsEnum(UserRole)
   role?: UserRole;
+
+  @ApiProperty({
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  page?: number;
+
+  @ApiProperty({
+    example: 10,
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  limit?: number;
 }

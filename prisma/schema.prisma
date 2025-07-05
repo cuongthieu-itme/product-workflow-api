@@ -13,26 +13,52 @@ enum UserRole {
   USER
 }
 
+model Department {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  headId Int?  @unique
+  head   User? @relation(fields: [headId], references: [id], name: "department_head_relation")
+
+  members User[] @relation("user_department_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([headId])
+  @@map("departments")
+}
+
 model User {
-  id                  Int                  @id @default(autoincrement())
-  fullName            String
-  userName            String               @unique
-  email               String               @unique
-  phoneNumber         String?              @unique
-  password            String
-  isVerifiedAccount   Boolean              @default(false)
-  verifiedDate        DateTime?
-  verifiedToken       String?
-  createdAt           DateTime             @default(now())
-  role                UserRole
-  lastLoginDate       DateTime?
+  id                Int       @id @default(autoincrement())
+  fullName          String
+  userName          String    @unique
+  email             String    @unique
+  phoneNumber       String?   @unique
+  password          String
+  isVerifiedAccount Boolean   @default(false)
+  verifiedDate      DateTime?
+  verifiedToken     String?
+  role              UserRole
+  lastLoginDate     DateTime?
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id], name: "user_department_relation")
+
+  headOfDepartment Department? @relation("department_head_relation")
+
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   @@index([email])
   @@index([userName])
   @@index([phoneNumber])
-  @@map("_users")
+  @@index([departmentId])
+  @@map("users")
 }
 
 model UserSession {
@@ -41,7 +67,7 @@ model UserSession {
   token  String @unique
 
   @@id([userId, token])
-  @@map("_user_sessions")
+  @@map("user_sessions")
 }
 
 model ResetPasswordToken {
@@ -50,7 +76,9 @@ model ResetPasswordToken {
   user      User     @relation(fields: [userId], references: [id], name: "user_reset_password_relation")
   token     String   @unique
   expiresAt DateTime
-  createdAt DateTime @default(now())
 
-  @@map("_reset_password_tokens")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reset_password_tokens")
 }

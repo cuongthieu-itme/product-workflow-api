@@ -8,7 +8,7 @@ import {
   UpdateUserByIdDTO,
   CreateDTO,
   UpdateDTO,
-  FilterUsersDTO,
+  FilterDTO,
 } from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { HashService } from 'src/common/hash/hash.service';
@@ -145,7 +145,7 @@ export class UserService {
     return user;
   }
 
-  async findAll(page: number, limit: number, filters?: FilterUsersDTO) {
+  async findAll(filters?: FilterDTO) {
     const whereCondition: any = {};
 
     if (filters) {
@@ -185,6 +185,9 @@ export class UserService {
       }
     }
 
+    const page = filters?.page || 1;
+    const limit = filters?.limit || 10;
+
     const total = await this.prismaService.user.count({
       where: whereCondition,
     });
@@ -192,7 +195,7 @@ export class UserService {
     const data = await this.prismaService.user.findMany({
       where: whereCondition,
       take: limit,
-      skip: page * limit,
+      skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

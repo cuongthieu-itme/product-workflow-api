@@ -14,7 +14,7 @@ import { UserService } from './user.service';
 import { IPaginationQuery } from 'src/common/types';
 import { AuthGuard, PaginationQuery } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateDTO, UpdateDTO, FilterUsersDTO } from './dtos';
+import { CreateDTO, UpdateDTO, FilterDTO } from './dtos';
 
 @ApiTags('User')
 @AuthGuard()
@@ -27,11 +27,8 @@ export class UserController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(
-    @PaginationQuery() { limit, page }: IPaginationQuery,
-    @Query() filters: FilterUsersDTO,
-  ) {
-    return this.userService.findAll(page, limit, filters);
+  async findAll(@Query() filters: FilterDTO) {
+    return this.userService.findAll(filters);
   }
 
   @ApiOperation({

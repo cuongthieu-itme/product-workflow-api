@@ -40,7 +40,7 @@ export class AuthController {
     return this.authService.login(dto);
   }
 
-  @Post('/signup')
+  @Post('/register')
   @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Đăng kí',
