@@ -1,5 +1,7 @@
 import { CreateUserDTO } from 'src/user/dtos';
 import { PickType } from '@nestjs/mapped-types';
+import { ApiProperty } from '@nestjs/swagger';
+import { UserRole } from '@prisma/client';
 
 export class SignupDTO extends PickType(CreateUserDTO, [
   'email',
@@ -8,4 +10,34 @@ export class SignupDTO extends PickType(CreateUserDTO, [
   'password',
   'role',
   'phoneNumber',
-]) {}
+]) {
+  @ApiProperty({
+    example: '',
+  })
+  email: string;
+
+  @ApiProperty({
+    example: '',
+  })
+  fullName: string;
+
+  @ApiProperty({
+    example: '',
+  })
+  userName: string;
+
+  @ApiProperty({
+    example: '',
+  })
+  password: string;
+
+  @ApiProperty({
+    example: 'USER',
+  })
+  role: UserRole;
+
+  @ApiProperty({
+    example: '',
+  })
+  phoneNumber: string;
+}
