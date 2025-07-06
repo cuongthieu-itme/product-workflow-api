@@ -61,7 +61,7 @@ export class StatusProductService {
       },
     });
 
-    return { data, total };
+    return { data, page, limit, total };
   }
 
   async findOne(id: number) {

@@ -70,7 +70,7 @@ export class CustomerService {
       },
     });
 
-    return { data, total };
+    return { data, page, limit, total };
   }
 
   async findOne(id: number) {

@@ -223,9 +223,16 @@ export class UserService {
         createdAt: true,
         role: true,
         lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
-    return { data, total };
+    return { data, page, limit, total };
   }
 
   async findOne(id: number) {
@@ -242,6 +249,13 @@ export class UserService {
         createdAt: true,
         role: true,
         lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
     return { data };

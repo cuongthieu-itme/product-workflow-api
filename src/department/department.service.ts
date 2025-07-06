@@ -72,7 +72,7 @@ export class DepartmentService {
       },
     });
 
-    return { data, total };
+    return { data, page, limit, total };
   }
 
   async findOne(id: number) {
