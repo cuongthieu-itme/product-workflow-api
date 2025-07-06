@@ -1,0 +1,73 @@
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Put,
+  Param,
+  Delete,
+  HttpStatus,
+  HttpCode,
+  Query,
+} from '@nestjs/common';
+import { CustomerService } from './customer.service';
+import { CreateCustomerDto } from './dto/create-customer.dto';
+import { UpdateCustomerDto } from './dto/update-customer.dto';
+import { FilterCustomerDto } from './dto/filter-customer.dto';
+import { AuthGuard } from 'src/common/decorators';
+import { ApiTags, ApiOperation } from '@nestjs/swagger';
+
+@ApiTags('Customer')
+@AuthGuard()
+@Controller('customers')
+export class CustomerController {
+  constructor(private readonly customerService: CustomerService) {}
+
+  @ApiOperation({
+    summary: 'Lấy danh sách khách hàng',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async findAll(@Query() filters: FilterCustomerDto) {
+    return this.customerService.findAll(filters);
+  }
+
+  @ApiOperation({
+    summary: 'Lấy thông tin khách hàng theo ID',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(@Param('id') id: number) {
+    return this.customerService.findOne(id);
+  }
+
+  @ApiOperation({
+    summary: 'Tạo khách hàng mới',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async create(@Body() createCustomerDto: CreateCustomerDto) {
+    return this.customerService.create(createCustomerDto);
+  }
+
+  @ApiOperation({
+    summary: 'Cập nhật thông tin khách hàng',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put(':id')
+  async update(
+    @Param('id') id: number,
+    @Body() updateCustomerDto: UpdateCustomerDto,
+  ) {
+    return this.customerService.update(id, updateCustomerDto);
+  }
+
+  @ApiOperation({
+    summary: 'Xóa khách hàng',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Delete(':id')
+  async remove(@Param('id') id: number) {
+    return this.customerService.remove(id);
+  }
+}

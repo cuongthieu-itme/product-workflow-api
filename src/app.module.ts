@@ -9,6 +9,7 @@ import { EventEmitterModule } from '@nestjs/event-emitter';
 import { QueueModule } from './queue/queue.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StatusProductModule } from './status-product/status-product.module';
+import { CustomerModule } from './customer/customer.module';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { StatusProductModule } from './status-product/status-product.module';
     QueueModule,
     ScheduleModule.forRoot(),
     StatusProductModule,
+    CustomerModule,
   ],
 })
 export class AppModule {
