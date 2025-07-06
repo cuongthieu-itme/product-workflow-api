@@ -1,13 +1,13 @@
-import { IsNotEmpty, IsString, IsBoolean } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsBoolean } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class VerifyAccountDTO {
   @ApiProperty({
-    example: '',
+    example: 1,
   })
   @IsNotEmpty()
-  @IsString()
-  email: string;
+  @IsNumber()
+  id: number;
 
   @ApiProperty({
     example: true,

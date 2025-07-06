@@ -7,7 +7,7 @@ import { SEND_EMAIL_NOTIFICATION } from 'src/notification/notification-events.co
 import { QueueKeys } from '../queue-keys.constant';
 
 export class VerifyAccountEmailQueuePayloadDTO {
-  constructor(public email: string) {}
+  constructor(public userId: number) {}
 }
 
 @Processor(QueueKeys.VerifyAccountEmailQueue)
@@ -22,7 +22,7 @@ export class VerifyAccountEmailQueueProcessorService extends WorkerHost {
   async process({
     data,
   }: Job<VerifyAccountEmailQueuePayloadDTO>): Promise<any> {
-    const user = await this.userService.findUserByEmail(data.email);
+    const user = await this.userService.findUserById(data.userId);
     const payload = new SendEmailDTO(
       user.email,
       'Xác thực tài khoản thành công',

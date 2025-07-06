@@ -140,10 +140,7 @@ export class AuthService {
 
   @VerifyAccountNotification()
   async verifyAccount(dto: VerifyAccountDTO) {
-    const user = await this.userService.findUserByEmail(
-      dto.email,
-      dto.isVerifiedAccount,
-    );
+    const user = await this.userService.findUserById(dto.id);
 
     await this.userService.updateVerificationState(
       user.id,
