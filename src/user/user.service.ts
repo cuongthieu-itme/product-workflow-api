@@ -198,6 +198,10 @@ export class UserService {
       if (filters.role) {
         whereCondition.role = filters.role;
       }
+
+      if (filters.departmentId) {
+        whereCondition.departmentId = filters.departmentId;
+      }
     }
 
     const page = filters?.page || 1;

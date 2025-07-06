@@ -43,6 +43,14 @@ export class FilterUserDTO {
   phoneNumber?: string;
 
   @ApiProperty({
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  departmentId?: string;
+
+  @ApiProperty({
     example: '',
     required: false,
   })
