@@ -145,6 +145,21 @@ export class UserService {
     return user;
   }
 
+  async findUserByPhoneNumber(
+    phoneNumber: string,
+    throwError: boolean = false,
+  ) {
+    const user = await this.prismaService.user.findUnique({
+      where: { phoneNumber },
+    });
+    if (!user && throwError) {
+      throw new NotFoundException(
+        'Không tìm thấy người dùng với số điện thoại này',
+      );
+    }
+    return user;
+  }
+
   async findAll(filters?: FilterUserDTO) {
     const whereCondition: any = {};
 
@@ -233,6 +248,23 @@ export class UserService {
   }
 
   async create(dto: CreateDTO) {
+    const duplicatedEmailAddress = await this.findUserByEmail(dto.email);
+    if (duplicatedEmailAddress) {
+      throw new ConflictException('Email đã được sử dụng');
+    }
+
+    const duplicatedUsername = await this.findUserByUsername(dto.userName);
+    if (duplicatedUsername) {
+      throw new ConflictException('Tên đăng nhập đã được sử dụng');
+    }
+
+    const duplicatedPhoneNumber = await this.findUserByPhoneNumber(
+      dto.phoneNumber,
+    );
+    if (duplicatedPhoneNumber) {
+      throw new ConflictException('Số điện thoại đã được sử dụng');
+    }
+
     const passwordHashed = await this.hashService.encode(dto.password);
 
     const newUser = await this.prismaService.user.create({
@@ -273,6 +305,29 @@ export class UserService {
     });
     if (!existingUser) {
       throw new NotFoundException(`Không tìm thấy người dùng với ID ${id}`);
+    }
+
+    if (dto.email && dto.email !== existingUser.email) {
+      const duplicatedEmailAddress = await this.findUserByEmail(dto.email);
+      if (duplicatedEmailAddress) {
+        throw new ConflictException('Email đã được sử dụng');
+      }
+    }
+
+    if (dto.userName && dto.userName !== existingUser.userName) {
+      const duplicatedUsername = await this.findUserByUsername(dto.userName);
+      if (duplicatedUsername) {
+        throw new ConflictException('Tên đăng nhập đã được sử dụng');
+      }
+    }
+
+    if (dto.phoneNumber && dto.phoneNumber !== existingUser.phoneNumber) {
+      const duplicatedPhoneNumber = await this.findUserByPhoneNumber(
+        dto.phoneNumber,
+      );
+      if (duplicatedPhoneNumber) {
+        throw new ConflictException('Số điện thoại đã được sử dụng');
+      }
     }
 
     const updateData: any = { ...dto };
