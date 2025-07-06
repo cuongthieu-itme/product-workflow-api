@@ -109,32 +109,4 @@ export class AuthController {
   getMe(@Request() req: AuthRequest): Promise<UserResponseDTO> {
     return this.authService.getMe(req.user.id);
   }
-
-  @Get('/sessions')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
-  @ApiOperation({
-    summary: 'Xem các session đang hoạt động',
-  })
-  getActiveSessions(@Request() req: AuthRequest) {
-    return this.authService.getActiveSessions(req.user.id);
-  }
-
-  @Post('/verify-token')
-  @HttpCode(HttpStatus.OK)
-  @ApiOperation({
-    summary: 'Verify JWT token format',
-  })
-  async verifyToken(@Body() body: { token: string }) {
-    try {
-      return await this.authService.verifyTokenDebug(body.token);
-    } catch (error) {
-      return {
-        valid: false,
-        error: error.message,
-        tokenLength: body.token?.length || 0,
-        tokenPreview: body.token?.substring(0, 20) + '...',
-      };
-    }
-  }
 }

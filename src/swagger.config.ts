@@ -8,6 +8,7 @@ export const setupSwagger = (app: INestApplication): void => {
     .setVersion('1.0')
     .addTag('Authentication', 'Authentication endpoints')
     .addTag('User', 'User endpoints')
+    .addTag('Department', 'Department endpoints')
     .addBearerAuth(
       {
         type: 'http',
