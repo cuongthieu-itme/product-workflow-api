@@ -8,6 +8,7 @@ import { NotificationModule } from './notification/notification.module';
 import { EventEmitterModule } from '@nestjs/event-emitter';
 import { QueueModule } from './queue/queue.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { StatusProductModule } from './status-product/status-product.module';
 
 @Module({
   imports: [
@@ -20,6 +21,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     EventEmitterModule.forRoot(),
     QueueModule,
     ScheduleModule.forRoot(),
+    StatusProductModule,
   ],
 })
 export class AppModule {

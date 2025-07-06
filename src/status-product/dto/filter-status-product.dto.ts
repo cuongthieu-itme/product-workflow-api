@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class FilterDepartmentDTO {
+export class FilterStatusProductDTO {
   @ApiProperty({
     example: '',
     required: false,
@@ -25,7 +25,7 @@ export class FilterDepartmentDTO {
   })
   @IsOptional()
   @IsString()
-  headId?: string;
+  color?: string;
 
   @ApiProperty({
     example: 1,
