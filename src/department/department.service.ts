@@ -3,14 +3,18 @@ import {
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
-import { CreateDTO, UpdateDTO, FilterDTO } from './dtos';
+import {
+  CreateDepartmentDTO,
+  UpdateDepartmentDTO,
+  FilterDepartmentDTO,
+} from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
 @Injectable()
 export class DepartmentService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(filters?: FilterDTO) {
+  async findAll(filters?: FilterDepartmentDTO) {
     const whereCondition: any = {};
 
     if (filters) {
@@ -110,7 +114,7 @@ export class DepartmentService {
     return { data };
   }
 
-  async create(dto: CreateDTO) {
+  async create(dto: CreateDepartmentDTO) {
     const existingDepartment = await this.prismaService.department.findUnique({
       where: { name: dto.name },
     });
@@ -172,7 +176,7 @@ export class DepartmentService {
     };
   }
 
-  async update(id: number, dto: UpdateDTO) {
+  async update(id: number, dto: UpdateDepartmentDTO) {
     const existingDepartment = await this.prismaService.department.findUnique({
       where: { id },
     });

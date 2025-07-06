@@ -2,7 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt } from 'class-validator';
 import { Transform } from 'class-transformer';
 
-export class FilterDTO {
+export class FilterDepartmentDTO {
   @ApiProperty({
     example: '',
   })

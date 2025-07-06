@@ -1,13 +1,13 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsNotEmpty, IsOptional, IsString, IsInt } from 'class-validator';
+import { ApiPropertyOptional } from '@nestjs/swagger';
+import { IsOptional, IsString, IsInt } from 'class-validator';
 
-export class CreateDTO {
-  @ApiProperty({
+export class UpdateDepartmentDTO {
+  @ApiPropertyOptional({
     example: '',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
-  name: string;
+  name?: string;
 
   @ApiPropertyOptional({
     example: '',

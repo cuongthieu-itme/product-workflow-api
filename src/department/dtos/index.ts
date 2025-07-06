@@ -1,3 +1,3 @@
-export * from './create.dto';
-export * from './update.dto';
-export * from './filter.dto';
+export * from './create-department.dto';
+export * from './update-department.dto';
+export * from './filter-department.dto';

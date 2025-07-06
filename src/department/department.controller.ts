@@ -14,7 +14,11 @@ import {
 import { DepartmentService } from './department.service';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateDTO, UpdateDTO, FilterDTO } from './dtos';
+import {
+  CreateDepartmentDTO,
+  UpdateDepartmentDTO,
+  FilterDepartmentDTO,
+} from './dtos';
 
 @ApiTags('Department')
 @AuthGuard()
@@ -27,7 +31,7 @@ export class DepartmentController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query() filters: FilterDTO) {
+  async findAll(@Query() filters: FilterDepartmentDTO) {
     return this.departmentService.findAll(filters);
   }
 
@@ -45,7 +49,7 @@ export class DepartmentController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() dto: CreateDTO) {
+  async create(@Body() dto: CreateDepartmentDTO) {
     return this.departmentService.create(dto);
   }
 
@@ -54,7 +58,7 @@ export class DepartmentController {
   })
   @HttpCode(HttpStatus.OK)
   @Put(':id')
-  async update(@Param('id') id: number, @Body() dto: UpdateDTO) {
+  async update(@Param('id') id: number, @Body() dto: UpdateDepartmentDTO) {
     return this.departmentService.update(id, dto);
   }
 

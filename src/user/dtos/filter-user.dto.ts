@@ -9,7 +9,7 @@ import {
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
 
-export class FilterDTO {
+export class FilterUserDTO {
   @ApiProperty({
     example: '',
     required: false,
