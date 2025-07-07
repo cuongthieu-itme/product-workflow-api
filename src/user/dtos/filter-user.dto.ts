@@ -5,6 +5,8 @@ import {
   IsString,
   IsBoolean,
   IsInt,
+  IsNumber,
+  IsPositive,
 } from 'class-validator';
 import { Transform } from 'class-transformer';
 import { ApiProperty } from '@nestjs/swagger';
@@ -47,8 +49,10 @@ export class FilterUserDTO {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  departmentId?: string;
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsNumber()
+  @IsPositive()
+  departmentId?: number;
 
   @ApiProperty({
     example: '',

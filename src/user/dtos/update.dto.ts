@@ -7,6 +7,8 @@ import {
   MinLength,
   MaxLength,
   Matches,
+  IsNumber,
+  IsPositive,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -68,4 +70,13 @@ export class UpdateDTO {
   @IsString()
   @Matches(/^[0-9]{10,11}$/)
   phoneNumber?: string;
+
+  @ApiProperty({
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @IsNumber()
+  @IsPositive()
+  departmentId?: number;
 }

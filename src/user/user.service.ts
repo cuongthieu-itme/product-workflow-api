@@ -283,6 +283,17 @@ export class UserService {
       throw new ConflictException('Số điện thoại đã được sử dụng');
     }
 
+    if (dto.departmentId) {
+      const department = await this.prismaService.department.findUnique({
+        where: { id: dto.departmentId },
+      });
+      if (!department) {
+        throw new NotFoundException(
+          `Không tìm thấy phòng ban với ID ${dto.departmentId}`,
+        );
+      }
+    }
+
     const passwordHashed = await this.hashService.encode(dto.password);
 
     const newUser = await this.prismaService.user.create({
@@ -293,6 +304,7 @@ export class UserService {
         userName: dto.userName,
         phoneNumber: dto.phoneNumber,
         role: dto.role,
+        departmentId: dto.departmentId,
         verifiedToken: null,
         isVerifiedAccount: true,
         verifiedDate: new Date(),
@@ -308,6 +320,13 @@ export class UserService {
         createdAt: true,
         role: true,
         lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
 
@@ -348,6 +367,17 @@ export class UserService {
       }
     }
 
+    if (dto.departmentId && dto.departmentId !== existingUser.departmentId) {
+      const department = await this.prismaService.department.findUnique({
+        where: { id: dto.departmentId },
+      });
+      if (!department) {
+        throw new NotFoundException(
+          `Không tìm thấy phòng ban với ID ${dto.departmentId}`,
+        );
+      }
+    }
+
     const updateData: any = { ...dto };
     if (dto.password) {
       updateData.password = await this.hashService.encode(dto.password);
@@ -367,6 +397,13 @@ export class UserService {
         createdAt: true,
         role: true,
         lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
       },
     });
 
