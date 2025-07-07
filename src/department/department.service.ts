@@ -60,6 +60,8 @@ export class DepartmentService {
             fullName: true,
             userName: true,
             email: true,
+            phoneNumber: true,
+            role: true,
           },
         },
         _count: {
@@ -90,6 +92,7 @@ export class DepartmentService {
             userName: true,
             email: true,
             phoneNumber: true,
+            role: true,
           },
         },
         members: {
@@ -100,6 +103,11 @@ export class DepartmentService {
             email: true,
             phoneNumber: true,
             role: true,
+          },
+        },
+        _count: {
+          select: {
+            members: true,
           },
         },
         createdAt: true,
