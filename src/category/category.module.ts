@@ -1,0 +1,13 @@
+import { Module } from '@nestjs/common';
+import { CategoryService } from './category.service';
+import { CategoryController } from './category.controller';
+import { UserModule } from 'src/user/user.module';
+import { AuthModule } from 'src/auth/auth.module';
+
+@Module({
+  imports: [UserModule, AuthModule],
+  controllers: [CategoryController],
+  providers: [CategoryService],
+  exports: [CategoryService],
+})
+export class CategoryModule {}

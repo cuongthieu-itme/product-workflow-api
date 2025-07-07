@@ -30,9 +30,6 @@ const bootstrap = async () => {
     const appURL = await app.getUrl();
     console.log(`🚀 Server is running: ${appURL}`);
     console.log(`📚 Swagger documentation: ${appURL}/api/docs`);
-    console.log(
-      `🌐 CORS enabled for all routes with environment: ${process.env.NODE_ENV || 'development'}`,
-    );
   });
 };
 

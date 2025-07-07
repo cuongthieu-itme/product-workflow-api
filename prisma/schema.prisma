@@ -28,23 +28,6 @@ enum Gender {
   OTHER
 }
 
-model Department {
-  id          Int     @id @default(autoincrement())
-  name        String  @unique
-  description String?
-
-  headId Int?  @unique
-  head   User? @relation(fields: [headId], references: [id], name: "department_head_relation")
-
-  members User[] @relation("user_department_relation")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([headId])
-  @@map("departments")
-}
-
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -98,6 +81,23 @@ model ResetPasswordToken {
   @@map("reset_password_tokens")
 }
 
+model Department {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  headId Int?  @unique
+  head   User? @relation(fields: [headId], references: [id], name: "department_head_relation")
+
+  members User[] @relation("user_department_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([headId])
+  @@map("departments")
+}
+
 model StatusProduct {
   id          Int     @id @default(autoincrement())
   name        String  @unique
@@ -124,4 +124,33 @@ model Customer {
   updatedAt DateTime @updatedAt
 
   @@map("customers")
+}
+
+model Category {
+  id          Int     @id @default(autoincrement())
+  name        String  @unique
+  description String?
+
+  products Product[] @relation("category_product_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([name])
+  @@map("categories")
+}
+
+model Product {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+
+  categoryId Int
+  category   Category @relation(fields: [categoryId], references: [id], name: "category_product_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([categoryId])
+  @@map("products")
 }

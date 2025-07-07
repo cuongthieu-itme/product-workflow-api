@@ -10,6 +10,8 @@ import { QueueModule } from './queue/queue.module';
 import { ScheduleModule } from '@nestjs/schedule';
 import { StatusProductModule } from './status-product/status-product.module';
 import { CustomerModule } from './customer/customer.module';
+import { CategoryModule } from './category/category.module';
+import { ProductModule } from './product/product.module';
 
 @Module({
   imports: [
@@ -24,6 +26,8 @@ import { CustomerModule } from './customer/customer.module';
     ScheduleModule.forRoot(),
     StatusProductModule,
     CustomerModule,
+    CategoryModule,
+    ProductModule,
   ],
 })
 export class AppModule {
