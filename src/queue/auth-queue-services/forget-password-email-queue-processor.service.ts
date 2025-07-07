@@ -31,7 +31,7 @@ export class ForgetPasswordEmailQueueProcessorService extends WorkerHost {
       });
 
     if (resetPasswordToken) {
-      const resetLink = `http://localhost:8080/api/auth/reset-password?token=${resetPasswordToken.token}`;
+      const resetLink = `http://localhost:3000/reset-password?token=${resetPasswordToken.token}`;
 
       const sendEmailPayload = new SendEmailDTO(
         user.email,
