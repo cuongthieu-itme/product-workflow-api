@@ -4,6 +4,7 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import {
+  ChangePasswordDTO,
   ForgetPasswordDTO,
   LoginDTO,
   ResetPasswordDTO,
@@ -136,6 +137,36 @@ export class AuthService {
     });
 
     return { message: 'Mật khẩu đã được đổi thành công' };
+  }
+
+  async changePassword(dto: ChangePasswordDTO) {
+    const user = await this.userService.findUserById(dto.id);
+
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+
+    if (!user.isVerifiedAccount) {
+      throw new BadRequestException(
+        'Tài khoản chưa được xác thực. Không thể đổi mật khẩu.',
+      );
+    }
+
+    const hashedPassword = await this.hashService.encode(dto.newPassword);
+
+    await this.prismaService.user.update({
+      where: { id: dto.id },
+      data: { password: hashedPassword },
+    });
+
+    const deletedSessions = await this.prismaService.userSession.deleteMany({
+      where: { userId: dto.id },
+    });
+
+    return {
+      message: 'Mật khẩu đã được đổi thành công. Vui lòng đăng nhập lại.',
+      sessionsClearedCount: deletedSessions.count,
+    };
   }
 
   @VerifyAccountNotification()

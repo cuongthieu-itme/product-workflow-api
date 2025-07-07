@@ -21,6 +21,7 @@ import {
   SignupResponseDTO,
   SuccessResponseDTO,
   UserResponseDTO,
+  ChangePasswordDTO,
 } from './dtos';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/decorators';
@@ -108,5 +109,18 @@ export class AuthController {
   })
   getMe(@Request() req: AuthRequest): Promise<UserResponseDTO> {
     return this.authService.getMe(req.user.id);
+  }
+
+  @Patch('change-password')
+  @HttpCode(HttpStatus.OK)
+  @AuthGuard()
+  @ApiOperation({
+    summary: 'Đổi mật khẩu',
+  })
+  changePassword(@Body() dto: ChangePasswordDTO): Promise<{
+    message: string;
+    sessionsClearedCount: number;
+  }> {
+    return this.authService.changePassword(dto);
   }
 }
