@@ -154,6 +154,37 @@ export class DepartmentService {
       }
     }
 
+    if (dto.memberIds && dto.memberIds.length > 0) {
+      const uniqueMemberIds = [...new Set(dto.memberIds)];
+
+      const existingUsers = await this.prismaService.user.findMany({
+        where: { id: { in: uniqueMemberIds } },
+        select: { id: true, departmentId: true },
+      });
+
+      if (existingUsers.length !== uniqueMemberIds.length) {
+        const foundIds = existingUsers.map((user) => user.id);
+        const missingIds = uniqueMemberIds.filter(
+          (id) => !foundIds.includes(id),
+        );
+        throw new NotFoundException(
+          `Không tìm thấy người dùng với ID: ${missingIds.join(', ')}`,
+        );
+      }
+
+      const usersWithDepartment = existingUsers.filter(
+        (user) => user.departmentId !== null,
+      );
+      if (usersWithDepartment.length > 0) {
+        const conflictIds = usersWithDepartment.map((user) => user.id);
+        throw new ConflictException(
+          `Các người dùng với ID ${conflictIds.join(', ')} đã thuộc phòng ban khác`,
+        );
+      }
+
+      dto.memberIds = uniqueMemberIds.filter((id) => id !== dto.headId);
+    }
+
     const newDepartment = await this.prismaService.department.create({
       data: {
         name: dto.name,
@@ -178,9 +209,52 @@ export class DepartmentService {
       },
     });
 
+    // Assign members to the department if provided
+    if (dto.memberIds && dto.memberIds.length > 0) {
+      await this.prismaService.user.updateMany({
+        where: { id: { in: dto.memberIds } },
+        data: { departmentId: newDepartment.id },
+      });
+    }
+
+    // Fetch the complete department data with members
+    const departmentWithMembers =
+      await this.prismaService.department.findUnique({
+        where: { id: newDepartment.id },
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          headId: true,
+          head: {
+            select: {
+              id: true,
+              fullName: true,
+              userName: true,
+              email: true,
+            },
+          },
+          members: {
+            select: {
+              id: true,
+              fullName: true,
+              userName: true,
+              email: true,
+            },
+          },
+          _count: {
+            select: {
+              members: true,
+            },
+          },
+          createdAt: true,
+          updatedAt: true,
+        },
+      });
+
     return {
       message: 'Tạo phòng ban thành công',
-      data: newDepartment,
+      data: departmentWithMembers,
     };
   }
 
