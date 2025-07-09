@@ -9,17 +9,40 @@ import {
   HttpStatus,
   HttpCode,
   Query,
+  Request,
 } from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from 'src/common/decorators';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { CreateDTO, UpdateDTO, FilterUserDTO } from './dtos';
+import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
+import { CreateDTO, UpdateDTO, FilterUserDTO, UpdateProfileDTO } from './dtos';
+import { AuthRequest } from 'src/common/types';
 
 @ApiTags('User')
 @AuthGuard()
 @Controller('users')
 export class UserController {
   constructor(private readonly userService: UserService) {}
+
+  @ApiOperation({
+    summary: 'Lấy profile người dùng hiện tại',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('profile')
+  async getProfile(@Request() req: AuthRequest) {
+    return this.userService.findOne(req.user.id);
+  }
+
+  @ApiOperation({
+    summary: 'Cập nhật profile người dùng',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put('profile')
+  async updateProfile(
+    @Request() req: AuthRequest,
+    @Body() dto: UpdateProfileDTO,
+  ) {
+    return this.userService.updateProfile(req.user.id, dto);
+  }
 
   @ApiOperation({
     summary: 'Lấy danh sách người dùng',

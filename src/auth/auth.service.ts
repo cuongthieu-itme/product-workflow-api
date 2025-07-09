@@ -321,13 +321,8 @@ export class AuthService {
       data: { password: hashedNewPassword },
     });
 
-    const deletedSessions = await this.prismaService.userSession.deleteMany({
-      where: { userId },
-    });
-
     return {
       message: 'Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập lại.',
-      sessionsClearedCount: deletedSessions.count,
     };
   }
 }

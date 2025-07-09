@@ -9,6 +9,7 @@ import {
   CreateDTO,
   UpdateDTO,
   FilterUserDTO,
+  UpdateProfileDTO,
 } from './dtos';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { HashService } from 'src/common/hash/hash.service';
@@ -435,6 +436,75 @@ export class UserService {
 
     return {
       message: 'Xóa người dùng thành công',
+    };
+  }
+
+  async updateProfile(userId: number, dto: UpdateProfileDTO) {
+    const existingUser = await this.prismaService.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!existingUser) {
+      throw new NotFoundException(`Không tìm thấy người dùng với ID ${userId}`);
+    }
+
+    if (dto.email && dto.email !== existingUser.email) {
+      const duplicatedEmailAddress = await this.findUserByEmail(dto.email);
+      if (duplicatedEmailAddress) {
+        throw new ConflictException('Email đã được sử dụng');
+      }
+    }
+
+    if (dto.userName && dto.userName !== existingUser.userName) {
+      const duplicatedUsername = await this.findUserByUsername(dto.userName);
+      if (duplicatedUsername) {
+        throw new ConflictException('Tên đăng nhập đã được sử dụng');
+      }
+    }
+
+    if (dto.phoneNumber && dto.phoneNumber !== existingUser.phoneNumber) {
+      const duplicatedPhoneNumber = await this.findUserByPhoneNumber(
+        dto.phoneNumber,
+      );
+      if (duplicatedPhoneNumber) {
+        throw new ConflictException('Số điện thoại đã được sử dụng');
+      }
+    }
+
+    const updateData: any = { ...dto };
+
+    if (dto.password) {
+      updateData.password = await this.hashService.encode(dto.password);
+    }
+
+    const updatedUser = await this.prismaService.user.update({
+      where: { id: userId },
+      data: updateData,
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        avatar: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+    });
+
+    return {
+      message: 'Cập nhật profile thành công',
+      data: updatedUser,
     };
   }
 }
