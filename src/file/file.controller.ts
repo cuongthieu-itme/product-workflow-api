@@ -1,5 +1,7 @@
 import {
   Controller,
+  Get,
+  Res,
   Delete,
   Param,
   Post,
@@ -9,6 +11,7 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Response } from 'express';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import * as path from 'path';
@@ -83,6 +86,16 @@ export class FileController {
       originalname: f.originalname,
       size: f.size,
     }));
+  }
+
+  @Get(':filename')
+  @ApiOperation({ summary: 'Xem/ tải xuống tập tin' })
+  getFile(@Param('filename') filename: string, @Res() res: Response) {
+    const filePath = path.resolve(process.cwd(), 'uploads', filename);
+    if (!fs.existsSync(filePath)) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+    return res.sendFile(filePath);
   }
 
   @Delete(':filename')
