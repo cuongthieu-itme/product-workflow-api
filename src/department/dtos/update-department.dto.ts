@@ -1,5 +1,5 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt } from 'class-validator';
+import { IsOptional, IsString, IsInt, IsArray } from 'class-validator';
 
 export class UpdateDepartmentDTO {
   @ApiPropertyOptional({
@@ -22,4 +22,12 @@ export class UpdateDepartmentDTO {
   @IsOptional()
   @IsInt()
   headId?: number;
+
+  @ApiPropertyOptional({
+    example: [2, 3, 4],
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  memberIds?: number[];
 }

@@ -64,6 +64,12 @@ export class DepartmentService {
             role: true,
           },
         },
+        members: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
         _count: {
           select: {
             members: true,
