@@ -129,104 +129,28 @@ export class DepartmentService {
   }
 
   async create(dto: CreateDepartmentDTO) {
-    const existingDepartment = await this.prismaService.department.findUnique({
-      where: { name: dto.name },
-    });
+    return this.prismaService.$transaction(async (tx) => {
+      await this.validateDepartmentNameUniqueness(dto.name, undefined, tx);
 
-    if (existingDepartment) {
-      throw new ConflictException('Tên phòng ban đã tồn tại');
-    }
-
-    if (dto.headId) {
-      const existingHead = await this.prismaService.user.findUnique({
-        where: { id: dto.headId },
-      });
-
-      if (!existingHead) {
-        throw new NotFoundException(
-          `Không tìm thấy người dùng với ID ${dto.headId}`,
-        );
+      if (dto.headId) {
+        await this.validateHeadUser(dto.headId, undefined, tx);
       }
 
-      const existingHeadOfDepartment =
-        await this.prismaService.department.findUnique({
-          where: { headId: dto.headId },
-        });
+      const processedMemberIds = dto.memberIds
+        ? await this.validateAndProcessMemberIds(
+            dto.memberIds,
+            dto.headId,
+            undefined,
+            tx,
+          )
+        : [];
 
-      if (existingHeadOfDepartment) {
-        throw new ConflictException(
-          'Người này đã là trưởng phòng của phòng ban khác',
-        );
-      }
-    }
-
-    if (dto.memberIds && dto.memberIds.length > 0) {
-      const uniqueMemberIds = [...new Set(dto.memberIds)];
-
-      const existingUsers = await this.prismaService.user.findMany({
-        where: { id: { in: uniqueMemberIds } },
-        select: { id: true, departmentId: true },
-      });
-
-      if (existingUsers.length !== uniqueMemberIds.length) {
-        const foundIds = existingUsers.map((user) => user.id);
-        const missingIds = uniqueMemberIds.filter(
-          (id) => !foundIds.includes(id),
-        );
-        throw new NotFoundException(
-          `Không tìm thấy người dùng với ID: ${missingIds.join(', ')}`,
-        );
-      }
-
-      const usersWithDepartment = existingUsers.filter(
-        (user) => user.departmentId !== null,
-      );
-      if (usersWithDepartment.length > 0) {
-        const conflictIds = usersWithDepartment.map((user) => user.id);
-        throw new ConflictException(
-          `Các người dùng với ID ${conflictIds.join(', ')} đã thuộc phòng ban khác`,
-        );
-      }
-
-      dto.memberIds = uniqueMemberIds.filter((id) => id !== dto.headId);
-    }
-
-    const newDepartment = await this.prismaService.department.create({
-      data: {
-        name: dto.name,
-        description: dto.description,
-        headId: dto.headId,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        headId: true,
-        head: {
-          select: {
-            id: true,
-            fullName: true,
-            userName: true,
-            email: true,
-          },
+      const newDepartment = await tx.department.create({
+        data: {
+          name: dto.name,
+          description: dto.description,
+          headId: dto.headId,
         },
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
-    // Assign members to the department if provided
-    if (dto.memberIds && dto.memberIds.length > 0) {
-      await this.prismaService.user.updateMany({
-        where: { id: { in: dto.memberIds } },
-        data: { departmentId: newDepartment.id },
-      });
-    }
-
-    // Fetch the complete department data with members
-    const departmentWithMembers =
-      await this.prismaService.department.findUnique({
-        where: { id: newDepartment.id },
         select: {
           id: true,
           name: true,
@@ -240,102 +164,78 @@ export class DepartmentService {
               email: true,
             },
           },
-          members: {
-            select: {
-              id: true,
-              fullName: true,
-              userName: true,
-              email: true,
-            },
-          },
-          _count: {
-            select: {
-              members: true,
-            },
-          },
           createdAt: true,
           updatedAt: true,
         },
       });
 
-    return {
-      message: 'Tạo phòng ban thành công',
-      data: departmentWithMembers,
-    };
+      if (processedMemberIds.length > 0) {
+        await this.assignMembersToDepartment(
+          processedMemberIds,
+          newDepartment.id,
+          tx,
+        );
+      }
+
+      const departmentWithMembers = await this.getDepartmentWithMembers(
+        newDepartment.id,
+        tx,
+      );
+
+      return {
+        message: 'Tạo phòng ban thành công',
+        data: departmentWithMembers,
+      };
+    });
   }
 
   async update(id: number, dto: UpdateDepartmentDTO) {
-    const existingDepartment = await this.prismaService.department.findUnique({
-      where: { id },
-    });
-
-    if (!existingDepartment) {
-      throw new NotFoundException(`Không tìm thấy phòng ban với ID ${id}`);
-    }
-
-    if (dto.name && dto.name !== existingDepartment.name) {
-      const duplicatedName = await this.prismaService.department.findUnique({
-        where: { name: dto.name },
+    return this.prismaService.$transaction(async (tx) => {
+      const existingDepartment = await tx.department.findUnique({
+        where: { id },
       });
 
-      if (duplicatedName) {
-        throw new ConflictException('Tên phòng ban đã tồn tại');
+      if (!existingDepartment) {
+        throw new NotFoundException(`Không tìm thấy phòng ban với ID ${id}`);
       }
-    }
 
-    if (dto.headId !== undefined) {
-      if (dto.headId !== null) {
-        const existingHead = await this.prismaService.user.findUnique({
-          where: { id: dto.headId },
-        });
+      if (dto.name && dto.name !== existingDepartment.name) {
+        await this.validateDepartmentNameUniqueness(dto.name, id, tx);
+      }
 
-        if (!existingHead) {
-          throw new NotFoundException(
-            `Không tìm thấy người dùng với ID ${dto.headId}`,
-          );
-        }
-
-        const existingHeadOfDepartment =
-          await this.prismaService.department.findFirst({
-            where: {
-              headId: dto.headId,
-              id: { not: id },
-            },
-          });
-
-        if (existingHeadOfDepartment) {
-          throw new ConflictException(
-            'Người này đã là trưởng phòng của phòng ban khác',
-          );
+      if (dto.headId !== undefined) {
+        if (dto.headId !== null) {
+          await this.validateHeadUser(dto.headId, id, tx);
         }
       }
-    }
 
-    const updatedDepartment = await this.prismaService.department.update({
-      where: { id },
-      data: dto,
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        headId: true,
-        head: {
-          select: {
-            id: true,
-            fullName: true,
-            userName: true,
-            email: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
+      const processedMemberIds =
+        dto.memberIds !== undefined
+          ? await this.validateAndProcessMemberIds(
+              dto.memberIds,
+              dto.headId,
+              id,
+              tx,
+            )
+          : undefined;
+
+      const { memberIds, ...departmentData } = dto;
+      await tx.department.update({
+        where: { id },
+        data: departmentData,
+      });
+
+      if (processedMemberIds !== undefined) {
+        await this.reassignDepartmentMembers(id, processedMemberIds, tx);
+      }
+
+      const departmentWithMembers = await this.getDepartmentWithMembers(id, tx);
+
+      return {
+        message: 'Cập nhật phòng ban thành công',
+        data: departmentWithMembers,
+      };
     });
-
-    return {
-      message: 'Cập nhật phòng ban thành công',
-      data: updatedDepartment,
-    };
   }
 
   async delete(id: number) {
@@ -435,5 +335,173 @@ export class DepartmentService {
       message: 'Loại bỏ người dùng khỏi phòng ban thành công',
       data: updatedUser,
     };
+  }
+
+  // Private validation and helper methods
+  private async validateDepartmentNameUniqueness(
+    name: string,
+    excludeId?: number,
+    tx?: any,
+  ) {
+    const prisma = tx || this.prismaService;
+    const whereCondition: any = { name };
+
+    if (excludeId) {
+      whereCondition.id = { not: excludeId };
+    }
+
+    const existingDepartment = await prisma.department.findFirst({
+      where: whereCondition,
+    });
+
+    if (existingDepartment) {
+      throw new ConflictException('Tên phòng ban đã tồn tại');
+    }
+  }
+
+  private async validateHeadUser(
+    headId: number,
+    excludeDepartmentId?: number,
+    tx?: any,
+  ) {
+    const prisma = tx || this.prismaService;
+
+    // Check if user exists
+    const existingHead = await prisma.user.findUnique({
+      where: { id: headId },
+    });
+
+    if (!existingHead) {
+      throw new NotFoundException(`Không tìm thấy người dùng với ID ${headId}`);
+    }
+
+    // Check if user is already head of another department
+    const whereCondition: any = { headId };
+    if (excludeDepartmentId) {
+      whereCondition.id = { not: excludeDepartmentId };
+    }
+
+    const existingHeadOfDepartment = await prisma.department.findFirst({
+      where: whereCondition,
+    });
+
+    if (existingHeadOfDepartment) {
+      throw new ConflictException(
+        'Người này đã là trưởng phòng của phòng ban khác',
+      );
+    }
+  }
+
+  private async validateAndProcessMemberIds(
+    memberIds: number[],
+    headId?: number,
+    departmentId?: number,
+    tx?: any,
+  ): Promise<number[]> {
+    if (!memberIds || memberIds.length === 0) {
+      return [];
+    }
+
+    const prisma = tx || this.prismaService;
+    const uniqueMemberIds = [...new Set(memberIds)];
+
+    // Check if all users exist
+    const existingUsers = await prisma.user.findMany({
+      where: { id: { in: uniqueMemberIds } },
+      select: { id: true, departmentId: true },
+    });
+
+    if (existingUsers.length !== uniqueMemberIds.length) {
+      const foundIds = existingUsers.map((user) => user.id);
+      const missingIds = uniqueMemberIds.filter((id) => !foundIds.includes(id));
+      throw new NotFoundException(
+        `Không tìm thấy người dùng với ID: ${missingIds.join(', ')}`,
+      );
+    }
+
+    // Check if users belong to other departments
+    const usersWithOtherDepartment = existingUsers.filter(
+      (user) =>
+        user.departmentId !== null && user.departmentId !== departmentId,
+    );
+
+    if (usersWithOtherDepartment.length > 0) {
+      const conflictIds = usersWithOtherDepartment.map((user) => user.id);
+      throw new ConflictException(
+        `Các người dùng với ID ${conflictIds.join(', ')} đã thuộc phòng ban khác`,
+      );
+    }
+
+    // Remove head ID from member IDs to avoid duplicate assignment
+    return uniqueMemberIds.filter((memberId) => memberId !== headId);
+  }
+
+  private async assignMembersToDepartment(
+    memberIds: number[],
+    departmentId: number,
+    tx?: any,
+  ) {
+    const prisma = tx || this.prismaService;
+
+    if (memberIds.length > 0) {
+      await prisma.user.updateMany({
+        where: { id: { in: memberIds } },
+        data: { departmentId },
+      });
+    }
+  }
+
+  private async reassignDepartmentMembers(
+    departmentId: number,
+    newMemberIds: number[],
+    tx?: any,
+  ) {
+    const prisma = tx || this.prismaService;
+
+    // Remove all current members from department
+    await prisma.user.updateMany({
+      where: { departmentId },
+      data: { departmentId: null },
+    });
+
+    // Assign new members if any
+    await this.assignMembersToDepartment(newMemberIds, departmentId, tx);
+  }
+
+  private async getDepartmentWithMembers(departmentId: number, tx?: any) {
+    const prisma = tx || this.prismaService;
+
+    return prisma.department.findUnique({
+      where: { id: departmentId },
+      select: {
+        id: true,
+        name: true,
+        description: true,
+        headId: true,
+        head: {
+          select: {
+            id: true,
+            fullName: true,
+            userName: true,
+            email: true,
+          },
+        },
+        members: {
+          select: {
+            id: true,
+            fullName: true,
+            userName: true,
+            email: true,
+          },
+        },
+        _count: {
+          select: {
+            members: true,
+          },
+        },
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 }

@@ -149,6 +149,16 @@ export class UserService {
     phoneNumber: string,
     throwError: boolean = false,
   ) {
+    // Return null if phoneNumber is undefined or null
+    if (!phoneNumber) {
+      if (throwError) {
+        throw new NotFoundException(
+          'Không tìm thấy người dùng với số điện thoại này',
+        );
+      }
+      return null;
+    }
+
     const user = await this.prismaService.user.findUnique({
       where: { phoneNumber },
     });

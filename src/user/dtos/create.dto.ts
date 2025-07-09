@@ -43,7 +43,7 @@ export class CreateDTO {
   @ApiProperty({
     example: '',
   })
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   avatar: string;
 
