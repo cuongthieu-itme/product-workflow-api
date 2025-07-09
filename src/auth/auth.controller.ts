@@ -94,7 +94,6 @@ export class AuthController {
     @Body() dto: UserChangePasswordDTO,
   ): Promise<{
     message: string;
-    sessionsClearedCount: number;
   }> {
     return this.authService.changePassword(req.user.id, dto);
   }

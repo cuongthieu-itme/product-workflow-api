@@ -259,6 +259,7 @@ export class UserService {
         userName: true,
         email: true,
         phoneNumber: true,
+        avatar: true,
         isVerifiedAccount: true,
         verifiedDate: true,
         createdAt: true,
