@@ -32,7 +32,4 @@ import { FileModule } from './file/file.module';
     FileModule,
   ],
 })
-export class AppModule {
-  // Removed CORS middleware since we're using global CORS configuration
-  // This prevents conflicts and ensures consistent CORS handling across all routes
-}
+export class AppModule {}
