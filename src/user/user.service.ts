@@ -265,13 +265,7 @@ export class UserService {
         createdAt: true,
         role: true,
         lastLoginDate: true,
-        department: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-          },
-        },
+        department: true,
       },
     });
     return { data };
