@@ -2,6 +2,7 @@ import {
   BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import {
   ChangePasswordDTO,
@@ -10,6 +11,7 @@ import {
   ResetPasswordDTO,
   SignupDTO,
   VerifyAccountDTO,
+  UserChangePasswordDTO,
 } from './dtos';
 import { TokenService } from 'src/common/token/token.service';
 import { UserService } from 'src/user/user.service';
@@ -139,7 +141,7 @@ export class AuthService {
     return { message: 'Mật khẩu đã được đổi thành công' };
   }
 
-  async changePassword(dto: ChangePasswordDTO) {
+  async changePasswordAdmin(dto: ChangePasswordDTO) {
     const user = await this.userService.findUserById(dto.id);
 
     if (!user) {
@@ -279,6 +281,53 @@ export class AuthService {
     return {
       totalSessions: sessions.length,
       sessions: sessionsInfo,
+    };
+  }
+
+  async changePassword(userId: number, dto: UserChangePasswordDTO) {
+    const user = await this.userService.findUserById(userId);
+    if (!user) {
+      throw new NotFoundException('Người dùng không tồn tại');
+    }
+
+    if (!user.isVerifiedAccount) {
+      throw new BadRequestException(
+        'Tài khoản chưa được xác thực. Không thể đổi mật khẩu.',
+      );
+    }
+
+    const isOldPasswordValid = await this.hashService.compare(
+      dto.oldPassword,
+      user.password,
+    );
+    if (!isOldPasswordValid) {
+      throw new UnauthorizedException('Mật khẩu hiện tại không đúng');
+    }
+
+    const isSamePassword = await this.hashService.compare(
+      dto.newPassword,
+      user.password,
+    );
+    if (isSamePassword) {
+      throw new BadRequestException(
+        'Mật khẩu mới phải khác với mật khẩu hiện tại',
+      );
+    }
+
+    const hashedNewPassword = await this.hashService.encode(dto.newPassword);
+
+    await this.prismaService.user.update({
+      where: { id: userId },
+      data: { password: hashedNewPassword },
+    });
+
+    const deletedSessions = await this.prismaService.userSession.deleteMany({
+      where: { userId },
+    });
+
+    return {
+      message: 'Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập lại.',
+      sessionsClearedCount: deletedSessions.count,
     };
   }
 }

@@ -22,6 +22,7 @@ import {
   SuccessResponseDTO,
   UserResponseDTO,
   ChangePasswordDTO,
+  UserChangePasswordDTO,
 } from './dtos';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/decorators';
@@ -80,6 +81,24 @@ export class AuthController {
     return this.authService.verifyAccount(dto);
   }
 
+  @Patch('/change-password')
+  @HttpCode(HttpStatus.OK)
+  @AuthGuard()
+  @ApiOperation({
+    summary: 'Thay đổi mật khẩu của user hiện tại',
+    description:
+      'User có thể thay đổi mật khẩu của chính mình bằng cách cung cấp mật khẩu cũ và mật khẩu mới',
+  })
+  changePassword(
+    @Request() req: AuthRequest,
+    @Body() dto: UserChangePasswordDTO,
+  ): Promise<{
+    message: string;
+    sessionsClearedCount: number;
+  }> {
+    return this.authService.changePassword(req.user.id, dto);
+  }
+
   @Delete('/logout')
   @HttpCode(HttpStatus.OK)
   @AuthGuard()
@@ -111,16 +130,16 @@ export class AuthController {
     return this.authService.getMe(req.user.id);
   }
 
-  @Patch('change-password')
+  @Patch('change-password-admin')
   @HttpCode(HttpStatus.OK)
   @AuthGuard()
   @ApiOperation({
-    summary: 'Đổi mật khẩu',
+    summary: 'Đổi mật khẩu (Admin)',
   })
-  changePassword(@Body() dto: ChangePasswordDTO): Promise<{
+  changePasswordAdmin(@Body() dto: ChangePasswordDTO): Promise<{
     message: string;
     sessionsClearedCount: number;
   }> {
-    return this.authService.changePassword(dto);
+    return this.authService.changePasswordAdmin(dto);
   }
 }
