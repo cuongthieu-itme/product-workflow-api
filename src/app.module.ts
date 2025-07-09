@@ -12,6 +12,7 @@ import { StatusProductModule } from './status-product/status-product.module';
 import { CustomerModule } from './customer/customer.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
+import { FileModule } from './file/file.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ProductModule } from './product/product.module';
     CustomerModule,
     CategoryModule,
     ProductModule,
+    FileModule,
   ],
 })
 export class AppModule {
