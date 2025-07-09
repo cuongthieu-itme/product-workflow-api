@@ -44,7 +44,7 @@ export class UpdateDTO {
   email?: string;
 
   @ApiProperty({
-    example: 'Password123!',
+    example: '',
     required: false,
   })
   @IsOptional()
@@ -63,13 +63,21 @@ export class UpdateDTO {
   role?: UserRole;
 
   @ApiProperty({
-    example: '0123456789',
+    example: '',
     required: false,
   })
   @IsOptional()
   @IsString()
   @Matches(/^[0-9]{10,11}$/)
   phoneNumber?: string;
+
+  @ApiProperty({
+    example: '',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  avatar: string;
 
   @ApiProperty({
     example: 1,
