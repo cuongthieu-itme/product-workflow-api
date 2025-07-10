@@ -49,6 +49,9 @@ model User {
 
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
+  
+  // Workflow step assignments
+  assignedStepExecutions WorkFlowStepExecution[] @relation("user_step_execution_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -106,6 +109,12 @@ model StatusProduct {
   color       String
   procedure   String?
 
+  // Workflow relations - StatusProduct có thể có nhiều workflows (many-to-many)
+  workflowStatusProducts WorkFlowStatusProduct[] @relation("status_product_workflow_mapping")
+  
+  // Products có status này
+  products    Product[] @relation("product_status_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -149,9 +158,168 @@ model Product {
   categoryId Int
   category   Category @relation(fields: [categoryId], references: [id], name: "category_product_relation")
 
+  // Status của product
+  statusId Int
+  status   StatusProduct @relation(fields: [statusId], references: [id], name: "product_status_relation")
+
+  // Workflow executions cho product này
+  statusProductWorkflows StatusProductWorkFlow[] @relation("product_status_workflow_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([categoryId])
+  @@index([statusId])
   @@map("products")
+}
+
+
+enum EstimatedTimeUnit {
+  MINUTES
+  HOURS
+  DAYS
+  WEEKS
+}
+
+enum WorkFlowStepStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  SKIPPED
+  BLOCKED
+}
+
+enum WorkFlowStatus {
+  DRAFT
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+model WorkFlowStep {
+  id                Int                 @id @default(autoincrement())
+  name              String              @db.VarChar(255)
+  description       String?             @db.Text
+  estimatedTime     Int?                // Time value
+  estimatedTimeUnit EstimatedTimeUnit?
+  position          Int                 // Order of step in workflow
+  notifyAfterDays   Int?                // Days after step creation to notify
+  isRequired        Boolean             @default(true)
+  isStepHaveCost    Boolean             @default(false)
+  
+  // Relations
+  workflowId        Int
+  workflow          WorkFlow            @relation(fields: [workflowId], references: [id], name: "workflow_step_relation", onDelete: Cascade)
+  
+  // Step executions for products
+  stepExecutions    WorkFlowStepExecution[] @relation("workflow_step_execution_relation")
+
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
+
+  @@unique([workflowId, position], name: "unique_workflow_position")
+  @@index([workflowId])
+  @@index([position])
+  @@map("workflow_steps")
+}
+
+model WorkFlow {
+  id              Int                    @id @default(autoincrement())
+  name            String                 @db.VarChar(255)
+  description     String?                @db.Text
+  version         Int                    @default(1)
+  
+  // Relations
+  steps           WorkFlowStep[]         @relation("workflow_step_relation")
+  
+  // Workflow có thể được áp dụng cho nhiều StatusProduct (many-to-many)
+  workflowStatusProducts WorkFlowStatusProduct[] @relation("workflow_status_product_mapping")
+
+  // Executions của workflow này trên các products
+  statusProductWorkflows StatusProductWorkFlow[] @relation("workflow_status_product_execution")
+
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+
+  @@map("workflows")
+}
+
+model StatusProductWorkFlow {
+  id              Int                     @id @default(autoincrement())
+  productId       Int
+  workflowId      Int
+  statusProductId Int?                    // Thêm để biết workflow được trigger từ status nào
+  status          WorkFlowStatus          @default(ACTIVE)
+  startedAt       DateTime?
+  completedAt     DateTime?
+  dueDate         DateTime?
+  notes           String?                 @db.Text
+  
+  // Relations
+  product         Product                 @relation(fields: [productId], references: [id], name: "product_status_workflow_relation", onDelete: Cascade)
+  workflow        WorkFlow                @relation(fields: [workflowId], references: [id], name: "workflow_status_product_execution", onDelete: Cascade)
+  stepExecutions  WorkFlowStepExecution[] @relation("status_product_workflow_execution_relation")
+
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  @@unique([productId, workflowId], name: "unique_product_workflow")
+  @@index([productId])
+  @@index([workflowId])
+  @@index([statusProductId])
+  @@index([status])
+  @@map("status_product_workflows")
+}
+
+model WorkFlowStepExecution {
+  id                    Int                   @id @default(autoincrement())
+  status                WorkFlowStepStatus    @default(PENDING)
+  startedAt             DateTime?
+  completedAt           DateTime?
+  dueDate               DateTime?
+  actualTime            Int?                  // Actual time taken in minutes
+  notes                 String?               @db.Text
+  actualCost            Decimal?              @db.Decimal(10, 2)
+  
+  // Relations
+  statusProductWorkflowId Int
+  statusProductWorkflow   StatusProductWorkFlow @relation(fields: [statusProductWorkflowId], references: [id], name: "status_product_workflow_execution_relation", onDelete: Cascade)
+  
+  stepId                Int
+  step                  WorkFlowStep          @relation(fields: [stepId], references: [id], name: "workflow_step_execution_relation")
+  
+  // Optional assignee
+  assignedUserId        Int?
+  assignedUser          User?                 @relation(fields: [assignedUserId], references: [id], name: "user_step_execution_relation")
+
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  @@unique([statusProductWorkflowId, stepId], name: "unique_status_product_workflow_step")
+  @@index([statusProductWorkflowId])
+  @@index([stepId])
+  @@index([status])
+  @@index([assignedUserId])
+  @@map("workflow_step_executions")
+}
+
+model WorkFlowStatusProduct {
+  id             Int     @id @default(autoincrement())
+  workflowId     Int
+  statusProductId Int
+  isActive       Boolean @default(true)
+  priority       Int?    // Độ ưu tiên khi có nhiều workflow cho cùng status
+  
+  // Relations
+  workflow       WorkFlow      @relation(fields: [workflowId], references: [id], name: "workflow_status_product_mapping", onDelete: Cascade)
+  statusProduct  StatusProduct @relation(fields: [statusProductId], references: [id], name: "status_product_workflow_mapping", onDelete: Cascade)
+  
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  
+  @@unique([workflowId, statusProductId], name: "unique_workflow_status_product")
+  @@index([workflowId])
+  @@index([statusProductId])
+  @@index([isActive])
+  @@map("workflow_status_products")
 }
