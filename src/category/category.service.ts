@@ -69,6 +69,15 @@ export class CategoryService {
         description: true,
         createdAt: true,
         updatedAt: true,
+        products: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+            createdAt: true,
+            updatedAt: true,
+          },
+        },
         _count: {
           select: {
             products: true,
