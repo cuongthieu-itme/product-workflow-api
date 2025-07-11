@@ -52,14 +52,13 @@ export class CreateIngredientDto {
   description?: string;
 
   @ApiProperty({
-    example: '',
+    example: [''],
     required: false,
     type: [String],
   })
   @IsArray()
   @IsString({ each: true })
-  @IsOptional()
-  image?: string[];
+  image: string[];
 
   @ApiProperty({
     example: true,

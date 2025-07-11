@@ -37,8 +37,7 @@ export class CreateAccessoryDto {
   })
   @IsArray()
   @IsString({ each: true })
-  @IsOptional()
-  image?: string[];
+  image: string[];
 
   @ApiProperty({
     example: true,
