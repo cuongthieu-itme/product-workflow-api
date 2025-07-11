@@ -160,3 +160,34 @@ model Product {
   @@index([categoryId])
   @@map("products")
 }
+
+model Ingredient {
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String
+  quantity    Int
+  unit        String
+  origin      String
+  description String?
+  image       String[]
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("ingredients")
+}
+
+model Accessory {
+  id          Int      @id @default(autoincrement())
+  name        String
+  code        String
+  description String?
+  image       String[]
+  isActive    Boolean  @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("accessories")
+}
