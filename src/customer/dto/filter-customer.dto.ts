@@ -53,6 +53,15 @@ export class FilterCustomerDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
+  userId?: number;
+
+  @ApiProperty({
+    example: 1,
+    required: false,
+  })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
   page?: number;
 
   @ApiProperty({

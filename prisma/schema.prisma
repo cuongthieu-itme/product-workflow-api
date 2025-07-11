@@ -49,6 +49,7 @@ model User {
 
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
+  customers           Customer[]           @relation("user_customers_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -115,15 +116,19 @@ model StatusProduct {
 model Customer {
   id          Int            @id @default(autoincrement())
   fullName    String
-  phoneNumber String
-  email       String
+  phoneNumber String         @unique
+  email       String         @unique
   gender      Gender
   dateOfBirth DateTime?
   source      CustomerSource
 
+  userId Int
+  user   User @relation(fields: [userId], references: [id], name: "user_customers_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([userId])
   @@map("customers")
 }
 

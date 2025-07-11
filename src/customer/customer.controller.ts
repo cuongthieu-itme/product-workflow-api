@@ -9,11 +9,13 @@ import {
   HttpStatus,
   HttpCode,
   Query,
+  Request,
 } from '@nestjs/common';
 import { CustomerService } from './customer.service';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 import { UpdateCustomerDto } from './dto/update-customer.dto';
 import { FilterCustomerDto } from './dto/filter-customer.dto';
+import { AuthRequest } from 'src/common/types/auth-request.type';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
@@ -46,8 +48,11 @@ export class CustomerController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createCustomerDto: CreateCustomerDto) {
-    return this.customerService.create(createCustomerDto);
+  async create(
+    @Body() createCustomerDto: CreateCustomerDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.customerService.create(req.user.id, createCustomerDto);
   }
 
   @ApiOperation({

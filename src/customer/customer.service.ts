@@ -43,6 +43,10 @@ export class CustomerService {
       if (filters.source) {
         whereCondition.source = filters.source;
       }
+
+      if (filters.userId) {
+        whereCondition.userId = filters.userId;
+      }
     }
 
     const page = filters?.page || 1;
@@ -96,7 +100,7 @@ export class CustomerService {
     return { data };
   }
 
-  async create(dto: CreateCustomerDto) {
+  async create(userId: number, dto: CreateCustomerDto) {
     const existingCustomer = await this.prismaService.customer.findFirst({
       where: {
         OR: [{ email: dto.email }, { phoneNumber: dto.phoneNumber }],
@@ -120,6 +124,9 @@ export class CustomerService {
         gender: dto.gender,
         dateOfBirth: dto.dateOfBirth ? new Date(dto.dateOfBirth) : null,
         source: dto.source,
+        user: {
+          connect: { id: userId },
+        },
       },
       select: {
         id: true,
