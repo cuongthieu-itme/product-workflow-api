@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AccessoryService } from './accessory.service';
@@ -17,11 +16,11 @@ import {
   UpdateAccessoryDto,
   FilterAccessoryDto,
 } from './dto';
-import { AccessTokenGuard } from 'src/auth/guards';
+import { AuthGuard } from 'src/common/decorators';
 
 @ApiTags('Accessory')
 @Controller('accessories')
-@UseGuards(AccessTokenGuard)
+@AuthGuard()
 export class AccessoryController {
   constructor(private readonly accessoryService: AccessoryService) {}
 
