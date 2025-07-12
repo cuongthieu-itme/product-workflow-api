@@ -8,7 +8,6 @@ import {
   Delete,
   Query,
   ParseIntPipe,
-  UseGuards,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { IngredientService } from './ingredient.service';
@@ -17,11 +16,11 @@ import {
   UpdateIngredientDto,
   FilterIngredientDto,
 } from './dto';
-import { AccessTokenGuard } from 'src/auth/guards';
+import { AuthGuard } from 'src/common/decorators';
 
 @ApiTags('Ingredient')
 @Controller('ingredients')
-@UseGuards(AccessTokenGuard)
+@AuthGuard()
 export class IngredientController {
   constructor(private readonly ingredientService: IngredientService) {}
 
@@ -35,6 +34,18 @@ export class IngredientController {
   @ApiOperation({ summary: 'Lấy danh sách nguyên liệu' })
   findAll(@Query() filterIngredientDto: FilterIngredientDto) {
     return this.ingredientService.findAll(filterIngredientDto);
+  }
+
+  @Get('units')
+  @ApiOperation({ summary: 'Lấy danh sách đơn vị nguyên liệu' })
+  getOptionUnits() {
+    return this.ingredientService.getOptionUnits();
+  }
+
+  @Get('origins')
+  @ApiOperation({ summary: 'Lấy danh sách nguồn gốc nguyên liệu' })
+  getOptionOrigins() {
+    return this.ingredientService.getOptionOrigins();
   }
 
   @Get(':id')

@@ -5,6 +5,7 @@ import {
   UpdateIngredientDto,
   FilterIngredientDto,
 } from './dto';
+import { ORIGIN_OPTIONS, UNIT_OPTIONS } from './constants';
 
 @Injectable()
 export class IngredientService {
@@ -208,7 +209,11 @@ export class IngredientService {
     };
   }
 
-  async getOptionUnits() {}
+  async getOptionUnits() {
+    return { data: UNIT_OPTIONS };
+  }
 
-  async getOptionOrigins() {}
+  async getOptionOrigins() {
+    return { data: ORIGIN_OPTIONS };
+  }
 }
