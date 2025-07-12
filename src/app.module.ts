@@ -16,6 +16,7 @@ import { FileModule } from './file/file.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { AccessoryModule } from './accessory/accessory.module';
 import { ProcedureModule } from './procedure/procedure.module';
+import { SubprocessModule } from './subprocess/subprocess.module';
 
 @Module({
   imports: [
@@ -36,6 +37,7 @@ import { ProcedureModule } from './procedure/procedure.module';
     IngredientModule,
     AccessoryModule,
     ProcedureModule,
+    SubprocessModule,
   ],
 })
 export class AppModule {}
