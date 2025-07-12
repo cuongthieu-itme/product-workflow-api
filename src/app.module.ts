@@ -15,6 +15,7 @@ import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
 import { IngredientModule } from './ingredient/ingredient.module';
 import { AccessoryModule } from './accessory/accessory.module';
+import { ProcedureModule } from './procedure/procedure.module';
 
 @Module({
   imports: [
@@ -34,6 +35,7 @@ import { AccessoryModule } from './accessory/accessory.module';
     FileModule,
     IngredientModule,
     AccessoryModule,
+    ProcedureModule,
   ],
 })
 export class AppModule {}
