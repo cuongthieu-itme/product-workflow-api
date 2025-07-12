@@ -210,10 +210,17 @@ export class IngredientService {
   }
 
   async getOptionUnits() {
-    return { data: UNIT_OPTIONS };
+    return {
+      data: UNIT_OPTIONS.map((unit) => ({ value: unit.id, label: unit.name })),
+    };
   }
 
   async getOptionOrigins() {
-    return { data: ORIGIN_OPTIONS };
+    return {
+      data: ORIGIN_OPTIONS.map((origin) => ({
+        value: origin.id,
+        label: origin.name,
+      })),
+    };
   }
 }
