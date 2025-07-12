@@ -191,3 +191,37 @@ model Accessory {
 
   @@map("accessories")
 }
+
+model Procedure {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  version     String
+
+  subprocesses Subprocess[] @relation("procedure_subprocess_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("procedures")
+}
+
+model Subprocess {
+  id                         Int     @id @default(autoincrement())
+  name                       String
+  description                String?
+  estimatedNumberOfDays      Int
+  numberOfDaysBeforeDeadline Int?
+  roleOfThePersonInCharge    String?
+  isRequired                 Boolean @default(false)
+  isStepWithCost             Boolean @default(false)
+
+  procedureId Int
+  procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_subprocess_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([procedureId])
+  @@map("subprocesses")
+}
