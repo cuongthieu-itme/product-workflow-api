@@ -182,6 +182,7 @@ model Accessory {
   id          Int      @id @default(autoincrement())
   name        String
   code        String
+  quantity    Int
   description String?
   image       String[]
   isActive    Boolean  @default(true)

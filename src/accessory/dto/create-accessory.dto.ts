@@ -4,6 +4,7 @@ import {
   IsOptional,
   IsArray,
   IsBoolean,
+  IsInt,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
@@ -21,6 +22,12 @@ export class CreateAccessoryDto {
   @IsString()
   @IsNotEmpty()
   code: string;
+
+  @ApiProperty({
+    example: '',
+  })
+  @IsInt()
+  quantity: number;
 
   @ApiProperty({
     example: '',

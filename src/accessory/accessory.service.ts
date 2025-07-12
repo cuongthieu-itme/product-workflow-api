@@ -96,6 +96,7 @@ export class AccessoryService {
       data: {
         name: dto.name,
         code: dto.code,
+        quantity: dto.quantity,
         description: dto.description,
         image: dto.image || [],
         isActive: dto.isActive,
@@ -104,6 +105,7 @@ export class AccessoryService {
         id: true,
         name: true,
         code: true,
+        quantity: true,
         description: true,
         image: true,
         isActive: true,
