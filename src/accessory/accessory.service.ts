@@ -151,6 +151,7 @@ export class AccessoryService {
         id: true,
         name: true,
         code: true,
+        quantity: true,
         description: true,
         image: true,
         isActive: true,
