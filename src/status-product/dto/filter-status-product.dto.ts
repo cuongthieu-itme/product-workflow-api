@@ -4,7 +4,6 @@ import { Transform } from 'class-transformer';
 
 export class FilterStatusProductDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -12,7 +11,6 @@ export class FilterStatusProductDTO {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -20,7 +18,6 @@ export class FilterStatusProductDTO {
   description?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -28,7 +25,6 @@ export class FilterStatusProductDTO {
   color?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -36,7 +32,6 @@ export class FilterStatusProductDTO {
   procedureId?: number;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -45,7 +40,6 @@ export class FilterStatusProductDTO {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()

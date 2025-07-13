@@ -8,33 +8,25 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateStatusProductDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(1)
   name: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(4)
   color: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsString()
   @MinLength(4)
-  description: string;
+  description?: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   procedureId: number;
