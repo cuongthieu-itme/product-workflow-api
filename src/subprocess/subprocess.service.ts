@@ -72,6 +72,7 @@ export class SubprocessService {
         isRequired: true,
         isStepWithCost: true,
         procedureId: true,
+        step: true,
         procedure: {
           select: {
             id: true,
@@ -101,6 +102,7 @@ export class SubprocessService {
         isRequired: true,
         isStepWithCost: true,
         procedureId: true,
+        step: true,
         procedure: {
           select: {
             id: true,
@@ -155,6 +157,7 @@ export class SubprocessService {
         isRequired: dto.isRequired || false,
         isStepWithCost: dto.isStepWithCost || false,
         procedureId: dto.procedureId,
+        step: dto.step,
       },
       select: {
         id: true,
@@ -166,6 +169,7 @@ export class SubprocessService {
         isRequired: true,
         isStepWithCost: true,
         procedureId: true,
+        step: true,
         procedure: {
           select: {
             id: true,
@@ -235,6 +239,7 @@ export class SubprocessService {
         isRequired: true,
         isStepWithCost: true,
         procedureId: true,
+        step: true,
         procedure: {
           select: {
             id: true,

@@ -70,4 +70,10 @@ export class CreateSubprocessDto {
   @IsNumber()
   @IsNotEmpty()
   procedureId: number;
+
+  @ApiProperty({
+    example: '',
+  })
+  @IsNumber()
+  step: number;
 }

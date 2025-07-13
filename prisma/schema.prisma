@@ -219,6 +219,7 @@ model Subprocess {
   roleOfThePersonInCharge    String?
   isRequired                 Boolean @default(false)
   isStepWithCost             Boolean @default(false)
+  step                       Int
 
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_subprocess_relation")
