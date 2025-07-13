@@ -1,4 +1,10 @@
-import { IsNotEmpty, IsOptional, IsString, MinLength } from 'class-validator';
+import {
+  IsNotEmpty,
+  IsNumber,
+  IsOptional,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateStatusProductDTO {
@@ -29,8 +35,7 @@ export class CreateStatusProductDTO {
   @ApiProperty({
     example: '',
   })
-  @IsOptional()
-  @IsString()
-  @MinLength(4)
-  procedure: string;
+  @IsNotEmpty()
+  @IsNumber()
+  procedureId: number;
 }

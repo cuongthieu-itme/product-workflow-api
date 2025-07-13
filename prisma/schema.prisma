@@ -105,7 +105,9 @@ model StatusProduct {
   name        String  @unique
   description String?
   color       String
-  procedure   String?
+
+  procedureId Int
+  procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_status_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -199,7 +201,8 @@ model Procedure {
   description String?
   version     String
 
-  subprocesses Subprocess[] @relation("procedure_subprocess_relation")
+  statusProducts StatusProduct[] @relation("procedure_status_relation")
+  subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

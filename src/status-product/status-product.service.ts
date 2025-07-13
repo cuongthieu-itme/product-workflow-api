@@ -36,6 +36,10 @@ export class StatusProductService {
           mode: 'insensitive',
         };
       }
+
+      if (filters.procedureId) {
+        whereCondition.procedureId = filters.procedureId;
+      }
     }
 
     const page = filters?.page || 1;
@@ -55,9 +59,15 @@ export class StatusProductService {
         name: true,
         description: true,
         color: true,
-        procedure: true,
+        procedureId: true,
         createdAt: true,
         updatedAt: true,
+        procedure: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -72,9 +82,15 @@ export class StatusProductService {
         name: true,
         description: true,
         color: true,
-        procedure: true,
+        procedureId: true,
         createdAt: true,
         updatedAt: true,
+        procedure: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -102,16 +118,22 @@ export class StatusProductService {
         name: dto.name,
         description: dto.description,
         color: dto.color,
-        procedure: dto.procedure,
+        procedureId: dto.procedureId,
       },
       select: {
         id: true,
         name: true,
         description: true,
         color: true,
-        procedure: true,
+        procedureId: true,
         createdAt: true,
         updatedAt: true,
+        procedure: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
@@ -151,9 +173,15 @@ export class StatusProductService {
         name: true,
         description: true,
         color: true,
-        procedure: true,
+        procedureId: true,
         createdAt: true,
         updatedAt: true,
+        procedure: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
       },
     });
 
