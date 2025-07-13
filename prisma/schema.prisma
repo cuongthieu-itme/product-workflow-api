@@ -199,7 +199,7 @@ model Procedure {
   id          Int     @id @default(autoincrement())
   name        String
   description String?
-  version     String
+  version     Int     @default(1)
 
   statusProducts StatusProduct[] @relation("procedure_status_relation")
   subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")

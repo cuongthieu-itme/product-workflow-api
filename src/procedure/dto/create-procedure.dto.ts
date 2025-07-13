@@ -16,11 +16,4 @@ export class CreateProcedureDto {
   @IsString()
   @IsOptional()
   description?: string;
-
-  @ApiProperty({
-    example: '',
-  })
-  @IsString()
-  @IsNotEmpty()
-  version: string;
 }

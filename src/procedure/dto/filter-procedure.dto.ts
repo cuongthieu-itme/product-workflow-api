@@ -20,14 +20,6 @@ export class FilterProcedureDto {
   description?: string;
 
   @ApiProperty({
-    example: '',
-    required: false,
-  })
-  @IsString()
-  @IsOptional()
-  version?: string;
-
-  @ApiProperty({
     example: 1,
     required: false,
   })

@@ -18,6 +18,7 @@ import {
   CreateProcedureDto,
   UpdateProcedureDto,
   FilterProcedureDto,
+  CreateOrUpdateProcedureDto,
 } from './dto';
 import { AuthGuard } from 'src/common/decorators';
 
@@ -49,6 +50,17 @@ export class ProcedureController {
     @Body(new ValidationPipe()) createProcedureDto: CreateProcedureDto,
   ) {
     return this.procedureService.create(createProcedureDto);
+  }
+
+  @Post('create-or-update')
+  @ApiOperation({
+    summary: 'Tạo mới hoặc cập nhật quy trình kèm quy trình con',
+  })
+  async createOrUpdate(
+    @Body(new ValidationPipe())
+    dto: CreateOrUpdateProcedureDto,
+  ) {
+    return this.procedureService.createOrUpdate(dto);
   }
 
   @Patch(':id')

@@ -5,6 +5,7 @@ import {
 } from '@nestjs/common';
 import { CreateProcedureDto } from './dto/create-procedure.dto';
 import { UpdateProcedureDto } from './dto/update-procedure.dto';
+import { CreateOrUpdateProcedureDto } from './dto/create-or-update-procedure.dto';
 import { FilterProcedureDto } from './dto/filter-procedure.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 
@@ -26,13 +27,6 @@ export class ProcedureService {
       if (filters.description) {
         whereCondition.description = {
           contains: filters.description,
-          mode: 'insensitive',
-        };
-      }
-
-      if (filters.version) {
-        whereCondition.version = {
-          contains: filters.version,
           mode: 'insensitive',
         };
       }
@@ -111,7 +105,6 @@ export class ProcedureService {
     const existingProcedure = await this.prismaService.procedure.findFirst({
       where: {
         name: dto.name,
-        version: dto.version,
       },
     });
 
@@ -125,7 +118,6 @@ export class ProcedureService {
       data: {
         name: dto.name,
         description: dto.description,
-        version: dto.version,
       },
       select: {
         id: true,
@@ -155,6 +147,76 @@ export class ProcedureService {
     };
   }
 
+  async createOrUpdate(dto: CreateOrUpdateProcedureDto) {
+    const { id, subprocesses = [], ...procedureData } = dto;
+
+    if (id) {
+      const existingProcedure = await this.prismaService.procedure.findUnique({
+        where: { id },
+      });
+      if (!existingProcedure) {
+        throw new NotFoundException(`Không tìm thấy quy trình với ID ${id}`);
+      }
+
+      const result = await this.prismaService.$transaction(async (tx) => {
+        await tx.subprocess.deleteMany({ where: { procedureId: id } });
+
+        const updatedProcedure = await tx.procedure.update({
+          where: { id },
+          data: {
+            ...procedureData,
+            version: { increment: 1 },
+          },
+        });
+
+        if (subprocesses.length) {
+          await tx.subprocess.createMany({
+            data: subprocesses.map((sp) => ({
+              ...sp,
+              procedureId: id,
+            })),
+          });
+        }
+
+        return updatedProcedure;
+      });
+
+      return {
+        message: 'Cập nhật quy trình thành công',
+        data: await this.findOne(result.id),
+      };
+    }
+
+    const duplicated = await this.prismaService.procedure.findFirst({
+      where: { name: procedureData.name },
+    });
+    if (duplicated) {
+      throw new ConflictException('Quy trình với tên này đã tồn tại');
+    }
+
+    const newProcedure = await this.prismaService.$transaction(async (tx) => {
+      const created = await tx.procedure.create({
+        data: procedureData,
+      });
+
+      if (subprocesses.length) {
+        await tx.subprocess.createMany({
+          data: subprocesses.map((sp) => ({
+            ...sp,
+            procedureId: created.id,
+          })),
+        });
+      }
+
+      return created;
+    });
+
+    return {
+      message: 'Tạo quy trình thành công',
+      data: await this.findOne(newProcedure.id),
+    };
+  }
+
   async update(id: number, dto: UpdateProcedureDto) {
     const existingProcedure = await this.prismaService.procedure.findUnique({
       where: { id },
@@ -164,11 +226,10 @@ export class ProcedureService {
       throw new NotFoundException(`Không tìm thấy quy trình với ID ${id}`);
     }
 
-    if (dto.name && dto.version) {
+    if (dto.name) {
       const duplicatedProcedure = await this.prismaService.procedure.findFirst({
         where: {
           name: dto.name,
-          version: dto.version,
           id: { not: id },
         },
       });
@@ -182,7 +243,12 @@ export class ProcedureService {
 
     const updatedProcedure = await this.prismaService.procedure.update({
       where: { id },
-      data: dto,
+      data: {
+        ...dto,
+        version: {
+          increment: 1,
+        },
+      },
       select: {
         id: true,
         name: true,
