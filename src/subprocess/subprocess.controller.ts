@@ -15,6 +15,7 @@ import {
   CreateSubprocessDto,
   UpdateSubprocessDto,
   FilterSubprocessDto,
+  ReorderStepsDto,
 } from './dto';
 import { AuthGuard } from 'src/common/decorators';
 
@@ -53,6 +54,12 @@ export class SubprocessController {
     @Body() updateSubprocessDto: UpdateSubprocessDto,
   ) {
     return this.subprocessService.update(id, updateSubprocessDto);
+  }
+
+  @Patch('reorder')
+  @ApiOperation({ summary: 'Cập nhật thứ tự bước' })
+  async reorder(@Body() dto: ReorderStepsDto) {
+    return this.subprocessService.reorderSteps(dto);
   }
 
   @Delete(':id')
