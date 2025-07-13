@@ -9,47 +9,31 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateAccessoryDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   code: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsInt()
   quantity: number;
 
-  @ApiProperty({
-    example: '',
-    required: false,
-  })
+  @ApiProperty()
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiProperty({
-    example: [''],
-    required: false,
-    type: [String],
-  })
+  @ApiProperty()
   @IsArray()
   @IsString({ each: true })
   image: string[];
 
-  @ApiProperty({
-    example: true,
-    default: true,
-  })
+  @ApiProperty()
   @IsBoolean()
   @IsNotEmpty()
   isActive: boolean;

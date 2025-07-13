@@ -4,7 +4,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FilterAccessoryDto {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -12,7 +11,6 @@ export class FilterAccessoryDto {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -20,7 +18,6 @@ export class FilterAccessoryDto {
   code?: string;
 
   @ApiProperty({
-    example: true,
     required: false,
   })
   @IsBoolean()
@@ -33,7 +30,6 @@ export class FilterAccessoryDto {
   isActive?: boolean;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -42,7 +38,6 @@ export class FilterAccessoryDto {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()
