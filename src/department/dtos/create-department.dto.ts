@@ -1,4 +1,4 @@
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsNotEmpty,
   IsOptional,
@@ -8,30 +8,22 @@ import {
 } from 'class-validator';
 
 export class CreateDepartmentDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({
-    example: '',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiPropertyOptional({
-    example: 1,
-  })
+  @ApiProperty()
   @IsOptional()
   @IsInt()
   headId?: number;
 
-  @ApiPropertyOptional({
-    example: [2, 3, 4],
-  })
+  @ApiProperty()
   @IsOptional()
   @IsArray()
   @IsInt({ each: true })

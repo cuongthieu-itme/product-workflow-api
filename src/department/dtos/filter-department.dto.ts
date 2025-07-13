@@ -4,7 +4,6 @@ import { Transform } from 'class-transformer';
 
 export class FilterDepartmentDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -12,7 +11,6 @@ export class FilterDepartmentDTO {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -20,7 +18,6 @@ export class FilterDepartmentDTO {
   description?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -28,7 +25,6 @@ export class FilterDepartmentDTO {
   headId?: string;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -37,7 +33,6 @@ export class FilterDepartmentDTO {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()

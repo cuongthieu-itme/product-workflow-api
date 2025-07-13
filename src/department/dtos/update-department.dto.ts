@@ -1,33 +1,4 @@
-import { ApiPropertyOptional } from '@nestjs/swagger';
-import { IsOptional, IsString, IsInt, IsArray } from 'class-validator';
+import { PartialType } from '@nestjs/mapped-types';
+import { CreateDepartmentDTO } from './create-department.dto';
 
-export class UpdateDepartmentDTO {
-  @ApiPropertyOptional({
-    example: '',
-  })
-  @IsOptional()
-  @IsString()
-  name?: string;
-
-  @ApiPropertyOptional({
-    example: '',
-  })
-  @IsOptional()
-  @IsString()
-  description?: string;
-
-  @ApiPropertyOptional({
-    example: 1,
-  })
-  @IsOptional()
-  @IsInt()
-  headId?: number;
-
-  @ApiPropertyOptional({
-    example: [2, 3, 4],
-  })
-  @IsOptional()
-  @IsArray()
-  @IsInt({ each: true })
-  memberIds?: number[];
-}
+export class UpdateDepartmentDTO extends PartialType(CreateDepartmentDTO) {}
