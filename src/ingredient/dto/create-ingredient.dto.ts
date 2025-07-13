@@ -9,42 +9,31 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateIngredientDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   code: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsInt()
   quantity: number;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   unit: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   origin: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -52,7 +41,6 @@ export class CreateIngredientDto {
   description?: string;
 
   @ApiProperty({
-    example: [''],
     required: false,
     type: [String],
   })
@@ -61,7 +49,6 @@ export class CreateIngredientDto {
   image: string[];
 
   @ApiProperty({
-    example: true,
     default: true,
   })
   @IsBoolean()
