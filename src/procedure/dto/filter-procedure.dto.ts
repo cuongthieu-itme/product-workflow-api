@@ -4,7 +4,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FilterProcedureDto {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -12,7 +11,6 @@ export class FilterProcedureDto {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -20,7 +18,6 @@ export class FilterProcedureDto {
   description?: string;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -29,7 +26,6 @@ export class FilterProcedureDto {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()

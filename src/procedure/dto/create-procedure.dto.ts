@@ -2,15 +2,12 @@ import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProcedureDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
