@@ -10,47 +10,32 @@ import { ApiProperty } from '@nestjs/swagger';
 import { CustomerSource, Gender } from '@prisma/client';
 
 export class CreateCustomerDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   fullName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   phoneNumber: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @ApiProperty({
-    example: '',
-    enum: Gender,
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsEnum(Gender)
   gender: Gender;
 
-  @ApiProperty({
-    example: '',
-    required: false,
-  })
+  @ApiProperty()
   @IsOptional()
   @IsDateString()
   dateOfBirth?: string;
 
-  @ApiProperty({
-    example: '',
-    enum: CustomerSource,
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsEnum(CustomerSource)
   source: CustomerSource;

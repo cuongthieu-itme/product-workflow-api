@@ -5,7 +5,6 @@ import { CustomerSource, Gender } from '@prisma/client';
 
 export class FilterCustomerDto {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -13,7 +12,6 @@ export class FilterCustomerDto {
   fullName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -21,7 +19,6 @@ export class FilterCustomerDto {
   phoneNumber?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -29,7 +26,6 @@ export class FilterCustomerDto {
   email?: string;
 
   @ApiProperty({
-    example: '',
     enum: Gender,
     required: false,
   })
@@ -38,7 +34,6 @@ export class FilterCustomerDto {
   gender?: Gender;
 
   @ApiProperty({
-    example: '',
     enum: CustomerSource,
     required: false,
   })
@@ -47,7 +42,6 @@ export class FilterCustomerDto {
   source?: CustomerSource;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -56,7 +50,6 @@ export class FilterCustomerDto {
   userId?: number;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -65,7 +58,6 @@ export class FilterCustomerDto {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()
