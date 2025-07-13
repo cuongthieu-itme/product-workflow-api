@@ -8,16 +8,13 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateProductDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(1)
   name: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -25,9 +22,7 @@ export class CreateProductDto {
   @MinLength(1)
   description?: string;
 
-  @ApiProperty({
-    example: 1,
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsInt()
   categoryId: number;
