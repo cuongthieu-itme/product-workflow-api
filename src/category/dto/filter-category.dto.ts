@@ -4,7 +4,6 @@ import { Transform } from 'class-transformer';
 
 export class FilterCategoryDto {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -12,7 +11,6 @@ export class FilterCategoryDto {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -20,7 +18,6 @@ export class FilterCategoryDto {
   description?: string;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -29,7 +26,6 @@ export class FilterCategoryDto {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()
