@@ -10,7 +10,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateProfileDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -20,7 +19,6 @@ export class UpdateProfileDTO {
   fullName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -31,7 +29,6 @@ export class UpdateProfileDTO {
   userName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -40,7 +37,6 @@ export class UpdateProfileDTO {
   email?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -49,7 +45,6 @@ export class UpdateProfileDTO {
   phoneNumber?: string;
 
   @ApiProperty({
-    example: 'avatar.jpg',
     required: false,
   })
   @IsOptional()
@@ -57,7 +52,6 @@ export class UpdateProfileDTO {
   avatar?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()

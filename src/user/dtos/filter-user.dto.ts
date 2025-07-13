@@ -13,7 +13,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class FilterUserDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -21,7 +20,6 @@ export class FilterUserDTO {
   fullName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -29,7 +27,6 @@ export class FilterUserDTO {
   userName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -37,7 +34,6 @@ export class FilterUserDTO {
   email?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -45,7 +41,6 @@ export class FilterUserDTO {
   phoneNumber?: string;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -55,7 +50,6 @@ export class FilterUserDTO {
   departmentId?: number;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -68,7 +62,6 @@ export class FilterUserDTO {
   isVerifiedAccount?: boolean;
 
   @ApiProperty({
-    example: 'USER',
     enum: UserRole,
     required: false,
   })
@@ -77,7 +70,6 @@ export class FilterUserDTO {
   role?: UserRole;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -86,7 +78,6 @@ export class FilterUserDTO {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()

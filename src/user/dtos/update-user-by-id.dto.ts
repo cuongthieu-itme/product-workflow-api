@@ -9,7 +9,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class UpdateBaseUserInfoByIdDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -18,7 +17,6 @@ export class UpdateBaseUserInfoByIdDTO {
   fullName?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -29,7 +27,6 @@ export class UpdateBaseUserInfoByIdDTO {
 
 export class UpdateUserByIdDTO extends UpdateBaseUserInfoByIdDTO {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()

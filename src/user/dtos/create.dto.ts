@@ -14,18 +14,14 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(2)
   @MaxLength(100)
   fullName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(3)
@@ -33,23 +29,17 @@ export class CreateDTO {
   @Matches(/^[a-zA-Z0-9_]+$/)
   userName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsEmail()
   email: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsOptional()
   @IsString()
   avatar: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
@@ -57,7 +47,6 @@ export class CreateDTO {
   password: string;
 
   @ApiProperty({
-    example: 'USER',
     enum: UserRole,
   })
   @IsNotEmpty()
@@ -65,7 +54,6 @@ export class CreateDTO {
   role: UserRole;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsOptional()
@@ -74,7 +62,6 @@ export class CreateDTO {
   phoneNumber?: string;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
