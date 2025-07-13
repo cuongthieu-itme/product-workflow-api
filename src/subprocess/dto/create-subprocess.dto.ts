@@ -6,33 +6,27 @@ import {
   IsString,
   Min,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateSubprocessDto {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @IsNotEmpty()
   name: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
   @IsOptional()
   description?: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNumber()
   @Min(1)
   estimatedNumberOfDays: number;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsNumber()
@@ -41,7 +35,6 @@ export class CreateSubprocessDto {
   numberOfDaysBeforeDeadline?: number;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -49,7 +42,6 @@ export class CreateSubprocessDto {
   roleOfThePersonInCharge?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsBoolean()
@@ -57,23 +49,18 @@ export class CreateSubprocessDto {
   isRequired?: boolean;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsBoolean()
   @IsOptional()
   isStepWithCost?: boolean;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNumber()
   @IsNotEmpty()
   procedureId: number;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNumber()
   step: number;
 }

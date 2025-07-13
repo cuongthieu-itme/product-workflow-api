@@ -1,25 +1,19 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsArray,
-  IsInt,
-  IsNotEmpty,
-  ValidateNested,
-  ArrayNotEmpty,
-} from 'class-validator';
+import { IsArray, IsInt, ValidateNested, ArrayNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 
 class StepOrderItem {
-  @ApiProperty({ example: 1 })
+  @ApiProperty()
   @IsInt()
   id: number;
 
-  @ApiProperty({ example: 2 })
+  @ApiProperty()
   @IsInt()
   step: number;
 }
 
 export class ReorderStepsDto {
-  @ApiProperty({ example: 1 })
+  @ApiProperty()
   @IsInt()
   procedureId: number;
 

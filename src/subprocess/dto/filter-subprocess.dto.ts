@@ -4,14 +4,12 @@ import {
   IsNumber,
   IsOptional,
   IsString,
-  Min,
 } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
 export class FilterSubprocessDto {
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -19,7 +17,6 @@ export class FilterSubprocessDto {
   name?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -27,7 +24,6 @@ export class FilterSubprocessDto {
   description?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsString()
@@ -35,7 +31,6 @@ export class FilterSubprocessDto {
   roleOfThePersonInCharge?: string;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsBoolean()
@@ -44,7 +39,6 @@ export class FilterSubprocessDto {
   isRequired?: boolean;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsBoolean()
@@ -53,7 +47,6 @@ export class FilterSubprocessDto {
   isStepWithCost?: boolean;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   @IsNumber()
@@ -62,7 +55,6 @@ export class FilterSubprocessDto {
   procedureId?: number;
 
   @ApiProperty({
-    example: 1,
     required: false,
   })
   @IsOptional()
@@ -71,7 +63,6 @@ export class FilterSubprocessDto {
   page?: number;
 
   @ApiProperty({
-    example: 10,
     required: false,
   })
   @IsOptional()
