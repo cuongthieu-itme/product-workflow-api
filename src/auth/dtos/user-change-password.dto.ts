@@ -21,22 +21,16 @@ export class MatchPasswordsConstraint implements ValidatorConstraintInterface {
 }
 
 export class UserChangePasswordDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   oldPassword: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @MinLength(8)
   newPassword: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsString()
   @Validate(MatchPasswordsConstraint)
   confirmPassword: string;

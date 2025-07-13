@@ -2,111 +2,71 @@ import { ApiProperty } from '@nestjs/swagger';
 import { UserRole } from '@prisma/client';
 
 export class LoginResponseDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   accessToken: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   userEmail: string;
 }
 
 export class SignupResponseDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   accessToken: string;
 }
 
 export class UserResponseDTO {
-  @ApiProperty({
-    example: 0,
-  })
+  @ApiProperty()
   id: number;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   fullName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   userName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   email: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   phoneNumber?: string;
 
-  @ApiProperty({
-    example: true,
-  })
+  @ApiProperty()
   isVerifiedAccount: boolean;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   verifiedDate?: Date;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   role: UserRole;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   lastLoginDate?: Date;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   createdAt?: Date;
 }
 
 export class ApiErrorResponseDTO {
-  @ApiProperty({
-    example: 0,
-  })
+  @ApiProperty()
   statusCode: number;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   message: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   error: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   timestamp: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   path: string;
 }
 
 export class SuccessResponseDTO {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   message: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   status?: string;
 }

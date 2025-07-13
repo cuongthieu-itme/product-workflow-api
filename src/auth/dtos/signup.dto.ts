@@ -11,33 +11,22 @@ export class SignupDTO extends PickType(CreateUserDTO, [
   'role',
   'phoneNumber',
 ]) {
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   email: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   fullName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   userName: string;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   password: string;
 
-  @ApiProperty({
-    example: 'USER',
-  })
+  @ApiProperty()
   role: UserRole;
 
   @ApiProperty({
-    example: '',
     required: false,
   })
   phoneNumber?: string;

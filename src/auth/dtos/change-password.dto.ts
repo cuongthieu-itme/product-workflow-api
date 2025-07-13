@@ -2,16 +2,12 @@ import { IsNotEmpty, IsString, MinLength, IsNumber } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ChangePasswordDTO {
-  @ApiProperty({
-    example: 1,
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsNumber()
   id: number;
 
-  @ApiProperty({
-    example: '',
-  })
+  @ApiProperty()
   @IsNotEmpty()
   @IsString()
   @MinLength(8)
