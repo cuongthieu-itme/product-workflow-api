@@ -63,4 +63,11 @@ export class CreateSubprocessDto {
   @ApiProperty()
   @IsNumber()
   step: number;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsNumber()
+  @IsOptional()
+  departmentId?: number;
 }

@@ -49,6 +49,10 @@ export class SubprocessService {
       if (filters.procedureId) {
         whereCondition.procedureId = filters.procedureId;
       }
+
+      if (filters.departmentId) {
+        whereCondition.departmentId = filters.departmentId;
+      }
     }
 
     const page = filters?.page || 1;
@@ -82,6 +86,12 @@ export class SubprocessService {
             version: true,
           },
         },
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -112,6 +122,12 @@ export class SubprocessService {
             version: true,
           },
         },
+        department: {
+          select: {
+            id: true,
+            name: true,
+          },
+        },
         createdAt: true,
         updatedAt: true,
       },
@@ -139,6 +155,7 @@ export class SubprocessService {
       where: {
         name: dto.name,
         procedureId: dto.procedureId,
+        departmentId: dto.departmentId,
       },
     });
 
@@ -152,6 +169,7 @@ export class SubprocessService {
       where: {
         step: dto.step,
         procedureId: dto.procedureId,
+        departmentId: dto.departmentId,
       },
     });
 
@@ -170,6 +188,7 @@ export class SubprocessService {
         isStepWithCost: dto.isStepWithCost || false,
         procedureId: dto.procedureId,
         step: dto.step,
+        departmentId: dto.departmentId,
       },
       select: {
         id: true,
@@ -188,6 +207,12 @@ export class SubprocessService {
             name: true,
             description: true,
             version: true,
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
           },
         },
         createdAt: true,
@@ -279,6 +304,12 @@ export class SubprocessService {
             name: true,
             description: true,
             version: true,
+          },
+        },
+        department: {
+          select: {
+            id: true,
+            name: true,
           },
         },
         createdAt: true,

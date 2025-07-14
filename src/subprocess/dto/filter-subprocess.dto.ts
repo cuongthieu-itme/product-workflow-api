@@ -57,6 +57,14 @@ export class FilterSubprocessDto {
   @ApiProperty({
     required: false,
   })
+  @IsNumber()
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value))
+  departmentId?: number;
+
+  @ApiProperty({
+    required: false,
+  })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
