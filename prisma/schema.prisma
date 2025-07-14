@@ -28,6 +28,11 @@ enum Gender {
   OTHER
 }
 
+enum SourceRequest {
+  CUSTOMER
+  OTHER
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -50,6 +55,7 @@ model User {
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
+  requests            Request[]            @relation("user_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -109,6 +115,8 @@ model StatusProduct {
 
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_status_relation")
+
+  requests Request[] @relation("status_product_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -175,9 +183,13 @@ model Ingredient {
   image       String[]
   isActive    Boolean  @default(true)
 
+  requestId Int?
+  request   Request? @relation(fields: [requestId], references: [id], name: "ingredient_request_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([requestId])
   @@map("ingredients")
 }
 
@@ -190,9 +202,13 @@ model Accessory {
   image       String[]
   isActive    Boolean  @default(true)
 
+  requestId Int?
+  request   Request? @relation(fields: [requestId], references: [id], name: "accessory_request_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  @@index([requestId])
   @@map("accessories")
 }
 
@@ -234,4 +250,31 @@ model Subprocess {
   @@index([procedureId])
   @@index([departmentId])
   @@map("subprocesses")
+}
+
+model Request {
+  id             Int           @id @default(autoincrement())
+  title          String
+  description    String?
+  productLink    String[]
+  image          String[]
+  source         SourceRequest
+  nameSource     String?
+  specificSource String?
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], name: "user_request_relation")
+
+  statusProductId Int
+  statusProduct   StatusProduct @relation(fields: [statusProductId], references: [id], name: "status_product_request_relation")
+
+  ingredients Ingredient[] @relation("ingredient_request_relation")
+  accessories Accessory[]  @relation("accessory_request_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([statusProductId])
+  @@map("requests")
 }
