@@ -53,6 +53,11 @@ class SubprocessDto {
   @ApiProperty()
   @IsInt()
   step: number;
+
+  @ApiProperty({ required: false })
+  @IsInt()
+  @IsOptional()
+  departmentId?: number;
 }
 
 export class CreateOrUpdateProcedureDto {
