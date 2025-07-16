@@ -59,6 +59,13 @@ export class ProcedureService {
             roleOfThePersonInCharge: true,
             isRequired: true,
             isStepWithCost: true,
+            step: true,
+            department: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         createdAt: true,
