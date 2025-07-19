@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { IsOptional, IsString, IsInt, IsEnum } from 'class-validator';
 import { Transform } from 'class-transformer';
-import { SourceRequest } from '@prisma/client';
+import { SourceRequest, Material } from '@prisma/client';
 
 export class FilterRequestDto {
   @ApiProperty({
@@ -24,7 +24,15 @@ export class FilterRequestDto {
   })
   @IsOptional()
   @IsEnum(SourceRequest)
-  source?: SourceRequest;
+  sourceType?: SourceRequest;
+
+  @ApiProperty({
+    enum: Material,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(Material)
+  materialType?: Material;
 
   @ApiProperty({
     required: false,

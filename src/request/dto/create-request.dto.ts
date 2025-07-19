@@ -9,7 +9,7 @@ import {
   MinLength,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { SourceRequest } from '@prisma/client';
+import { SourceRequest, Material } from '@prisma/client';
 
 export class CreateRequestDto {
   @ApiProperty()
@@ -48,13 +48,40 @@ export class CreateRequestDto {
   })
   @IsNotEmpty()
   @IsEnum(SourceRequest)
-  source: SourceRequest;
+  sourceType: SourceRequest;
+
+  @ApiProperty({
+    enum: Material,
+  })
+  @IsNotEmpty()
+  @IsEnum(Material)
+  materialType: Material;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
   customerId: number;
+
+  @ApiProperty({
+    type: [Number],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  ingredientIds?: number[];
+
+  @ApiProperty({
+    type: [Number],
+    required: false,
+  })
+  @IsOptional()
+  @IsArray()
+  @IsInt({ each: true })
+  @IsPositive({ each: true })
+  accessoryIds?: number[];
 
   @ApiProperty()
   @IsNotEmpty()

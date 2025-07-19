@@ -33,6 +33,11 @@ enum SourceRequest {
   OTHER
 }
 
+enum Material {
+  INGREDIENT
+  ACCESSORY
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -182,13 +187,11 @@ model Ingredient {
   image       String[]
   isActive    Boolean  @default(true)
 
-  requestId Int?
-  request   Request? @relation(fields: [requestId], references: [id], name: "ingredient_request_relation")
+  requests Request[] @relation("request_ingredients")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([requestId])
   @@map("ingredients")
 }
 
@@ -201,13 +204,11 @@ model Accessory {
   image       String[]
   isActive    Boolean  @default(true)
 
-  requestId Int?
-  request   Request? @relation(fields: [requestId], references: [id], name: "accessory_request_relation")
+  requests Request[] @relation("request_accessories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([requestId])
   @@map("accessories")
 }
 
@@ -265,20 +266,21 @@ model SourceOther {
 }
 
 model Request {
-  id          Int           @id @default(autoincrement())
-  title       String
-  description String?
-  productLink String[]
-  media       String[]
-  source      SourceRequest
+  id           Int           @id @default(autoincrement())
+  title        String
+  description  String?
+  productLink  String[]
+  media        String[]
+  sourceType   SourceRequest
+  materialType Material
 
   customerId    Int
   customer      Customer     @relation(fields: [customerId], references: [id], name: "customer_request_relation")
   sourceOtherId Int?
   sourceOther   SourceOther? @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
 
-  ingredients Ingredient[] @relation("ingredient_request_relation")
-  accessories Accessory[]  @relation("accessory_request_relation")
+  ingredients Ingredient[] @relation("request_ingredients")
+  accessories Accessory[]  @relation("request_accessories")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

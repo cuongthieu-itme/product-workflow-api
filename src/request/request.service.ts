@@ -30,8 +30,12 @@ export class RequestService {
         };
       }
 
-      if (filters.source) {
-        whereCondition.source = filters.source;
+      if (filters.sourceType) {
+        whereCondition.sourceType = filters.sourceType;
+      }
+
+      if (filters.materialType) {
+        whereCondition.materialType = filters.materialType;
       }
 
       if (filters.customerId) {
@@ -61,7 +65,8 @@ export class RequestService {
         description: true,
         productLink: true,
         media: true,
-        source: true,
+        sourceType: true,
+        materialType: true,
         customerId: true,
         sourceOtherId: true,
         createdAt: true,
@@ -95,7 +100,8 @@ export class RequestService {
         description: true,
         productLink: true,
         media: true,
-        source: true,
+        sourceType: true,
+        materialType: true,
         customerId: true,
         sourceOtherId: true,
         createdAt: true,
@@ -165,7 +171,8 @@ export class RequestService {
         description: dto.description,
         productLink: dto.productLink || [],
         media: dto.media || [],
-        source: dto.source,
+        sourceType: dto.sourceType,
+        materialType: dto.materialType,
         customerId: dto.customerId,
         sourceOtherId: dto.sourceOtherId,
       },
@@ -175,7 +182,8 @@ export class RequestService {
         description: true,
         productLink: true,
         media: true,
-        source: true,
+        sourceType: true,
+        materialType: true,
         customerId: true,
         sourceOtherId: true,
         createdAt: true,
@@ -243,14 +251,34 @@ export class RequestService {
 
     const updatedRequest = await this.prismaService.request.update({
       where: { id },
-      data: dto,
+      data: {
+        title: dto.title,
+        description: dto.description,
+        productLink: dto.productLink,
+        media: dto.media,
+        sourceType: dto.sourceType,
+        materialType: dto.materialType,
+        customerId: dto.customerId,
+        sourceOtherId: dto.sourceOtherId,
+        ...(dto.ingredientIds && {
+          ingredients: {
+            set: dto.ingredientIds.map((id) => ({ id })),
+          },
+        }),
+        ...(dto.accessoryIds && {
+          accessories: {
+            set: dto.accessoryIds.map((id) => ({ id })),
+          },
+        }),
+      },
       select: {
         id: true,
         title: true,
         description: true,
         productLink: true,
         media: true,
-        source: true,
+        sourceType: true,
+        materialType: true,
         customerId: true,
         sourceOtherId: true,
         createdAt: true,
