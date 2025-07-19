@@ -8,7 +8,6 @@ async function main() {
   console.log('🌱 Starting database seeding...');
 
   try {
-    await seedDepartment(prisma);
     await seedUser(prisma);
 
     console.log('\n🎉 Database seeding completed successfully!');

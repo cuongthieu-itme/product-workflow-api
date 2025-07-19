@@ -13,8 +13,6 @@ import { CustomerModule } from './customer/customer.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { FileModule } from './file/file.module';
-import { IngredientModule } from './ingredient/ingredient.module';
-import { AccessoryModule } from './accessory/accessory.module';
 import { ProcedureModule } from './procedure/procedure.module';
 import { SubprocessModule } from './subprocess/subprocess.module';
 import { RequestModule } from './request/request.module';
@@ -35,8 +33,6 @@ import { RequestModule } from './request/request.module';
     CategoryModule,
     ProductModule,
     FileModule,
-    IngredientModule,
-    AccessoryModule,
     ProcedureModule,
     SubprocessModule,
     RequestModule,
