@@ -269,7 +269,7 @@ model Request {
   title       String
   description String?
   productLink String[]
-  image       String[]
+  media       String[]
   source      SourceRequest
 
   customerId    Int

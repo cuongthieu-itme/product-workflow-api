@@ -41,7 +41,7 @@ export class CreateRequestDto {
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  image?: string[];
+  media?: string[];
 
   @ApiProperty({
     enum: SourceRequest,
