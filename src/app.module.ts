@@ -16,6 +16,8 @@ import { FileModule } from './file/file.module';
 import { ProcedureModule } from './procedure/procedure.module';
 import { SubprocessModule } from './subprocess/subprocess.module';
 import { RequestModule } from './request/request.module';
+import { MaterialModule } from './material/material.module';
+import { OriginModule } from './origin/origin.module';
 
 @Module({
   imports: [
@@ -36,6 +38,8 @@ import { RequestModule } from './request/request.module';
     ProcedureModule,
     SubprocessModule,
     RequestModule,
+    MaterialModule,
+    OriginModule,
   ],
 })
 export class AppModule {}
