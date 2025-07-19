@@ -50,29 +50,15 @@ export class CreateRequestDto {
   @IsEnum(SourceRequest)
   source: SourceRequest;
 
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  nameSource?: string;
-
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  specificSource?: string;
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  customerId: number;
 
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
   @IsPositive()
-  userId: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  @IsPositive()
-  statusProductId: number;
+  sourceOtherId: number;
 }

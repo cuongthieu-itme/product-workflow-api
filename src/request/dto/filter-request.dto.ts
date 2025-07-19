@@ -30,15 +30,9 @@ export class FilterRequestDto {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  nameSource?: string;
-
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  specificSource?: string;
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  customerId?: number;
 
   @ApiProperty({
     required: false,
@@ -46,15 +40,7 @@ export class FilterRequestDto {
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
-  userId?: number;
-
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @Transform(({ value }) => parseInt(value, 10))
-  @IsInt()
-  statusProductId?: number;
+  sourceOtherId?: number;
 
   @ApiProperty({
     required: false,

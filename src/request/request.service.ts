@@ -34,26 +34,12 @@ export class RequestService {
         whereCondition.source = filters.source;
       }
 
-      if (filters.nameSource) {
-        whereCondition.nameSource = {
-          contains: filters.nameSource,
-          mode: 'insensitive',
-        };
+      if (filters.customerId) {
+        whereCondition.customerId = filters.customerId;
       }
 
-      if (filters.specificSource) {
-        whereCondition.specificSource = {
-          contains: filters.specificSource,
-          mode: 'insensitive',
-        };
-      }
-
-      if (filters.userId) {
-        whereCondition.userId = filters.userId;
-      }
-
-      if (filters.statusProductId) {
-        whereCondition.statusProductId = filters.statusProductId;
+      if (filters.sourceOtherId) {
+        whereCondition.sourceOtherId = filters.sourceOtherId;
       }
     }
 
@@ -76,24 +62,22 @@ export class RequestService {
         productLink: true,
         image: true,
         source: true,
-        nameSource: true,
-        specificSource: true,
-        userId: true,
-        statusProductId: true,
+        customerId: true,
+        sourceOtherId: true,
         createdAt: true,
         updatedAt: true,
-        user: {
+        customer: {
           select: {
             id: true,
             fullName: true,
             email: true,
           },
         },
-        statusProduct: {
+        sourceOther: {
           select: {
             id: true,
             name: true,
-            color: true,
+            specifically: true,
           },
         },
       },
@@ -112,24 +96,22 @@ export class RequestService {
         productLink: true,
         image: true,
         source: true,
-        nameSource: true,
-        specificSource: true,
-        userId: true,
-        statusProductId: true,
+        customerId: true,
+        sourceOtherId: true,
         createdAt: true,
         updatedAt: true,
-        user: {
+        customer: {
           select: {
             id: true,
             fullName: true,
             email: true,
           },
         },
-        statusProduct: {
+        sourceOther: {
           select: {
             id: true,
             name: true,
-            color: true,
+            specifically: true,
           },
         },
         ingredients: {
@@ -158,23 +140,22 @@ export class RequestService {
 
   async create(dto: CreateRequestDto) {
     const userExists = await this.prismaService.user.findUnique({
-      where: { id: dto.userId },
+      where: { id: dto.customerId },
     });
 
     if (!userExists) {
       throw new NotFoundException(
-        `Không tìm thấy người dùng với ID ${dto.userId}`,
+        `Không tìm thấy người dùng với ID ${dto.customerId}`,
       );
     }
 
-    const statusProductExists =
-      await this.prismaService.statusProduct.findUnique({
-        where: { id: dto.statusProductId },
-      });
+    const sourceOtherExists = await this.prismaService.sourceOther.findUnique({
+      where: { id: dto.sourceOtherId },
+    });
 
-    if (!statusProductExists) {
+    if (!sourceOtherExists) {
       throw new NotFoundException(
-        `Không tìm thấy trạng thái sản phẩm với ID ${dto.statusProductId}`,
+        `Không tìm thấy trạng thái sản phẩm với ID ${dto.sourceOtherId}`,
       );
     }
 
@@ -185,10 +166,8 @@ export class RequestService {
         productLink: dto.productLink || [],
         image: dto.image || [],
         source: dto.source,
-        nameSource: dto.nameSource,
-        specificSource: dto.specificSource,
-        userId: dto.userId,
-        statusProductId: dto.statusProductId,
+        customerId: dto.customerId,
+        sourceOtherId: dto.sourceOtherId,
       },
       select: {
         id: true,
@@ -197,24 +176,22 @@ export class RequestService {
         productLink: true,
         image: true,
         source: true,
-        nameSource: true,
-        specificSource: true,
-        userId: true,
-        statusProductId: true,
+        customerId: true,
+        sourceOtherId: true,
         createdAt: true,
         updatedAt: true,
-        user: {
+        customer: {
           select: {
             id: true,
             fullName: true,
             email: true,
           },
         },
-        statusProduct: {
+        sourceOther: {
           select: {
             id: true,
             name: true,
-            color: true,
+            specifically: true,
           },
         },
       },
@@ -235,30 +212,31 @@ export class RequestService {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
     }
 
-    if (dto.userId && dto.userId !== existingRequest.userId) {
+    if (dto.customerId && dto.customerId !== existingRequest.customerId) {
       const userExists = await this.prismaService.user.findUnique({
-        where: { id: dto.userId },
+        where: { id: dto.customerId },
       });
 
       if (!userExists) {
         throw new NotFoundException(
-          `Không tìm thấy người dùng với ID ${dto.userId}`,
+          `Không tìm thấy người dùng với ID ${dto.customerId}`,
         );
       }
     }
 
     if (
-      dto.statusProductId &&
-      dto.statusProductId !== existingRequest.statusProductId
+      dto.sourceOtherId &&
+      dto.sourceOtherId !== existingRequest.sourceOtherId
     ) {
-      const statusProductExists =
-        await this.prismaService.statusProduct.findUnique({
-          where: { id: dto.statusProductId },
-        });
+      const sourceOtherExists = await this.prismaService.sourceOther.findUnique(
+        {
+          where: { id: dto.sourceOtherId },
+        },
+      );
 
-      if (!statusProductExists) {
+      if (!sourceOtherExists) {
         throw new NotFoundException(
-          `Không tìm thấy trạng thái sản phẩm với ID ${dto.statusProductId}`,
+          `Không tìm thấy trạng thái sản phẩm với ID ${dto.sourceOtherId}`,
         );
       }
     }
@@ -273,24 +251,22 @@ export class RequestService {
         productLink: true,
         image: true,
         source: true,
-        nameSource: true,
-        specificSource: true,
-        userId: true,
-        statusProductId: true,
+        customerId: true,
+        sourceOtherId: true,
         createdAt: true,
         updatedAt: true,
-        user: {
+        customer: {
           select: {
             id: true,
             fullName: true,
             email: true,
           },
         },
-        statusProduct: {
+        sourceOther: {
           select: {
             id: true,
             name: true,
-            color: true,
+            specifically: true,
           },
         },
       },
