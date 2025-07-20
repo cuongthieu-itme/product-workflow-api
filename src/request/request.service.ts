@@ -193,6 +193,7 @@ export class RequestService {
   }
 
   async create(dto: CreateRequestDto) {
+    // Validate customer if provided
     if (dto.customerId) {
       const customerExists = await this.prismaService.customer.findUnique({
         where: { id: dto.customerId },
@@ -206,6 +207,7 @@ export class RequestService {
       }
     }
 
+    // Validate sourceOther if provided
     if (dto.sourceOtherId) {
       const sourceOtherExists = await this.prismaService.sourceOther.findUnique(
         {
@@ -221,19 +223,23 @@ export class RequestService {
       }
     }
 
+    // Validate and process materials
     let validatedMaterials: any[] = [];
     if (dto.materials && dto.materials.length > 0) {
+      // Remove duplicate materials based on materialId
       const uniqueMaterials = dto.materials.filter(
         (item, index, self) =>
           index === self.findIndex((t) => t.materialId === item.materialId),
       );
 
+      // Get all material IDs
       const materialIds = uniqueMaterials.map((m) => m.materialId);
+
+      // Fetch materials from database
       const existingMaterials = await this.prismaService.material.findMany({
         where: {
           id: { in: materialIds },
           isActive: true,
-          ...(dto.materialType && { type: dto.materialType }),
         },
         select: {
           id: true,
@@ -243,6 +249,7 @@ export class RequestService {
         },
       });
 
+      // Check if all materials exist and are active
       if (existingMaterials.length !== materialIds.length) {
         const existingIds = existingMaterials.map((m) => m.id);
         const missingIds = materialIds.filter(
@@ -253,17 +260,35 @@ export class RequestService {
         );
       }
 
+      // Validate each material
       for (const reqMaterial of uniqueMaterials) {
+        // Check quantity is positive
         if (reqMaterial.quantity <= 0) {
           throw new BadRequestException(
             `Số lượng phải lớn hơn 0 cho vật liệu với ID ${reqMaterial.materialId}`,
           );
         }
 
+        // Find the material in database
         const material = existingMaterials.find(
           (m) => m.id === reqMaterial.materialId,
         );
-        if (material && reqMaterial.quantity > material.quantity) {
+
+        if (!material) {
+          throw new NotFoundException(
+            `Không tìm thấy vật liệu với ID ${reqMaterial.materialId}`,
+          );
+        }
+
+        // Validate material type matches what client specified
+        if (material.type !== reqMaterial.materialType) {
+          throw new BadRequestException(
+            `Vật liệu ${material.name} có loại ${material.type}, không phải ${reqMaterial.materialType}`,
+          );
+        }
+
+        // Check if requested quantity is available
+        if (reqMaterial.quantity > material.quantity) {
           throw new BadRequestException(
             `Số lượng yêu cầu (${reqMaterial.quantity}) vượt quá số lượng có sẵn (${material.quantity}) của vật liệu ${material.name}`,
           );
@@ -273,6 +298,7 @@ export class RequestService {
       validatedMaterials = uniqueMaterials;
     }
 
+    // Create the request
     const newRequest = await this.prismaService.request.create({
       data: {
         title: dto.title,
@@ -280,8 +306,8 @@ export class RequestService {
         productLink: dto.productLink || [],
         media: dto.media || [],
         source: dto.source,
-        customerId: dto.customerId,
-        sourceOtherId: dto.sourceOtherId,
+        customerId: dto.customerId || null,
+        sourceOtherId: dto.sourceOtherId || null,
         requestMaterials:
           validatedMaterials.length > 0
             ? {
@@ -331,6 +357,11 @@ export class RequestService {
               },
             },
           },
+          orderBy: {
+            material: {
+              name: 'asc',
+            },
+          },
         },
       },
     });
@@ -342,6 +373,7 @@ export class RequestService {
   }
 
   async update(id: number, dto: UpdateRequestDto) {
+    // Check if request exists
     const existingRequest = await this.prismaService.request.findUnique({
       where: { id },
       include: {
@@ -359,6 +391,7 @@ export class RequestService {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
     }
 
+    // Validate customer if being updated
     if (
       dto.customerId !== undefined &&
       dto.customerId !== existingRequest.customerId
@@ -377,6 +410,7 @@ export class RequestService {
       }
     }
 
+    // Validate sourceOther if being updated
     if (
       dto.sourceOtherId !== undefined &&
       dto.sourceOtherId !== existingRequest.sourceOtherId
@@ -396,20 +430,24 @@ export class RequestService {
       }
     }
 
+    // Validate and process materials if being updated
     let validatedMaterials: any[] = [];
     if (dto.materials !== undefined) {
       if (dto.materials.length > 0) {
+        // Remove duplicate materials based on materialId
         const uniqueMaterials = dto.materials.filter(
           (item, index, self) =>
             index === self.findIndex((t) => t.materialId === item.materialId),
         );
 
+        // Get all material IDs
         const materialIds = uniqueMaterials.map((m) => m.materialId);
+
+        // Fetch materials from database
         const existingMaterials = await this.prismaService.material.findMany({
           where: {
             id: { in: materialIds },
             isActive: true,
-            ...(dto.materialType && { type: dto.materialType }),
           },
           select: {
             id: true,
@@ -419,6 +457,7 @@ export class RequestService {
           },
         });
 
+        // Check if all materials exist and are active
         if (existingMaterials.length !== materialIds.length) {
           const existingIds = existingMaterials.map((m) => m.id);
           const missingIds = materialIds.filter(
@@ -429,17 +468,35 @@ export class RequestService {
           );
         }
 
+        // Validate each material
         for (const reqMaterial of uniqueMaterials) {
+          // Check quantity is positive
           if (reqMaterial.quantity <= 0) {
             throw new BadRequestException(
               `Số lượng phải lớn hơn 0 cho vật liệu với ID ${reqMaterial.materialId}`,
             );
           }
 
+          // Find the material in database
           const material = existingMaterials.find(
             (m) => m.id === reqMaterial.materialId,
           );
-          if (material && reqMaterial.quantity > material.quantity) {
+
+          if (!material) {
+            throw new NotFoundException(
+              `Không tìm thấy vật liệu với ID ${reqMaterial.materialId}`,
+            );
+          }
+
+          // Validate material type matches what client specified
+          if (material.type !== reqMaterial.materialType) {
+            throw new BadRequestException(
+              `Vật liệu ${material.name} có loại ${material.type}, không phải ${reqMaterial.materialType}`,
+            );
+          }
+
+          // Check if requested quantity is available
+          if (reqMaterial.quantity > material.quantity) {
             throw new BadRequestException(
               `Số lượng yêu cầu (${reqMaterial.quantity}) vượt quá số lượng có sẵn (${material.quantity}) của vật liệu ${material.name}`,
             );
@@ -448,14 +505,20 @@ export class RequestService {
 
         validatedMaterials = uniqueMaterials;
       }
+      // If dto.materials is empty array, validatedMaterials will remain empty
+      // This means we want to remove all materials from the request
     }
 
+    // Update request in transaction
     const updatedRequest = await this.prismaService.$transaction(async (tx) => {
+      // Update materials if materials field is provided in DTO
       if (dto.materials !== undefined) {
+        // Delete all existing request materials
         await tx.requestMaterial.deleteMany({
           where: { requestId: id },
         });
 
+        // Create new request materials if any
         if (validatedMaterials.length > 0) {
           await tx.requestMaterial.createMany({
             data: validatedMaterials.map((m) => ({
@@ -467,6 +530,7 @@ export class RequestService {
         }
       }
 
+      // Prepare update data for request
       const updateData: any = {};
       if (dto.title !== undefined) updateData.title = dto.title;
       if (dto.description !== undefined)
@@ -479,6 +543,7 @@ export class RequestService {
       if (dto.sourceOtherId !== undefined)
         updateData.sourceOtherId = dto.sourceOtherId;
 
+      // Update the request
       return await tx.request.update({
         where: { id },
         data: updateData,

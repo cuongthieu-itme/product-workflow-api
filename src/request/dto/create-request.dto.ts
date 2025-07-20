@@ -25,6 +25,15 @@ export class RequestMaterialDto {
   @IsInt()
   @IsPositive()
   quantity: number;
+
+  @ApiProperty({
+    enum: MaterialType,
+    description:
+      'Material type for validation only - not stored in RequestMaterial table',
+  })
+  @IsNotEmpty()
+  @IsEnum(MaterialType)
+  materialType: MaterialType;
 }
 
 export class CreateRequestDto {
@@ -77,12 +86,4 @@ export class CreateRequestDto {
   @ValidateNested({ each: true })
   @Type(() => RequestMaterialDto)
   materials?: RequestMaterialDto[];
-
-  @ApiProperty({
-    enum: MaterialType,
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(MaterialType)
-  materialType?: MaterialType;
 }
