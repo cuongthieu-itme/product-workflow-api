@@ -7,12 +7,11 @@ import {
   IsPositive,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { SourceRequest, MaterialType } from '@prisma/client';
+import { SourceRequest, MaterialType, RequestStatus } from '@prisma/client';
 
 export class FilterRequestDto {
   @ApiProperty({
     required: false,
-    description: 'Filter by title (case insensitive partial match)',
   })
   @IsOptional()
   @IsString()
@@ -20,7 +19,6 @@ export class FilterRequestDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by description (case insensitive partial match)',
   })
   @IsOptional()
   @IsString()
@@ -29,7 +27,6 @@ export class FilterRequestDto {
   @ApiProperty({
     enum: SourceRequest,
     required: false,
-    description: 'Filter by source type',
   })
   @IsOptional()
   @IsEnum(SourceRequest)
@@ -37,7 +34,6 @@ export class FilterRequestDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by customer ID',
   })
   @IsOptional()
   @Type(() => Number)
@@ -47,7 +43,6 @@ export class FilterRequestDto {
 
   @ApiProperty({
     required: false,
-    description: 'Filter by source other ID',
   })
   @IsOptional()
   @Type(() => Number)
@@ -58,7 +53,6 @@ export class FilterRequestDto {
   @ApiProperty({
     enum: MaterialType,
     required: false,
-    description: 'Filter requests by material type',
   })
   @IsOptional()
   @IsEnum(MaterialType)
@@ -66,8 +60,14 @@ export class FilterRequestDto {
 
   @ApiProperty({
     required: false,
+  })
+  @IsOptional()
+  @IsEnum(RequestStatus)
+  status?: RequestStatus;
+
+  @ApiProperty({
+    required: false,
     default: 1,
-    description: 'Page number for pagination',
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))
@@ -78,7 +78,6 @@ export class FilterRequestDto {
   @ApiProperty({
     required: false,
     default: 10,
-    description: 'Number of items per page',
   })
   @IsOptional()
   @Transform(({ value }) => parseInt(value, 10))

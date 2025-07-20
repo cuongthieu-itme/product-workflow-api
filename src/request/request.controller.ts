@@ -14,6 +14,7 @@ import { RequestService } from './request.service';
 import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
+import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
@@ -60,6 +61,18 @@ export class RequestController {
     @Body() updateRequestDto: UpdateRequestDto,
   ) {
     return this.requestService.update(id, updateRequestDto);
+  }
+
+  @ApiOperation({
+    summary: 'Cập nhật trạng thái yêu cầu',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put(':id/status')
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() dto: UpdateRequestStatusDto,
+  ) {
+    return this.requestService.updateStatus(id, dto.status);
   }
 
   @ApiOperation({

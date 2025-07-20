@@ -38,6 +38,12 @@ enum MaterialType {
   ACCESSORY
 }
 
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -252,6 +258,7 @@ model Request {
   productLink String[]
   media       String[]
   source      SourceRequest
+  status      RequestStatus @default(PENDING)
 
   customerId    Int?
   customer      Customer?    @relation(fields: [customerId], references: [id], name: "customer_request_relation")

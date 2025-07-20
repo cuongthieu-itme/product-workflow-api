@@ -7,6 +7,7 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { RequestStatus } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
@@ -51,6 +52,10 @@ export class RequestService {
             },
           },
         };
+      }
+
+      if (filters.status) {
+        whereCondition.status = filters.status;
       }
     }
 
@@ -598,6 +603,35 @@ export class RequestService {
 
     return {
       message: 'Cập nhật yêu cầu thành công',
+      data: updatedRequest,
+    };
+  }
+
+  async updateStatus(id: number, status: RequestStatus) {
+    const existingRequest = await this.prismaService.request.findUnique({
+      where: { id },
+      select: { id: true, status: true },
+    });
+
+    if (!existingRequest) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
+    }
+
+    if (existingRequest.status === status) {
+      throw new BadRequestException('Trạng thái mới trùng với trạng thái hiện tại');
+    }
+
+    const updatedRequest = await this.prismaService.request.update({
+      where: { id },
+      data: { status },
+      select: {
+        id: true,
+        status: true,
+      },
+    });
+
+    return {
+      message: 'Cập nhật trạng thái yêu cầu thành công',
       data: updatedRequest,
     };
   }
