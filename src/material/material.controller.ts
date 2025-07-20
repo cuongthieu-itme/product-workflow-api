@@ -1,0 +1,60 @@
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Param,
+  Post,
+  Put,
+  Query,
+} from '@nestjs/common';
+import { MaterialService } from './material.service';
+import { CreateMaterialDto } from './dto/create-material.dto';
+import { UpdateMaterialDto } from './dto/update-material.dto';
+import { FilterMaterialDto } from './dto/filter-material.dto';
+import { AuthGuard } from 'src/common/decorators';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
+
+@ApiTags('Material')
+@AuthGuard()
+@Controller('materials')
+export class MaterialController {
+  constructor(private readonly materialService: MaterialService) {}
+
+  @ApiOperation({ summary: 'Lấy danh sách vật liệu' })
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async findAll(@Query() filters: FilterMaterialDto) {
+    return this.materialService.findAll(filters);
+  }
+
+  @ApiOperation({ summary: 'Lấy thông tin vật liệu theo ID' })
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(@Param('id') id: number) {
+    return this.materialService.findOne(id);
+  }
+
+  @ApiOperation({ summary: 'Tạo vật liệu mới' })
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async create(@Body() dto: CreateMaterialDto) {
+    return this.materialService.create(dto);
+  }
+
+  @ApiOperation({ summary: 'Cập nhật vật liệu' })
+  @HttpCode(HttpStatus.OK)
+  @Put(':id')
+  async update(@Param('id') id: number, @Body() dto: UpdateMaterialDto) {
+    return this.materialService.update(id, dto);
+  }
+
+  @ApiOperation({ summary: 'Xóa vật liệu' })
+  @HttpCode(HttpStatus.OK)
+  @Delete(':id')
+  async remove(@Param('id') id: number) {
+    return this.materialService.remove(id);
+  }
+}

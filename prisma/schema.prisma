@@ -33,6 +33,11 @@ enum SourceRequest {
   OTHER
 }
 
+enum MaterialType {
+  INGREDIENT
+  ACCESSORY
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -55,7 +60,6 @@ model User {
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
-  requests            Request[]            @relation("user_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -116,8 +120,6 @@ model StatusProduct {
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_status_relation")
 
-  requests Request[] @relation("status_product_request_relation")
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -135,6 +137,8 @@ model Customer {
 
   userId Int
   user   User @relation(fields: [userId], references: [id], name: "user_customers_relation")
+
+  requests Request[] @relation("customer_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -170,46 +174,6 @@ model Product {
 
   @@index([categoryId])
   @@map("products")
-}
-
-model Ingredient {
-  id          Int      @id @default(autoincrement())
-  name        String
-  code        String
-  quantity    Int
-  unit        String
-  origin      String
-  description String?
-  image       String[]
-  isActive    Boolean  @default(true)
-
-  requestId Int?
-  request   Request? @relation(fields: [requestId], references: [id], name: "ingredient_request_relation")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([requestId])
-  @@map("ingredients")
-}
-
-model Accessory {
-  id          Int      @id @default(autoincrement())
-  name        String
-  code        String
-  quantity    Int
-  description String?
-  image       String[]
-  isActive    Boolean  @default(true)
-
-  requestId Int?
-  request   Request? @relation(fields: [requestId], references: [id], name: "accessory_request_relation")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([requestId])
-  @@map("accessories")
 }
 
 model Procedure {
@@ -252,29 +216,88 @@ model Subprocess {
   @@map("subprocesses")
 }
 
-model Request {
-  id             Int           @id @default(autoincrement())
-  title          String
-  description    String?
-  productLink    String[]
-  image          String[]
-  source         SourceRequest
-  nameSource     String?
-  specificSource String?
+model SourceOther {
+  id           Int    @id @default(autoincrement())
+  name         String
+  specifically String
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], name: "user_request_relation")
-
-  statusProductId Int
-  statusProduct   StatusProduct @relation(fields: [statusProductId], references: [id], name: "status_product_request_relation")
-
-  ingredients Ingredient[] @relation("ingredient_request_relation")
-  accessories Accessory[]  @relation("accessory_request_relation")
+  requests Request[] @relation("source_other_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([userId])
-  @@index([statusProductId])
+  @@map("source_others")
+}
+
+model RequestMaterial {
+  id         Int @id @default(autoincrement())
+  requestId  Int
+  materialId Int
+  quantity   Int
+
+  request  Request  @relation(fields: [requestId], references: [id], onDelete: Cascade, name: "request_materials_relation")
+  material Material @relation(fields: [materialId], references: [id], name: "request_materials_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([requestId, materialId])
+  @@map("request_materials")
+}
+
+model Request {
+  id          Int           @id @default(autoincrement())
+  title       String
+  description String?
+  productLink String[]
+  media       String[]
+  source      SourceRequest
+
+  customerId    Int?
+  customer      Customer?    @relation(fields: [customerId], references: [id], name: "customer_request_relation")
+  sourceOtherId Int?
+  sourceOther   SourceOther? @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
+
+  requestMaterials RequestMaterial[] @relation("request_materials_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([customerId])
+  @@index([sourceOtherId])
   @@map("requests")
+}
+
+model Origin {
+  id   Int    @id @default(autoincrement())
+  name String @unique
+
+  materials Material[] @relation("origin_material_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("origins")
+}
+
+model Material {
+  id          Int          @id @default(autoincrement())
+  name        String
+  code        String       @unique
+  quantity    Int
+  unit        String
+  description String?
+  image       String[]
+  isActive    Boolean      @default(true)
+  type        MaterialType @default(INGREDIENT)
+
+  originId Int
+  origin   Origin @relation(fields: [originId], references: [id], name: "origin_material_relation")
+
+  requestMaterials RequestMaterial[] @relation("request_materials_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("materials")
 }

@@ -7,9 +7,34 @@ import {
   IsInt,
   IsPositive,
   MinLength,
+  ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-import { SourceRequest } from '@prisma/client';
+import { Type } from 'class-transformer';
+import { SourceRequest, MaterialType } from '@prisma/client';
+
+export class RequestMaterialDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  materialId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  @IsPositive()
+  quantity: number;
+
+  @ApiProperty({
+    enum: MaterialType,
+    description:
+      'Material type for validation only - not stored in RequestMaterial table',
+  })
+  @IsNotEmpty()
+  @IsEnum(MaterialType)
+  materialType: MaterialType;
+}
 
 export class CreateRequestDto {
   @ApiProperty()
@@ -18,61 +43,47 @@ export class CreateRequestDto {
   @MinLength(1)
   title: string;
 
-  @ApiProperty({
-    required: false,
-  })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsString()
   description?: string;
 
-  @ApiProperty({
-    type: [String],
-    required: false,
-  })
+  @ApiProperty({ type: [String], required: false })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   productLink?: string[];
 
-  @ApiProperty({
-    type: [String],
-    required: false,
-  })
+  @ApiProperty({ type: [String], required: false })
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
-  image?: string[];
+  media?: string[];
 
-  @ApiProperty({
-    enum: SourceRequest,
-  })
+  @ApiProperty({ enum: SourceRequest })
   @IsNotEmpty()
   @IsEnum(SourceRequest)
   source: SourceRequest;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  customerId?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  sourceOtherId?: number;
+
   @ApiProperty({
+    type: [RequestMaterialDto],
     required: false,
   })
   @IsOptional()
-  @IsString()
-  nameSource?: string;
-
-  @ApiProperty({
-    required: false,
-  })
-  @IsOptional()
-  @IsString()
-  specificSource?: string;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  @IsPositive()
-  userId: number;
-
-  @ApiProperty()
-  @IsNotEmpty()
-  @IsInt()
-  @IsPositive()
-  statusProductId: number;
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => RequestMaterialDto)
+  materials?: RequestMaterialDto[];
 }

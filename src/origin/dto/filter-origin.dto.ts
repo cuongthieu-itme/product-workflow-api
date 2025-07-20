@@ -1,0 +1,22 @@
+import { ApiProperty } from '@nestjs/swagger';
+import { IsInt, IsOptional, IsString } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+export class FilterOriginDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  page?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  limit?: number;
+}
