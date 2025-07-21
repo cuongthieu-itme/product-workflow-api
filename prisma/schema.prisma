@@ -126,6 +126,8 @@ model StatusProduct {
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_status_relation")
 
+  requests Request[] @relation("request_status_product_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -260,10 +262,12 @@ model Request {
   source      SourceRequest
   status      RequestStatus @default(PENDING)
 
-  customerId    Int?
-  customer      Customer?    @relation(fields: [customerId], references: [id], name: "customer_request_relation")
-  sourceOtherId Int?
-  sourceOther   SourceOther? @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
+  customerId      Int?
+  customer        Customer?      @relation(fields: [customerId], references: [id], name: "customer_request_relation")
+  sourceOtherId   Int?
+  sourceOther     SourceOther?   @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
+  statusProductId Int?
+  statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "request_status_product_relation")
 
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
 

@@ -43,6 +43,10 @@ export class RequestService {
         whereCondition.sourceOtherId = filters.sourceOtherId;
       }
 
+      if (filters.statusProductId) {
+        whereCondition.statusProductId = filters.statusProductId;
+      }
+
       if (filters.materialType) {
         whereCondition.requestMaterials = {
           some: {
@@ -65,50 +69,18 @@ export class RequestService {
     const total = await this.prismaService.request.count({
       where: whereCondition,
     });
+
     const data = await this.prismaService.request.findMany({
       where: whereCondition,
       take: limit,
       skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        productLink: true,
-        media: true,
-        source: true,
-        customerId: true,
-        sourceOtherId: true,
-        createdAt: true,
-        updatedAt: true,
-        customer: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        sourceOther: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      include: {
+        customer: true,
+        sourceOther: true,
         requestMaterials: {
-          select: {
-            id: true,
-            quantity: true,
-            material: {
-              select: {
-                id: true,
-                name: true,
-                code: true,
-                unit: true,
-                type: true,
-                image: true,
-                isActive: true,
-              },
-            },
+          include: {
+            material: true,
           },
           orderBy: {
             material: {
@@ -133,51 +105,14 @@ export class RequestService {
   async findOne(id: number) {
     const data = await this.prismaService.request.findUnique({
       where: { id },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        productLink: true,
-        media: true,
-        source: true,
-        customerId: true,
-        sourceOtherId: true,
-        createdAt: true,
-        updatedAt: true,
-        customer: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        sourceOther: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      include: {
+        customer: true,
+        sourceOther: true,
         requestMaterials: {
-          select: {
-            id: true,
-            quantity: true,
+          include: {
             material: {
-              select: {
-                id: true,
-                name: true,
-                code: true,
-                unit: true,
-                origin: {
-                  select: {
-                    id: true,
-                    name: true,
-                  },
-                },
-                description: true,
-                image: true,
-                type: true,
-                quantity: true,
-                isActive: true,
+              include: {
+                origin: true,
               },
             },
           },
@@ -323,44 +258,12 @@ export class RequestService {
               }
             : undefined,
       },
-      select: {
-        id: true,
-        title: true,
-        description: true,
-        productLink: true,
-        media: true,
-        source: true,
-        customerId: true,
-        sourceOtherId: true,
-        createdAt: true,
-        updatedAt: true,
-        customer: {
-          select: {
-            id: true,
-            fullName: true,
-            email: true,
-          },
-        },
-        sourceOther: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      include: {
+        customer: true,
+        sourceOther: true,
         requestMaterials: {
-          select: {
-            id: true,
-            quantity: true,
-            material: {
-              select: {
-                id: true,
-                name: true,
-                code: true,
-                unit: true,
-                type: true,
-                image: true,
-              },
-            },
+          include: {
+            material: true,
           },
           orderBy: {
             material: {
@@ -552,44 +455,12 @@ export class RequestService {
       return await tx.request.update({
         where: { id },
         data: updateData,
-        select: {
-          id: true,
-          title: true,
-          description: true,
-          productLink: true,
-          media: true,
-          source: true,
-          customerId: true,
-          sourceOtherId: true,
-          createdAt: true,
-          updatedAt: true,
-          customer: {
-            select: {
-              id: true,
-              fullName: true,
-              email: true,
-            },
-          },
-          sourceOther: {
-            select: {
-              id: true,
-              name: true,
-            },
-          },
+        include: {
+          customer: true,
+          sourceOther: true,
           requestMaterials: {
-            select: {
-              id: true,
-              quantity: true,
-              material: {
-                select: {
-                  id: true,
-                  name: true,
-                  code: true,
-                  unit: true,
-                  type: true,
-                  image: true,
-                },
-              },
+            include: {
+              material: true,
             },
             orderBy: {
               material: {
@@ -618,15 +489,27 @@ export class RequestService {
     }
 
     if (existingRequest.status === status) {
-      throw new BadRequestException('Trạng thái mới trùng với trạng thái hiện tại');
+      throw new BadRequestException(
+        'Trạng thái mới trùng với trạng thái hiện tại',
+      );
     }
 
     const updatedRequest = await this.prismaService.request.update({
       where: { id },
       data: { status },
-      select: {
-        id: true,
-        status: true,
+      include: {
+        customer: true,
+        sourceOther: true,
+        requestMaterials: {
+          include: {
+            material: true,
+          },
+          orderBy: {
+            material: {
+              name: 'asc',
+            },
+          },
+        },
       },
     });
 
@@ -659,20 +542,8 @@ export class RequestService {
         isActive: true,
         ...(type && { type: type as any }),
       },
-      select: {
-        id: true,
-        name: true,
-        code: true,
-        unit: true,
-        quantity: true,
-        type: true,
-        image: true,
-        origin: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
+      include: {
+        origin: true,
       },
       orderBy: { name: 'asc' },
     });
@@ -681,40 +552,42 @@ export class RequestService {
   }
 
   async getRequestStatistics() {
-    const [total, bySource, byMaterialType] = await Promise.all([
+    const [total, bySource, materialStats] = await Promise.all([
       this.prismaService.request.count(),
+
       this.prismaService.request.groupBy({
         by: ['source'],
         _count: true,
       }),
-      this.prismaService.request.findMany({
+
+      this.prismaService.requestMaterial.findMany({
         select: {
-          id: true,
-          requestMaterials: {
+          requestId: true,
+          material: {
             select: {
-              material: {
-                select: {
-                  type: true,
-                },
-              },
+              type: true,
             },
           },
         },
       }),
     ]);
 
-    const materialTypeStats = byMaterialType.reduce(
-      (acc, request) => {
-        const types = new Set(
-          request.requestMaterials.map((rm) => rm.material.type),
-        );
-        types.forEach((type) => {
-          acc[type] = (acc[type] || 0) + 1;
-        });
-        return acc;
-      },
-      {} as Record<string, number>,
-    );
+    // Map requestId -> unique material types
+    const requestMaterialTypeMap = new Map<number, Set<string>>();
+    materialStats.forEach(({ requestId, material }) => {
+      if (!requestMaterialTypeMap.has(requestId)) {
+        requestMaterialTypeMap.set(requestId, new Set());
+      }
+      requestMaterialTypeMap.get(requestId)!.add(material.type);
+    });
+
+    // Aggregate by type
+    const materialTypeStats: Record<string, number> = {};
+    for (const types of requestMaterialTypeMap.values()) {
+      types.forEach((type) => {
+        materialTypeStats[type] = (materialTypeStats[type] || 0) + 1;
+      });
+    }
 
     return {
       total,

@@ -11,7 +11,7 @@ import {
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { SourceRequest, MaterialType } from '@prisma/client';
+import { SourceRequest, MaterialType, RequestStatus } from '@prisma/client';
 
 export class RequestMaterialDto {
   @ApiProperty()
@@ -76,6 +76,14 @@ export class CreateRequestDto {
   @IsInt()
   @IsPositive()
   sourceOtherId?: number;
+
+  @ApiProperty({
+    enum: RequestStatus,
+    required: false,
+  })
+  @IsOptional()
+  @IsEnum(RequestStatus)
+  status?: RequestStatus;
 
   @ApiProperty({
     type: [RequestMaterialDto],

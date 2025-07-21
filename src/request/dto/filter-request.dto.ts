@@ -51,6 +51,15 @@ export class FilterRequestDto {
   sourceOtherId?: number;
 
   @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  statusProductId?: number;
+
+  @ApiProperty({
     enum: MaterialType,
     required: false,
   })
