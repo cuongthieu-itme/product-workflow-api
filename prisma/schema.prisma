@@ -70,7 +70,6 @@ model User {
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
-  notifications       NotificationAdmin[]  @relation("notification_admin_user_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -310,6 +309,8 @@ model Material {
   originId Int
   origin   Origin @relation(fields: [originId], references: [id], name: "origin_material_relation")
 
+  requestInput RequestInput? @relation("request_input_material_relation")
+
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
 
   createdAt DateTime @default(now())
@@ -325,11 +326,26 @@ model NotificationAdmin {
   type    NotificationType
   isRead  Boolean          @default(false)
 
-  userId Int
-  user   User @relation(fields: [userId], references: [id], name: "notification_admin_user_relation")
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@map("notification_admins")
+}
+
+model RequestInput {
+  id            Int      @id @default(autoincrement())
+  quantity      Int
+  expectedDate  DateTime
+  supplier      String
+  sourceCountry String
+  price         Int
+  reason        String
+
+  materialId Int      @unique
+  material   Material @relation(fields: [materialId], references: [id], name: "request_input_material_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("request_inputs")
 }
