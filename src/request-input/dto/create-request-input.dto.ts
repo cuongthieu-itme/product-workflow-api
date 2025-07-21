@@ -1,34 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsInt, IsString, IsOptional, IsDateString, Min, MinLength } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsDateString,
+  Min,
+  MinLength,
+} from 'class-validator';
 
 export class CreateRequestInputDto {
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
   @Min(1)
-  quantity: number;
+  quantity?: number;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsDateString()
-  expectedDate: Date;
+  expectedDate?: Date;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   @MinLength(1)
-  supplier: string;
+  supplier?: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsString()
   @MinLength(1)
-  sourceCountry: string;
+  sourceCountry?: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
-  price: number;
+  price?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -36,8 +43,8 @@ export class CreateRequestInputDto {
   @MinLength(1)
   reason?: string;
 
-  @ApiProperty()
-  @IsNotEmpty()
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
-  materialId: number;
+  materialId?: number;
 }

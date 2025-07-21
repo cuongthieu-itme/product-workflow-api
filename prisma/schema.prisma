@@ -336,16 +336,16 @@ model NotificationAdmin {
 }
 
 model RequestInput {
-  id            Int      @id @default(autoincrement())
-  quantity      Int
-  expectedDate  DateTime
-  supplier      String
-  sourceCountry String
-  price         Int
-  reason        String
+  id            Int       @id @default(autoincrement())
+  quantity      Int?
+  expectedDate  DateTime?
+  supplier      String?
+  sourceCountry String?
+  price         Int?
+  reason        String?
 
-  materialId Int      @unique
-  material   Material @relation(fields: [materialId], references: [id], name: "request_input_material_relation")
+  materialId Int?      @unique
+  material   Material? @relation(fields: [materialId], references: [id], name: "request_input_material_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

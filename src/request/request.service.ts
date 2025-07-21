@@ -137,58 +137,72 @@ export class RequestService {
   }
 
   async create(dto: CreateRequestDto) {
-    // Validate customer if provided
+    // Validate related entities in parallel for better performance
+    const validationPromises = [];
+
     if (dto.customerId) {
-      const customerExists = await this.prismaService.customer.findUnique({
-        where: { id: dto.customerId },
-        select: { id: true },
-      });
-
-      if (!customerExists) {
-        throw new NotFoundException(
-          `Không tìm thấy khách hàng với ID ${dto.customerId}`,
-        );
-      }
-    }
-
-    // Validate user if provided
-    if (dto.userId) {
-      const userExists = await this.prismaService.user.findUnique({
-        where: { id: dto.userId },
-        select: { id: true },
-      });
-
-      if (!userExists) {
-        throw new NotFoundException(
-          `Không tìm thấy người dùng với ID ${dto.userId}`,
-        );
-      }
-    }
-
-    // Validate sourceOther if provided
-    if (dto.sourceOtherId) {
-      const sourceOtherExists = await this.prismaService.sourceOther.findUnique(
-        {
-          where: { id: dto.sourceOtherId },
-          select: { id: true },
-        },
+      validationPromises.push(
+        this.prismaService.customer
+          .findUnique({
+            where: { id: dto.customerId },
+            select: { id: true },
+          })
+          .then((customerExists) => {
+            if (!customerExists) {
+              throw new NotFoundException(
+                `Không tìm thấy khách hàng với ID ${dto.customerId}`,
+              );
+            }
+          }),
       );
-
-      if (!sourceOtherExists) {
-        throw new NotFoundException(
-          `Không tìm thấy nguồn khác với ID ${dto.sourceOtherId}`,
-        );
-      }
     }
+
+    if (dto.userId) {
+      validationPromises.push(
+        this.prismaService.user
+          .findUnique({
+            where: { id: dto.userId },
+            select: { id: true },
+          })
+          .then((userExists) => {
+            if (!userExists) {
+              throw new NotFoundException(
+                `Không tìm thấy người dùng với ID ${dto.userId}`,
+              );
+            }
+          }),
+      );
+    }
+
+    if (dto.sourceOtherId) {
+      validationPromises.push(
+        this.prismaService.sourceOther
+          .findUnique({
+            where: { id: dto.sourceOtherId },
+            select: { id: true },
+          })
+          .then((sourceOtherExists) => {
+            if (!sourceOtherExists) {
+              throw new NotFoundException(
+                `Không tìm thấy nguồn khác với ID ${dto.sourceOtherId}`,
+              );
+            }
+          }),
+      );
+    }
+
+    // Wait for all validations to complete
+    await Promise.all(validationPromises);
 
     // Validate and process materials
     let validatedMaterials: any[] = [];
-    if (dto.materials && dto.materials.length > 0) {
-      // Remove duplicate materials based on materialId
-      const uniqueMaterials = dto.materials.filter(
-        (item, index, self) =>
-          index === self.findIndex((t) => t.materialId === item.materialId),
-      );
+    if (dto.materials?.length > 0) {
+      // Remove duplicate materials based on materialId and keep the last occurrence
+      const materialMap = new Map();
+      dto.materials.forEach((material) => {
+        materialMap.set(material.materialId, material);
+      });
+      const uniqueMaterials = Array.from(materialMap.values());
 
       // Get all material IDs
       const materialIds = uniqueMaterials.map((m) => m.materialId);
@@ -218,20 +232,22 @@ export class RequestService {
         );
       }
 
+      // Create a map for faster lookup
+      const materialLookup = new Map(existingMaterials.map((m) => [m.id, m]));
+
       // Validate each material
       for (const reqMaterial of uniqueMaterials) {
-        // Check quantity is positive
+        // Check quantity is positive (redundant check since DTO validation should handle this)
         if (reqMaterial.quantity <= 0) {
           throw new BadRequestException(
             `Số lượng phải lớn hơn 0 cho vật liệu với ID ${reqMaterial.materialId}`,
           );
         }
 
-        // Find the material in database
-        const material = existingMaterials.find(
-          (m) => m.id === reqMaterial.materialId,
-        );
+        // Find the material in database using map lookup
+        const material = materialLookup.get(reqMaterial.materialId);
 
+        // This check is actually redundant since we already validated all materials exist above
         if (!material) {
           throw new NotFoundException(
             `Không tìm thấy vật liệu với ID ${reqMaterial.materialId}`,
@@ -256,27 +272,46 @@ export class RequestService {
       validatedMaterials = uniqueMaterials;
     }
 
+    // Prepare request data
+    const requestData: any = {
+      title: dto.title,
+      description: dto.description,
+      productLink: dto.productLink || [],
+      media: dto.media || [],
+      source: dto.source,
+      userId: dto.userId || null,
+      customerId: dto.customerId || null,
+      sourceOtherId: dto.sourceOtherId || null,
+    };
+
+    // Add request materials if any
+    if (validatedMaterials.length > 0) {
+      requestData.requestMaterials = {
+        create: validatedMaterials.map((m) => ({
+          materialId: m.materialId,
+          quantity: m.quantity,
+        })),
+      };
+    }
+
+    // Add request input if provided
+    if (dto.requestInput) {
+      requestData.requestInputs = {
+        create: {
+          quantity: dto.requestInput.quantity,
+          expectedDate: new Date(dto.requestInput.expectedDate),
+          supplier: dto.requestInput.supplier,
+          sourceCountry: dto.requestInput.sourceCountry,
+          price: dto.requestInput.price,
+          reason: dto.requestInput.reason,
+          materialId: dto.requestInput.materialId,
+        },
+      };
+    }
+
     // Create the request
     const newRequest = await this.prismaService.request.create({
-      data: {
-        title: dto.title,
-        description: dto.description,
-        productLink: dto.productLink || [],
-        media: dto.media || [],
-        source: dto.source,
-        userId: dto.userId || null,
-        customerId: dto.customerId || null,
-        sourceOtherId: dto.sourceOtherId || null,
-        requestMaterials:
-          validatedMaterials.length > 0
-            ? {
-                create: validatedMaterials.map((m) => ({
-                  materialId: m.materialId,
-                  quantity: m.quantity,
-                })),
-              }
-            : undefined,
-      },
+      data: requestData,
       include: {
         customer: true,
         sourceOther: true,
@@ -300,210 +335,194 @@ export class RequestService {
   }
 
   async update(id: number, dto: UpdateRequestDto) {
-    // Check if request exists
+    // Kiểm tra request tồn tại
     const existingRequest = await this.prismaService.request.findUnique({
       where: { id },
-      include: {
-        requestMaterials: {
-          select: {
-            id: true,
-            materialId: true,
-            quantity: true,
-          },
-        },
-      },
+      select: { id: true },
     });
 
     if (!existingRequest) {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
     }
 
-    // Validate userId if being updated
-    if (dto.userId !== undefined && dto.userId !== existingRequest.userId) {
-      if (dto.userId !== null) {
-        const userExists = await this.prismaService.user.findUnique({
-          where: { id: dto.userId },
-          select: { id: true },
-        });
+    // Kiểm tra các thực thể liên quan
+    const validationPromises = [];
 
-        if (!userExists) {
-          throw new NotFoundException(`Không tìm thấy người dùng với ID ${dto.userId}`);
-        }
-      }
+    if (dto.customerId) {
+      validationPromises.push(
+        this.prismaService.customer
+          .findUnique({
+            where: { id: dto.customerId },
+            select: { id: true },
+          })
+          .then((res) => {
+            if (!res)
+              throw new NotFoundException(
+                `Không tìm thấy khách hàng với ID ${dto.customerId}`,
+              );
+          }),
+      );
     }
 
-    // Validate customer if being updated
-    if (
-      dto.customerId !== undefined &&
-      dto.customerId !== existingRequest.customerId
-    ) {
-      if (dto.customerId !== null) {
-        const customerExists = await this.prismaService.customer.findUnique({
-          where: { id: dto.customerId },
-          select: { id: true },
-        });
-
-        if (!customerExists) {
-          throw new NotFoundException(
-            `Không tìm thấy khách hàng với ID ${dto.customerId}`,
-          );
-        }
-      }
+    if (dto.userId) {
+      validationPromises.push(
+        this.prismaService.user
+          .findUnique({
+            where: { id: dto.userId },
+            select: { id: true },
+          })
+          .then((res) => {
+            if (!res)
+              throw new NotFoundException(
+                `Không tìm thấy người dùng với ID ${dto.userId}`,
+              );
+          }),
+      );
     }
 
-    // Validate sourceOther if being updated
-    if (
-      dto.sourceOtherId !== undefined &&
-      dto.sourceOtherId !== existingRequest.sourceOtherId
-    ) {
-      if (dto.sourceOtherId !== null) {
-        const sourceOtherExists =
-          await this.prismaService.sourceOther.findUnique({
+    if (dto.sourceOtherId) {
+      validationPromises.push(
+        this.prismaService.sourceOther
+          .findUnique({
             where: { id: dto.sourceOtherId },
             select: { id: true },
-          });
-
-        if (!sourceOtherExists) {
-          throw new NotFoundException(
-            `Không tìm thấy nguồn khác với ID ${dto.sourceOtherId}`,
-          );
-        }
-      }
+          })
+          .then((res) => {
+            if (!res)
+              throw new NotFoundException(
+                `Không tìm thấy nguồn khác với ID ${dto.sourceOtherId}`,
+              );
+          }),
+      );
     }
 
-    // Validate and process materials if being updated
+    await Promise.all(validationPromises);
+
+    // Validate và xử lý materials
     let validatedMaterials: any[] = [];
-    if (dto.materials !== undefined) {
-      if (dto.materials.length > 0) {
-        // Remove duplicate materials based on materialId
-        const uniqueMaterials = dto.materials.filter(
-          (item, index, self) =>
-            index === self.findIndex((t) => t.materialId === item.materialId),
-        );
+    if (dto.materials?.length > 0) {
+      const materialMap = new Map();
+      dto.materials.forEach((m) => materialMap.set(m.materialId, m));
+      const uniqueMaterials = Array.from(materialMap.values());
+      const materialIds = uniqueMaterials.map((m) => m.materialId);
 
-        // Get all material IDs
-        const materialIds = uniqueMaterials.map((m) => m.materialId);
-
-        // Fetch materials from database
-        const existingMaterials = await this.prismaService.material.findMany({
-          where: {
-            id: { in: materialIds },
-            isActive: true,
-          },
-          select: {
-            id: true,
-            name: true,
-            quantity: true,
-            type: true,
-          },
-        });
-
-        // Check if all materials exist and are active
-        if (existingMaterials.length !== materialIds.length) {
-          const existingIds = existingMaterials.map((m) => m.id);
-          const missingIds = materialIds.filter(
-            (id) => !existingIds.includes(id),
-          );
-          throw new NotFoundException(
-            `Không tìm thấy vật liệu hoạt động với ID: ${missingIds.join(', ')}`,
-          );
-        }
-
-        // Validate each material
-        for (const reqMaterial of uniqueMaterials) {
-          // Check quantity is positive
-          if (reqMaterial.quantity <= 0) {
-            throw new BadRequestException(
-              `Số lượng phải lớn hơn 0 cho vật liệu với ID ${reqMaterial.materialId}`,
-            );
-          }
-
-          // Find the material in database
-          const material = existingMaterials.find(
-            (m) => m.id === reqMaterial.materialId,
-          );
-
-          if (!material) {
-            throw new NotFoundException(
-              `Không tìm thấy vật liệu với ID ${reqMaterial.materialId}`,
-            );
-          }
-
-          // Validate material type matches what client specified
-          if (material.type !== reqMaterial.materialType) {
-            throw new BadRequestException(
-              `Vật liệu ${material.name} có loại ${material.type}, không phải ${reqMaterial.materialType}`,
-            );
-          }
-
-          // Check if requested quantity is available
-          if (reqMaterial.quantity > material.quantity) {
-            throw new BadRequestException(
-              `Số lượng yêu cầu (${reqMaterial.quantity}) vượt quá số lượng có sẵn (${material.quantity}) của vật liệu ${material.name}`,
-            );
-          }
-        }
-
-        validatedMaterials = uniqueMaterials;
-      }
-      // If dto.materials is empty array, validatedMaterials will remain empty
-      // This means we want to remove all materials from the request
-    }
-
-    // Update request in transaction
-    const updatedRequest = await this.prismaService.$transaction(async (tx) => {
-      // Update materials if materials field is provided in DTO
-      if (dto.materials !== undefined) {
-        // Delete all existing request materials
-        await tx.requestMaterial.deleteMany({
-          where: { requestId: id },
-        });
-
-        // Create new request materials if any
-        if (validatedMaterials.length > 0) {
-          await tx.requestMaterial.createMany({
-            data: validatedMaterials.map((m) => ({
-              requestId: id,
-              materialId: m.materialId,
-              quantity: m.quantity,
-            })),
-          });
-        }
-      }
-
-      // Prepare update data for request
-      const updateData: any = {};
-      if (dto.title !== undefined) updateData.title = dto.title;
-      if (dto.description !== undefined)
-        updateData.description = dto.description;
-      if (dto.productLink !== undefined)
-        updateData.productLink = dto.productLink;
-      if (dto.media !== undefined) updateData.media = dto.media;
-      if (dto.source !== undefined) updateData.source = dto.source;
-      if (dto.customerId !== undefined) updateData.customerId = dto.customerId;
-      if (dto.sourceOtherId !== undefined)
-        updateData.sourceOtherId = dto.sourceOtherId;
-      if (dto.userId !== undefined) updateData.userId = dto.userId;
-
-      // Update the request
-      return await tx.request.update({
-        where: { id },
-        data: updateData,
-        include: {
-          customer: true,
-          sourceOther: true,
-          requestMaterials: {
-            include: {
-              material: true,
-            },
-            orderBy: {
-              material: {
-                name: 'asc',
-              },
-            },
-          },
+      const existingMaterials = await this.prismaService.material.findMany({
+        where: {
+          id: { in: materialIds },
+          isActive: true,
+        },
+        select: {
+          id: true,
+          name: true,
+          quantity: true,
+          type: true,
         },
       });
+
+      if (existingMaterials.length !== materialIds.length) {
+        const existingIds = existingMaterials.map((m) => m.id);
+        const missingIds = materialIds.filter(
+          (id) => !existingIds.includes(id),
+        );
+        throw new NotFoundException(
+          `Không tìm thấy vật liệu hoạt động với ID: ${missingIds.join(', ')}`,
+        );
+      }
+
+      const materialLookup = new Map(existingMaterials.map((m) => [m.id, m]));
+
+      for (const reqMaterial of uniqueMaterials) {
+        if (reqMaterial.quantity <= 0) {
+          throw new BadRequestException(
+            `Số lượng phải lớn hơn 0 cho vật liệu ID ${reqMaterial.materialId}`,
+          );
+        }
+
+        const material = materialLookup.get(reqMaterial.materialId);
+
+        if (!material) continue;
+
+        if (material.type !== reqMaterial.materialType) {
+          throw new BadRequestException(
+            `Vật liệu ${material.name} có loại ${material.type}, không phải ${reqMaterial.materialType}`,
+          );
+        }
+
+        if (reqMaterial.quantity > material.quantity) {
+          throw new BadRequestException(
+            `Số lượng yêu cầu (${reqMaterial.quantity}) vượt quá số lượng có sẵn (${material.quantity}) của vật liệu ${material.name}`,
+          );
+        }
+      }
+
+      validatedMaterials = uniqueMaterials;
+
+      // Xoá và thêm lại vật liệu
+      await this.prismaService.requestMaterial.deleteMany({
+        where: { requestId: id },
+      });
+
+      await this.prismaService.requestMaterial.createMany({
+        data: validatedMaterials.map((m) => ({
+          requestId: id,
+          materialId: m.materialId,
+          quantity: m.quantity,
+        })),
+      });
+    }
+
+    // Cập nhật requestInput (do không có quan hệ ngược trong model nên phải xử lý riêng)
+    if (dto.requestInput) {
+      // Do materialId là unique trong RequestInput → chỉ tồn tại duy nhất 1
+      await this.prismaService.requestInput.upsert({
+        where: { materialId: dto.requestInput.materialId },
+        create: {
+          materialId: dto.requestInput.materialId,
+          quantity: dto.requestInput.quantity,
+          expectedDate: dto.requestInput.expectedDate
+            ? new Date(dto.requestInput.expectedDate)
+            : null,
+          supplier: dto.requestInput.supplier,
+          sourceCountry: dto.requestInput.sourceCountry,
+          price: dto.requestInput.price,
+          reason: dto.requestInput.reason,
+        },
+        update: {
+          quantity: dto.requestInput.quantity,
+          expectedDate: dto.requestInput.expectedDate
+            ? new Date(dto.requestInput.expectedDate)
+            : null,
+          supplier: dto.requestInput.supplier,
+          sourceCountry: dto.requestInput.sourceCountry,
+          price: dto.requestInput.price,
+          reason: dto.requestInput.reason,
+        },
+      });
+    }
+
+    // Cập nhật request chính
+    const updateData: any = {
+      title: dto.title,
+      description: dto.description,
+      productLink: dto.productLink || [],
+      media: dto.media || [],
+      source: dto.source,
+      userId: dto.userId || null,
+      customerId: dto.customerId || null,
+      sourceOtherId: dto.sourceOtherId || null,
+    };
+
+    const updatedRequest = await this.prismaService.request.update({
+      where: { id },
+      data: updateData,
+      include: {
+        customer: true,
+        sourceOther: true,
+        requestMaterials: {
+          include: { material: true },
+          orderBy: { material: { name: 'asc' } },
+        },
+      },
     });
 
     return {

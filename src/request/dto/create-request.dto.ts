@@ -12,6 +12,7 @@ import {
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { SourceRequest, MaterialType, RequestStatus } from '@prisma/client';
+import { CreateRequestInputDto } from 'src/request-input/dto';
 
 export class RequestMaterialDto {
   @ApiProperty()
@@ -108,4 +109,12 @@ export class CreateRequestDto {
   @ValidateNested({ each: true })
   @Type(() => RequestMaterialDto)
   materials?: RequestMaterialDto[];
+
+  @ApiProperty({
+    type: () => CreateRequestInputDto,
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => CreateRequestInputDto)
+  requestInput?: CreateRequestInputDto;
 }
