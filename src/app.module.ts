@@ -19,6 +19,7 @@ import { RequestModule } from './request/request.module';
 import { MaterialModule } from './material/material.module';
 import { OriginModule } from './origin/origin.module';
 import { SourceOtherModule } from './source-other/source-other.module';
+import { NotificationAdminModule } from './notification-admin/notification-admin.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { SourceOtherModule } from './source-other/source-other.module';
     MaterialModule,
     OriginModule,
     SourceOtherModule,
+    NotificationAdminModule,
   ],
 })
 export class AppModule {}

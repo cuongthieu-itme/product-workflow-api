@@ -44,6 +44,10 @@ enum RequestStatus {
   REJECTED
 }
 
+enum NotificationType {
+  REQUEST
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -311,4 +315,17 @@ model Material {
   updatedAt DateTime @updatedAt
 
   @@map("materials")
+}
+
+model NotificationAdmin {
+  id      Int              @id @default(autoincrement())
+  title   String
+  content String
+  type    NotificationType
+  isRead  Boolean          @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("notification_admins")
 }
