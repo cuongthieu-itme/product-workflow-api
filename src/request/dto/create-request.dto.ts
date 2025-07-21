@@ -86,6 +86,14 @@ export class CreateRequestDto {
   status?: RequestStatus;
 
   @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  statusProductId?: number;
+
+  @ApiProperty({
     type: [RequestMaterialDto],
     required: false,
   })
