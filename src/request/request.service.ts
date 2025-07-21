@@ -47,6 +47,10 @@ export class RequestService {
         whereCondition.statusProductId = filters.statusProductId;
       }
 
+      if (filters.userId) {
+        whereCondition.userId = filters.userId;
+      }
+
       if (filters.materialType) {
         whereCondition.requestMaterials = {
           some: {
@@ -143,6 +147,20 @@ export class RequestService {
       if (!customerExists) {
         throw new NotFoundException(
           `Không tìm thấy khách hàng với ID ${dto.customerId}`,
+        );
+      }
+    }
+
+    // Validate user if provided
+    if (dto.userId) {
+      const userExists = await this.prismaService.user.findUnique({
+        where: { id: dto.userId },
+        select: { id: true },
+      });
+
+      if (!userExists) {
+        throw new NotFoundException(
+          `Không tìm thấy người dùng với ID ${dto.userId}`,
         );
       }
     }
@@ -246,6 +264,7 @@ export class RequestService {
         productLink: dto.productLink || [],
         media: dto.media || [],
         source: dto.source,
+        userId: dto.userId || null,
         customerId: dto.customerId || null,
         sourceOtherId: dto.sourceOtherId || null,
         requestMaterials:
@@ -297,6 +316,20 @@ export class RequestService {
 
     if (!existingRequest) {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
+    }
+
+    // Validate userId if being updated
+    if (dto.userId !== undefined && dto.userId !== existingRequest.userId) {
+      if (dto.userId !== null) {
+        const userExists = await this.prismaService.user.findUnique({
+          where: { id: dto.userId },
+          select: { id: true },
+        });
+
+        if (!userExists) {
+          throw new NotFoundException(`Không tìm thấy người dùng với ID ${dto.userId}`);
+        }
+      }
     }
 
     // Validate customer if being updated
@@ -450,6 +483,7 @@ export class RequestService {
       if (dto.customerId !== undefined) updateData.customerId = dto.customerId;
       if (dto.sourceOtherId !== undefined)
         updateData.sourceOtherId = dto.sourceOtherId;
+      if (dto.userId !== undefined) updateData.userId = dto.userId;
 
       // Update the request
       return await tx.request.update({

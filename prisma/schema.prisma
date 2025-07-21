@@ -70,6 +70,7 @@ model User {
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
+  requests            Request[]            @relation("user_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -266,6 +267,8 @@ model Request {
   source      SourceRequest
   status      RequestStatus @default(PENDING)
 
+  userId          Int?
+  user            User?          @relation(fields: [userId], references: [id], name: "user_request_relation")
   customerId      Int?
   customer        Customer?      @relation(fields: [customerId], references: [id], name: "customer_request_relation")
   sourceOtherId   Int?
