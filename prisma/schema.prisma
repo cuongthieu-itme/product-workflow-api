@@ -70,6 +70,7 @@ model User {
   sessions            UserSession?         @relation("user_session_relation")
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
+  requests            Request[]            @relation("user_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -272,6 +273,8 @@ model Request {
   sourceOther     SourceOther?   @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
   statusProductId Int?
   statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "request_status_product_relation")
+  userId          Int?
+  user            User?          @relation(fields: [userId], references: [id], name: "user_request_relation")
 
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
 

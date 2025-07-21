@@ -60,6 +60,15 @@ export class FilterRequestDto {
   statusProductId?: number;
 
   @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @IsPositive()
+  userId?: number;
+
+  @ApiProperty({
     enum: MaterialType,
     required: false,
   })

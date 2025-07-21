@@ -77,6 +77,12 @@ export class CreateRequestDto {
   @IsPositive()
   sourceOtherId?: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  @IsPositive()
+  userId?: number;
+
   @ApiProperty({
     enum: RequestStatus,
     required: false,
