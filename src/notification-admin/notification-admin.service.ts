@@ -124,6 +124,22 @@ export class NotificationAdminService {
     };
   }
 
+  async updateIsRead(ids: number[]) {
+    if (!ids || !ids.length) {
+      return { message: 'Danh sách ID thông báo trống' };
+    }
+
+    const result = await this.prismaService.notificationAdmin.updateMany({
+      where: { id: { in: ids } },
+      data: { isRead: true },
+    });
+
+    return {
+      message: 'Cập nhật trạng thái xem thông báo thành công',
+      count: result.count,
+    };
+  }
+
   async remove(id: number) {
     const existing = await this.prismaService.notificationAdmin.findUnique({
       where: { id },

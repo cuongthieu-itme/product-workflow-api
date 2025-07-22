@@ -56,6 +56,13 @@ export class NotificationAdminController {
     return this.notificationAdminService.update(id, dto);
   }
 
+  @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
+  @HttpCode(HttpStatus.OK)
+  @Put('is-read')
+  async updateIsRead(@Body('ids') ids: number[]) {
+    return this.notificationAdminService.updateIsRead(ids);
+  }
+
   @ApiOperation({ summary: 'Xóa thông báo' })
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
