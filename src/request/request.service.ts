@@ -80,11 +80,18 @@ export class RequestService {
       skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
       include: {
+        createdBy: true,
         customer: true,
         sourceOther: true,
         requestMaterials: {
           include: {
-            material: true,
+            material: {
+              include: {
+                origin: true,
+                requestInput: true,
+                requestMaterials: true,
+              },
+            },
           },
           orderBy: {
             material: {
@@ -110,6 +117,7 @@ export class RequestService {
     const data = await this.prismaService.request.findUnique({
       where: { id },
       include: {
+        createdBy: true,
         customer: true,
         sourceOther: true,
         requestMaterials: {
@@ -117,6 +125,8 @@ export class RequestService {
             material: {
               include: {
                 origin: true,
+                requestInput: true,
+                requestMaterials: true,
               },
             },
           },
