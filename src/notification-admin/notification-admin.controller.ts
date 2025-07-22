@@ -14,6 +14,7 @@ import { NotificationAdminService } from './notification-admin.service';
 import { CreateNotificationAdminDto } from './dto/create-notification-admin.dto';
 import { UpdateNotificationAdminDto } from './dto/update-notification-admin.dto';
 import { FilterNotificationAdminDto } from './dto/filter-notification-admin.dto';
+import { UpdateIsReadDto } from './dto/update-is-read.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -59,8 +60,8 @@ export class NotificationAdminController {
   @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
   @HttpCode(HttpStatus.OK)
   @Put('is-read')
-  async updateIsRead(@Body('ids') ids: number[]) {
-    return this.notificationAdminService.updateIsRead(ids);
+  async updateIsRead(@Body() dto: UpdateIsReadDto) {
+    return this.notificationAdminService.updateIsRead(dto.ids);
   }
 
   @ApiOperation({ summary: 'Xóa thông báo' })
