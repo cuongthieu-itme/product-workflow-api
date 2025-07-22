@@ -1,47 +1,67 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
-  IsNotEmpty,
+  IsArray,
+  IsDateString,
+  IsEnum,
+  IsInt,
   IsOptional,
   IsString,
-  IsEnum,
-  IsArray,
-  IsInt,
-  IsPositive,
-  MinLength,
   ValidateNested,
 } from 'class-validator';
-import { ApiProperty } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
-import { SourceRequest, MaterialType, RequestStatus } from '@prisma/client';
-import { CreateRequestInputDto } from 'src/request-input/dto';
+import { SourceRequest } from '@prisma/client';
 
-export class RequestMaterialDto {
-  @ApiProperty()
-  @IsNotEmpty()
+export class CreateRequestInputDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
   @IsInt()
-  @IsPositive()
+  quantity?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  expectedDate?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  supplier?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  sourceCountry?: string;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  price?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  reason?: string;
+}
+
+export class CreateRequestMaterialDto {
+  @ApiProperty()
+  @IsInt()
   materialId: number;
 
   @ApiProperty()
-  @IsNotEmpty()
   @IsInt()
-  @IsPositive()
   quantity: number;
 
-  @ApiProperty({
-    enum: MaterialType,
-    description:
-      'Material type for validation only - not stored in RequestMaterial table',
-  })
-  @IsNotEmpty()
-  @IsEnum(MaterialType)
-  materialType: MaterialType;
+  @ApiProperty({ type: () => CreateRequestInputDto, required: false })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreateRequestInputDto)
+  requestInput?: CreateRequestInputDto;
 }
 
 export class CreateRequestDto {
   @ApiProperty()
-  @IsNotEmpty()
   @IsString()
-  @MinLength(1)
   title: string;
 
   @ApiProperty({ required: false })
@@ -62,59 +82,33 @@ export class CreateRequestDto {
   media?: string[];
 
   @ApiProperty({ enum: SourceRequest })
-  @IsNotEmpty()
   @IsEnum(SourceRequest)
   source: SourceRequest;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
-  @IsPositive()
   customerId?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
-  @IsPositive()
   sourceOtherId?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
-  @IsPositive()
-  userId?: number;
+  createdById?: number;
 
-  @ApiProperty({
-    enum: RequestStatus,
-    required: false,
-  })
-  @IsOptional()
-  @IsEnum(RequestStatus)
-  status?: RequestStatus;
-
-  @ApiProperty({
-    required: false,
-  })
+  @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
-  @IsPositive()
   statusProductId?: number;
 
-  @ApiProperty({
-    type: [RequestMaterialDto],
-    required: false,
-  })
+  @ApiProperty({ type: [CreateRequestMaterialDto], required: false })
   @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => RequestMaterialDto)
-  materials?: RequestMaterialDto[];
-
-  @ApiProperty({
-    type: () => CreateRequestInputDto,
-    required: false,
-  })
-  @IsOptional()
-  @Type(() => CreateRequestInputDto)
-  requestInput?: CreateRequestInputDto;
+  @Type(() => CreateRequestMaterialDto)
+  materials?: CreateRequestMaterialDto[];
 }
