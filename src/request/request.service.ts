@@ -8,10 +8,14 @@ import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { RequestStatus } from '@prisma/client';
+import { NotificationAdminService } from 'src/notification-admin/notification-admin.service';
 
 @Injectable()
 export class RequestService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly notificationAdminService: NotificationAdminService,
+  ) {}
 
   async findAll(filters?: FilterRequestDto) {
     const whereCondition: any = {};
@@ -253,6 +257,16 @@ export class RequestService {
           }
         }
 
+        const infoCreatedBy = await prisma.user.findUnique({
+          where: { id: createdById },
+        });
+
+        await this.notificationAdminService.create({
+          title: 'Yêu cầu mới',
+          content: `Yêu cầu mới bởi ${infoCreatedBy?.fullName}`,
+          type: 'REQUEST',
+        });
+
         // Return the complete request with all relations
         return await this.findByIdInternal(newRequest.id, prisma);
       });
@@ -420,6 +434,16 @@ export class RequestService {
             }
           }
         }
+
+        const infoCreatedBy = await prisma.user.findUnique({
+          where: { id: existingRequest.createdById },
+        });
+
+        await this.notificationAdminService.create({
+          title: 'Yêu cầu cập nhật',
+          content: `Yêu cầu cập nhật bởi ${infoCreatedBy?.fullName}`,
+          type: 'REQUEST',
+        });
 
         // Return updated request with all relations
         return await this.findByIdInternal(id, this.prismaService);
