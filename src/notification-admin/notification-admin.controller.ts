@@ -1,5 +1,6 @@
 import {
   Body,
+  ValidationPipe,
   Controller,
   Delete,
   Get,
@@ -60,7 +61,7 @@ export class NotificationAdminController {
   @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
   @HttpCode(HttpStatus.OK)
   @Put('is-read')
-  async updateIsRead(@Body() dto: UpdateIsReadDto) {
+  updateIsRead(@Body() dto: UpdateIsReadDto) {
     return this.notificationAdminService.updateIsRead(dto.ids);
   }
 
