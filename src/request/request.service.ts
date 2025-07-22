@@ -244,7 +244,7 @@ export class RequestService {
         }
 
         // Return the complete request with all relations
-        return await this.findByIdInternal(newRequest.id, this.prismaService);
+        return await this.findByIdInternal(newRequest.id, prisma);
       });
     } catch (error) {
       console.error('Lỗi khi tạo yêu cầu:', error);
@@ -469,7 +469,7 @@ export class RequestService {
     }
   }
 
-  private async findByIdInternal(id: number, prisma = this.prismaService) {
+  private async findByIdInternal(id: number, prisma: any = this.prismaService) {
     const request = await prisma.request.findUnique({
       where: { id },
       include: {
