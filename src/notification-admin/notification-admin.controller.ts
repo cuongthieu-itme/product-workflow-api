@@ -10,6 +10,7 @@ import {
   Post,
   Put,
   Query,
+  Patch,
 } from '@nestjs/common';
 import { NotificationAdminService } from './notification-admin.service';
 import { CreateNotificationAdminDto } from './dto/create-notification-admin.dto';
@@ -60,8 +61,9 @@ export class NotificationAdminController {
 
   @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
   @HttpCode(HttpStatus.OK)
-  @Put('is-read')
-  updateIsRead(@Body() dto: UpdateIsReadDto) {
+  @Patch('is-read')
+  updateIsRead(@Body(new ValidationPipe({ whitelist: true }))
+  dto: UpdateIsReadDto) {
     return this.notificationAdminService.updateIsRead(dto.ids);
   }
 

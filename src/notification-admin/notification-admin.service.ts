@@ -124,20 +124,28 @@ export class NotificationAdminService {
     };
   }
 
-  async updateIsRead(ids: number[]) {
-    if (!ids || !ids.length) {
+  async updateIsRead(
+    ids: number[],
+  ): Promise<{ message: string; count?: number }> {
+    if (!Array.isArray(ids) || ids.length === 0) {
       return { message: 'Danh sách ID thông báo trống' };
     }
 
-    const result = await this.prismaService.notificationAdmin.updateMany({
-      where: { id: { in: ids } },
-      data: { isRead: true },
-    });
+    try {
+      const result = await this.prismaService.notificationAdmin.updateMany({
+        where: { id: { in: ids } },
+        data: { isRead: true },
+      });
 
-    return {
-      message: 'Cập nhật trạng thái xem thông báo thành công',
-      count: result.count,
-    };
+      return {
+        message: 'Cập nhật trạng thái xem thông báo thành công',
+        count: result.count,
+      };
+    } catch (error) {
+      console.error('Lỗi khi cập nhật trạng thái isRead:', error);
+
+      return { message: 'Đã xảy ra lỗi khi cập nhật trạng thái thông báo' };
+    }
   }
 
   async remove(id: number) {
