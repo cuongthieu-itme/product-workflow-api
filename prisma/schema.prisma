@@ -71,6 +71,7 @@ model User {
   resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
   customers           Customer[]           @relation("user_customers_relation")
   requests            Request[]            @relation("user_request_relation")
+  evaluates           Evaluate[]           @relation("user_evaluate_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -277,6 +278,7 @@ model Request {
   statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "request_status_product_relation")
 
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
+  evaluates        Evaluate[]        @relation("request_evaluate_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -352,4 +354,24 @@ model RequestInput {
   updatedAt DateTime @updatedAt
 
   @@map("request_inputs")
+}
+
+model Evaluate {
+  id          Int     @id @default(autoincrement())
+  title       String
+  reviewType  String
+  score       Int     @default(0)
+  description String?
+  isAnonymous Boolean @default(false)
+
+  requestId Int
+  request   Request @relation(fields: [requestId], references: [id], name: "request_evaluate_relation")
+
+  createdById Int?
+  createdBy   User? @relation(fields: [createdById], references: [id], name: "user_evaluate_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("evaluates")
 }

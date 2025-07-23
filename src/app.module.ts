@@ -21,6 +21,7 @@ import { OriginModule } from './origin/origin.module';
 import { SourceOtherModule } from './source-other/source-other.module';
 import { NotificationAdminModule } from './notification-admin/notification-admin.module';
 import { RequestInputModule } from './request-input/request-input.module';
+import { EvaluateModule } from './evaluate/evaluate.module';
 
 @Module({
   imports: [
@@ -46,6 +47,7 @@ import { RequestInputModule } from './request-input/request-input.module';
     SourceOtherModule,
     NotificationAdminModule,
     RequestInputModule,
+    EvaluateModule,
   ],
 })
 export class AppModule {}
