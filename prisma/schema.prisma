@@ -48,6 +48,13 @@ enum NotificationType {
   REQUEST
 }
 
+enum StatusSubprocessHistory {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -72,6 +79,7 @@ model User {
   customers           Customer[]           @relation("user_customers_relation")
   requests            Request[]            @relation("user_request_relation")
   evaluates           Evaluate[]           @relation("user_evaluate_relation")
+  subprocessesHistory SubprocessHistory[]  @relation("user_subprocess_history_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -113,8 +121,9 @@ model Department {
   headId Int?  @unique
   head   User? @relation(fields: [headId], references: [id], name: "department_head_relation")
 
-  members      User[]       @relation("user_department_relation")
-  subprocesses Subprocess[] @relation("department_subprocess_relation")
+  members             User[]              @relation("user_department_relation")
+  subprocesses        Subprocess[]        @relation("department_subprocess_relation")
+  subprocessesHistory SubprocessHistory[] @relation("department_subprocess_history_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -196,8 +205,9 @@ model Procedure {
   description String?
   version     Int     @default(1)
 
-  statusProducts StatusProduct[] @relation("procedure_status_relation")
-  subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")
+  statusProducts      StatusProduct[]     @relation("procedure_status_relation")
+  subprocesses        Subprocess[]        @relation("procedure_subprocess_relation")
+  subprocessesHistory SubprocessHistory[] @relation("procedure_subprocess_history_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -228,6 +238,38 @@ model Subprocess {
   @@index([procedureId])
   @@index([departmentId])
   @@map("subprocesses")
+}
+
+model SubprocessHistory {
+  id                         Int       @id @default(autoincrement())
+  name                       String
+  description                String?
+  estimatedNumberOfDays      Int
+  numberOfDaysBeforeDeadline Int?
+  roleOfThePersonInCharge    String?
+  isRequired                 Boolean   @default(false)
+  isStepWithCost             Boolean   @default(false)
+  step                       Int
+  procedureId                Int
+  procedure                  Procedure @relation(fields: [procedureId], references: [id], name: "procedure_subprocess_history_relation")
+
+  departmentId Int?
+  department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_history_relation")
+
+  price     Int?
+  startDate DateTime?
+  endDate   DateTime?
+  status    StatusSubprocessHistory @default(PENDING)
+  userId    Int?
+  user      User?                   @relation(fields: [userId], references: [id], name: "user_subprocess_history_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([procedureId])
+  @@index([departmentId])
+  @@index([userId])
+  @@map("subprocesses_history")
 }
 
 model SourceOther {
