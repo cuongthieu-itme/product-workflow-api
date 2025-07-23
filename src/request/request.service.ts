@@ -7,8 +7,8 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { RequestStatus } from '@prisma/client';
 import { NotificationAdminService } from 'src/notification-admin/notification-admin.service';
+import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 
 @Injectable()
 export class RequestService {
@@ -720,7 +720,7 @@ export class RequestService {
     await Promise.all(validationPromises);
   }
 
-  async updateStatus(id: number, status: RequestStatus) {
+  async updateStatus(id: number, dto: UpdateRequestStatusDto) {
     const existingRequest = await this.prismaService.request.findUnique({
       where: { id },
       select: { id: true, status: true },
@@ -730,15 +730,19 @@ export class RequestService {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
     }
 
-    if (existingRequest.status === status) {
+    if (existingRequest.status === dto.status) {
       throw new BadRequestException(
         'Trạng thái mới trùng với trạng thái hiện tại',
       );
     }
 
+    const updateData: any = { status: dto.status };
+    if (dto.statusProductId !== undefined) {
+      updateData.statusProductId = dto.statusProductId;
+    }
     const updatedRequest = await this.prismaService.request.update({
       where: { id },
-      data: { status },
+      data: updateData,
       include: {
         customer: true,
         sourceOther: true,
