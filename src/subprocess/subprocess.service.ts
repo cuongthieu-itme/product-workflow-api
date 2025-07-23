@@ -8,10 +8,14 @@ import { UpdateSubprocessDto } from './dto/update-subprocess.dto';
 import { FilterSubprocessDto } from './dto/filter-subprocess.dto';
 import { ReorderStepsDto } from './dto/reorder-steps.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { SubprocessesHistoryService } from 'src/subprocesses-history/subprocesses-history.service';
 
 @Injectable()
 export class SubprocessService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly subprocessesHistoryService: SubprocessesHistoryService,
+  ) {}
 
   async findAll(filters?: FilterSubprocessDto) {
     const whereCondition: any = {};
@@ -141,21 +145,58 @@ export class SubprocessService {
   }
 
   async create(dto: CreateSubprocessDto) {
+    // Validate procedure existence
+    await this.validateProcedureExists(dto.procedureId);
+
+    // Validate uniqueness constraints
+    await this.validateSubprocessUniqueness(dto);
+
+    // Create subprocess and history in transaction
+    return await this.prismaService.$transaction(async (prisma) => {
+      const subprocessData = this.buildSubprocessData(dto);
+
+      const newSubprocess = await prisma.subprocess.create({
+        data: subprocessData,
+        select: this.getSubprocessSelectFields(),
+      });
+
+      await prisma.subprocessHistory.create({
+        data: subprocessData,
+        select: this.getSubprocessSelectFields(),
+      });
+
+      return {
+        message: 'Tạo quy trình con thành công',
+        data: newSubprocess,
+      };
+    });
+  }
+
+  private async validateProcedureExists(procedureId: number): Promise<void> {
     const existingProcedure = await this.prismaService.procedure.findUnique({
-      where: { id: dto.procedureId },
+      where: { id: procedureId },
     });
 
     if (!existingProcedure) {
       throw new NotFoundException(
-        `Không tìm thấy quy trình con với ID ${dto.procedureId}`,
+        `Không tìm thấy quy trình con với ID ${procedureId}`,
       );
     }
+  }
 
+  private async validateSubprocessUniqueness(
+    dto: CreateSubprocessDto,
+  ): Promise<void> {
+    const whereClause = {
+      procedureId: dto.procedureId,
+      departmentId: dto.departmentId,
+    };
+
+    // Check for duplicate name
     const existingSubprocess = await this.prismaService.subprocess.findFirst({
       where: {
+        ...whereClause,
         name: dto.name,
-        procedureId: dto.procedureId,
-        departmentId: dto.departmentId,
       },
     });
 
@@ -165,64 +206,62 @@ export class SubprocessService {
       );
     }
 
+    // Check for duplicate step
     const duplicatedStep = await this.prismaService.subprocess.findFirst({
       where: {
+        ...whereClause,
         step: dto.step,
-        procedureId: dto.procedureId,
-        departmentId: dto.departmentId,
       },
     });
 
     if (duplicatedStep) {
       throw new ConflictException('Bước (step) đã tồn tại trong procedure này');
     }
+  }
 
-    const newSubprocess = await this.prismaService.subprocess.create({
-      data: {
-        name: dto.name,
-        description: dto.description,
-        estimatedNumberOfDays: dto.estimatedNumberOfDays,
-        numberOfDaysBeforeDeadline: dto.numberOfDaysBeforeDeadline,
-        roleOfThePersonInCharge: dto.roleOfThePersonInCharge,
-        isRequired: dto.isRequired || false,
-        isStepWithCost: dto.isStepWithCost || false,
-        procedureId: dto.procedureId,
-        step: dto.step,
-        departmentId: dto.departmentId,
-      },
-      select: {
-        id: true,
-        name: true,
-        description: true,
-        estimatedNumberOfDays: true,
-        numberOfDaysBeforeDeadline: true,
-        roleOfThePersonInCharge: true,
-        isRequired: true,
-        isStepWithCost: true,
-        procedureId: true,
-        step: true,
-        procedure: {
-          select: {
-            id: true,
-            name: true,
-            description: true,
-            version: true,
-          },
-        },
-        department: {
-          select: {
-            id: true,
-            name: true,
-          },
-        },
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
-
+  private buildSubprocessData(dto: CreateSubprocessDto) {
     return {
-      message: 'Tạo quy trình con thành công',
-      data: newSubprocess,
+      name: dto.name,
+      description: dto.description,
+      estimatedNumberOfDays: dto.estimatedNumberOfDays,
+      numberOfDaysBeforeDeadline: dto.numberOfDaysBeforeDeadline,
+      roleOfThePersonInCharge: dto.roleOfThePersonInCharge,
+      isRequired: dto.isRequired ?? false,
+      isStepWithCost: dto.isStepWithCost ?? false,
+      procedureId: dto.procedureId,
+      step: dto.step,
+      departmentId: dto.departmentId,
+    };
+  }
+
+  private getSubprocessSelectFields() {
+    return {
+      id: true,
+      name: true,
+      description: true,
+      estimatedNumberOfDays: true,
+      numberOfDaysBeforeDeadline: true,
+      roleOfThePersonInCharge: true,
+      isRequired: true,
+      isStepWithCost: true,
+      procedureId: true,
+      step: true,
+      procedure: {
+        select: {
+          id: true,
+          name: true,
+          description: true,
+          version: true,
+        },
+      },
+      department: {
+        select: {
+          id: true,
+          name: true,
+        },
+      },
+      createdAt: true,
+      updatedAt: true,
     };
   }
 
