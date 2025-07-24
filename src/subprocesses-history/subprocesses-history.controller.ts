@@ -10,6 +10,7 @@ import {
   HttpCode,
   Query,
   ParseIntPipe,
+  Patch,
 } from '@nestjs/common';
 import { SubprocessesHistoryService } from './subprocesses-history.service';
 import {
@@ -19,6 +20,7 @@ import {
 } from './dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { UpdateStatusSubprocessHistoryDto } from './dto/update-status-subprocesses-history.dto';
 
 @ApiTags('SubprocessesHistory')
 @AuthGuard()
@@ -64,5 +66,12 @@ export class SubprocessesHistoryController {
   @Delete(':id')
   async remove(@Param('id', ParseIntPipe) id: number) {
     return this.subprocessesHistoryService.remove(id);
+  }
+
+  @ApiOperation({ summary: 'Cập nhật trạng thái lịch sử quy trình' })
+  @HttpCode(HttpStatus.OK)
+  @Patch('status')
+  async updateStatus(@Body() dto: UpdateStatusSubprocessHistoryDto) {
+    return this.subprocessesHistoryService.updateStatus(dto);
   }
 }

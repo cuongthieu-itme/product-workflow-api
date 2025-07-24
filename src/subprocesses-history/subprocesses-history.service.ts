@@ -9,6 +9,8 @@ import {
   UpdateSubprocessesHistoryDto,
   FilterSubprocessesHistoryDto,
 } from './dto';
+import { StatusSubprocessHistory } from '@prisma/client';
+import { UpdateStatusSubprocessHistoryDto } from './dto/update-status-subprocesses-history.dto';
 
 @Injectable()
 export class SubprocessesHistoryService {
@@ -155,6 +157,48 @@ export class SubprocessesHistoryService {
 
     return {
       message: 'Cập nhật lịch sử quy trình thành công',
+      data: updated,
+    };
+  }
+
+  async updateStatus(dto: UpdateStatusSubprocessHistoryDto) {
+    const existing = await this.prismaService.subprocessHistory.findUnique({
+      where: { id: dto.id },
+      include: {
+        procedure: true,
+        department: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    if (!existing) {
+      throw new NotFoundException(
+        `Không tìm thấy lịch sử quy trình với ID ${dto.id}`,
+      );
+    }
+
+    const updated = await this.prismaService.subprocessHistory.update({
+      where: { id: dto.id },
+      data: { status: dto.status },
+      include: {
+        procedure: true,
+        department: true,
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+          },
+        },
+      },
+    });
+
+    return {
+      message: 'Cập nhật trạng thái lịch sử quy trình thành công',
       data: updated,
     };
   }
