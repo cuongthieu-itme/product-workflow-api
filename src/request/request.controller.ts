@@ -72,7 +72,7 @@ export class RequestController {
     @Param('id') id: number,
     @Body() dto: UpdateRequestStatusDto,
   ) {
-    return this.requestService.updateStatus(id, dto);
+    return this.requestService.updateStatusAndSaveHistory(id, dto);
   }
 
   @ApiOperation({
