@@ -12,16 +12,19 @@ export class FilterSubprocessesHistoryDto {
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
+  @Transform(({ value }) => parseInt(value, 10))
   procedureId?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
+  @Transform(({ value }) => parseInt(value, 10))
   departmentId?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
   @IsInt()
+  @Transform(({ value }) => parseInt(value, 10))
   userId?: number;
 
   @ApiProperty({ required: false, enum: StatusSubprocessHistory })
