@@ -149,6 +149,11 @@ export class RequestService {
             },
           },
         },
+        procedureHistory: {
+          include: {
+            subprocessesHistory: true,
+          },
+        },
       },
     });
 

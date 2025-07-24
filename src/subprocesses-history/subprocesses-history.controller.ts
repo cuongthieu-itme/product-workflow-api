@@ -15,6 +15,7 @@ import {
   CreateSubprocessHistoryDto,
   UpdateSubprocessHistoryDto,
   FilterSubprocessHistoryDto,
+  UpdateSubprocessHistoryStatusDto,
 } from './dto/index';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
@@ -58,6 +59,14 @@ export class SubprocessesHistoryController {
 
   @ApiOperation({ summary: 'Xóa subprocess history' })
   @HttpCode(HttpStatus.OK)
+  @Put(':id/status')
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() dto: UpdateSubprocessHistoryStatusDto,
+  ) {
+    return this.subprocessesHistoryService.updateStatus(Number(id), dto);
+  }
+
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.subprocessesHistoryService.remove(Number(id));

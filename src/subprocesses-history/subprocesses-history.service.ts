@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateSubprocessHistoryDto } from './dto/create-subprocess-history.dto';
 import { FilterSubprocessHistoryDto, UpdateSubprocessHistoryDto } from './dto';
+import { UpdateSubprocessHistoryStatusDto } from './dto/update-subprocess-history-status.dto';
 
 @Injectable()
 export class SubprocessesHistoryService {
@@ -105,6 +106,20 @@ export class SubprocessesHistoryService {
     });
 
     return { message: 'Cập nhật subprocess history thành công', data: updated };
+  }
+
+  async updateStatus(id: number, dto: UpdateSubprocessHistoryStatusDto) {
+    const exist = await this.prismaService.subprocessHistory.findUnique({ where: { id } });
+    if (!exist) {
+      throw new NotFoundException(`Không tìm thấy subprocess history với ID ${id}`);
+    }
+
+    const updated = await this.prismaService.subprocessHistory.update({
+      where: { id },
+      data: { status: dto.status },
+    });
+
+    return { message: 'Cập nhật trạng thái subprocess history thành công', data: updated };
   }
 
   async remove(id: number) {
