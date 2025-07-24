@@ -15,11 +15,13 @@ export class FilterEvaluateDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   requestId?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   createdById?: number;
 
