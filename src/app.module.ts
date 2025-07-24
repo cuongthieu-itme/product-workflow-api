@@ -22,6 +22,7 @@ import { SourceOtherModule } from './source-other/source-other.module';
 import { NotificationAdminModule } from './notification-admin/notification-admin.module';
 import { RequestInputModule } from './request-input/request-input.module';
 import { EvaluateModule } from './evaluate/evaluate.module';
+import { SubprocessesHistoryModule } from './subprocesses-history/subprocesses-history.module';
 
 @Module({
   imports: [
@@ -48,6 +49,7 @@ import { EvaluateModule } from './evaluate/evaluate.module';
     NotificationAdminModule,
     RequestInputModule,
     EvaluateModule,
+    SubprocessesHistoryModule,
   ],
 })
 export class AppModule {}
