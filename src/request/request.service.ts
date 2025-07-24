@@ -124,6 +124,16 @@ export class RequestService {
         createdBy: true,
         customer: true,
         sourceOther: true,
+        statusProduct: {
+          include: {
+            procedure: {
+              include: {
+                subprocesses: true,
+                subprocessesHistory: true,
+              },
+            },
+          },
+        },
         requestMaterials: {
           include: {
             material: {
