@@ -129,7 +129,6 @@ export class RequestService {
             procedure: {
               include: {
                 subprocesses: true,
-                subprocessesHistory: true,
               },
             },
           },

@@ -8,14 +8,10 @@ import { UpdateSubprocessDto } from './dto/update-subprocess.dto';
 import { FilterSubprocessDto } from './dto/filter-subprocess.dto';
 import { ReorderStepsDto } from './dto/reorder-steps.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { SubprocessesHistoryService } from 'src/subprocesses-history/subprocesses-history.service';
 
 @Injectable()
 export class SubprocessService {
-  constructor(
-    private readonly prismaService: PrismaService,
-    private readonly subprocessesHistoryService: SubprocessesHistoryService,
-  ) {}
+  constructor(private readonly prismaService: PrismaService) {}
 
   async findAll(filters?: FilterSubprocessDto) {
     const whereCondition: any = {};
@@ -156,11 +152,6 @@ export class SubprocessService {
       const subprocessData = this.buildSubprocessData(dto);
 
       const newSubprocess = await prisma.subprocess.create({
-        data: subprocessData,
-        select: this.getSubprocessSelectFields(),
-      });
-
-      await prisma.subprocessHistory.create({
         data: subprocessData,
         select: this.getSubprocessSelectFields(),
       });
