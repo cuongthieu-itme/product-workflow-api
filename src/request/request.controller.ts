@@ -76,6 +76,18 @@ export class RequestController {
   }
 
   @ApiOperation({
+    summary: 'Cập nhật nguyên vật liệu cho yêu cầu',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Put(':id/materials')
+  async updateMaterials(
+    @Param('id') id: number,
+    @Body('materials') materials: CreateRequestDto['materials'],
+  ) {
+    return this.requestService.update(id, { materials });
+  }
+
+  @ApiOperation({
     summary: 'Xóa yêu cầu',
   })
   @HttpCode(HttpStatus.OK)
