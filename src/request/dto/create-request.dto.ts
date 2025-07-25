@@ -69,6 +69,12 @@ export class AddMaterialToRequestDto {
   quantity: number;
 }
 
+export class RemoveMaterialFromRequestDto {
+  @ApiProperty()
+  @IsInt()
+  materialId: number;
+}
+
 export class CreateRequestDto {
   @ApiProperty()
   @IsString()

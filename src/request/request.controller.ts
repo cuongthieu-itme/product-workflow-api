@@ -18,6 +18,7 @@ import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AddMaterialToRequestDto } from './dto/create-request.dto';
+import { RemoveMaterialFromRequestDto } from './dto/create-request.dto';
 
 @ApiTags('Request')
 @AuthGuard()
@@ -106,5 +107,15 @@ export class RequestController {
     @Body() dto: AddMaterialToRequestDto,
   ) {
     return this.requestService.addMaterial(Number(id), dto);
+  }
+
+  @ApiOperation({ summary: 'Xoá material khỏi request' })
+  @HttpCode(HttpStatus.OK)
+  @Delete(':id/material')
+  async removeMaterial(
+    @Param('id') id: number,
+    @Body() dto: RemoveMaterialFromRequestDto,
+  ) {
+    return this.requestService.removeMaterial(Number(id), dto);
   }
 }

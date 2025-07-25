@@ -9,7 +9,10 @@ import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { NotificationAdminService } from 'src/notification-admin/notification-admin.service';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
-import { AddMaterialToRequestDto } from './dto/create-request.dto';
+import {
+  AddMaterialToRequestDto,
+  RemoveMaterialFromRequestDto,
+} from './dto/create-request.dto';
 
 @Injectable()
 export class RequestService {
@@ -1108,6 +1111,51 @@ export class RequestService {
       },
     });
 
+    return this.findByIdInternal(requestId);
+  }
+
+  async removeMaterial(requestId: number, dto: RemoveMaterialFromRequestDto) {
+    // Kiểm tra request tồn tại
+    const request = await this.prismaService.request.findUnique({
+      where: { id: requestId },
+    });
+    if (!request) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
+    }
+
+    // Kiểm tra material có trong request không
+    const requestMaterial = await this.prismaService.requestMaterial.findUnique(
+      {
+        where: {
+          requestId_materialId: {
+            requestId,
+            materialId: dto.materialId,
+          },
+        },
+      },
+    );
+    if (!requestMaterial) {
+      throw new NotFoundException(
+        `Material với ID ${dto.materialId} không tồn tại trong request này`,
+      );
+    }
+
+    // Xoá requestMaterial
+    await this.prismaService.requestMaterial.delete({
+      where: {
+        requestId_materialId: {
+          requestId,
+          materialId: dto.materialId,
+        },
+      },
+    });
+
+    // Xoá luôn requestInput nếu có
+    await this.prismaService.requestInput.deleteMany({
+      where: { materialId: dto.materialId },
+    });
+
+    // Trả về request sau khi xoá material
     return this.findByIdInternal(requestId);
   }
 }
