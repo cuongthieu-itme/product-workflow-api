@@ -532,6 +532,82 @@ export class RequestService {
     }
   }
 
+  /**
+   * Upsert (create or update) materials for a request. Only affects materials, not other fields.
+   */
+  async createOrUpdateMaterials(requestId: number, materials: CreateRequestDto['materials']) {
+    // Validate materials if provided
+    if (materials && materials.length > 0) {
+      await this.validateMaterials(materials.map((m) => m.materialId));
+      // Check for duplicate materials
+      const materialIds = materials.map((m) => m.materialId);
+      const duplicates = materialIds.filter(
+        (materialId, index) => materialIds.indexOf(materialId) !== index,
+      );
+      if (duplicates.length > 0) {
+        throw new BadRequestException(
+          `Phát hiện nguyên vật liệu bị trùng: ${duplicates.join(', ')}`,
+        );
+      }
+    }
+
+    return this.prismaService.$transaction(async (prisma) => {
+      // Lấy danh sách material hiện tại của request
+      const existingRequest = await prisma.request.findUnique({
+        where: { id: requestId },
+        include: { requestMaterials: true },
+      });
+      if (!existingRequest) {
+        throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
+      }
+      // Nếu truyền [] thì xóa hết
+      if (materials && materials.length === 0) {
+        await this.removeMaterialsAndInputs(requestId, prisma);
+        return this.findByIdInternal(requestId, this.prismaService);
+      }
+      // Upsert từng material
+      for (const material of materials || []) {
+        const existing = existingRequest.requestMaterials.find(
+          (rm) => rm.materialId === material.materialId,
+        );
+        if (existing) {
+          // Update
+          await prisma.requestMaterial.update({
+            where: {
+              requestId_materialId: {
+                requestId,
+                materialId: material.materialId,
+              },
+            },
+            data: { quantity: material.quantity },
+          });
+        } else {
+          // Create
+          await prisma.requestMaterial.create({
+            data: {
+              requestId,
+              materialId: material.materialId,
+              quantity: material.quantity,
+            },
+          });
+        }
+        // Upsert requestInput nếu có
+        await this.upsertRequestInput(material, prisma);
+      }
+      // Xóa các material không còn trong danh sách mới
+      if (materials) {
+        const newMaterialIds = materials.map((m) => m.materialId);
+        const toRemove = existingRequest.requestMaterials
+          .map((rm) => rm.materialId)
+          .filter((id) => !newMaterialIds.includes(id));
+        if (toRemove.length > 0) {
+          await this.removeMaterialsAndInputs(requestId, prisma, toRemove);
+        }
+      }
+      return this.findByIdInternal(requestId, this.prismaService);
+    });
+  }
+
   private async validateMaterials(materialIds: number[]): Promise<void> {
     if (materialIds.length === 0) return;
 

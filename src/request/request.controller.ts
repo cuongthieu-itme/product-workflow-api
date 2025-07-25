@@ -84,7 +84,7 @@ export class RequestController {
     @Param('id') id: number,
     @Body('materials') materials: CreateRequestDto['materials'],
   ) {
-    return this.requestService.update(id, { materials });
+    return this.requestService.createOrUpdateMaterials(id, materials);
   }
 
   @ApiOperation({
