@@ -104,4 +104,16 @@ export class RequestController {
   async findByStatusProductIdWithHistory(@Param('statusProductId') statusProductId: number) {
     return this.requestService.findByStatusProductIdWithHistory(Number(statusProductId));
   }
+
+  @ApiOperation({
+    summary: 'Xóa một nguyên vật liệu khỏi yêu cầu',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Delete(':id/materials')
+  async removeMaterialFromRequest(
+    @Param('id') id: number,
+    @Body('materialId') materialId: number,
+  ) {
+    return this.requestService.removeMaterialFromRequest(id, materialId);
+  }
 }

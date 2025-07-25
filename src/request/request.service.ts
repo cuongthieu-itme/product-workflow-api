@@ -1155,4 +1155,22 @@ export class RequestService {
     });
     return { data: requests };
   }
+
+  /**
+   * Xóa một material khỏi request, đồng thời xóa luôn requestInput liên quan nếu có
+   */
+  async removeMaterialFromRequest(requestId: number, materialId: number) {
+    return this.prismaService.$transaction(async (prisma) => {
+      // Xóa requestInput nếu có
+      await prisma.requestInput.deleteMany({
+        where: { materialId },
+      });
+      // Xóa requestMaterial
+      await prisma.requestMaterial.deleteMany({
+        where: { requestId, materialId },
+      });
+      // Trả về request sau khi xóa
+      return this.findByIdInternal(requestId, this.prismaService);
+    });
+  }
 }
