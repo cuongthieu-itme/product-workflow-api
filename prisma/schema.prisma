@@ -53,6 +53,7 @@ enum StatusSubprocessHistory {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+  SKIPPED
 }
 
 model User {
