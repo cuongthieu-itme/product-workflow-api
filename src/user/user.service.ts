@@ -505,7 +505,13 @@ export class UserService {
 
   async findUsersWithoutDepartment() {
     const data = await this.prismaService.user.findMany({
-      where: { departmentId: null },
+      where: {
+        departmentId: null,
+        NOT: [
+          { role: 'ADMIN' },
+          { role: 'SUPER_ADMIN' },
+        ],
+      },
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,

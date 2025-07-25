@@ -93,7 +93,7 @@ export class UserController {
     summary: 'Lấy danh sách người dùng chưa ở phòng ban nào',
   })
   @HttpCode(HttpStatus.OK)
-  @Get('no-department')
+  @Get('no-department/current')
   async findUsersWithoutDepartment() {
     return this.userService.findUsersWithoutDepartment();
   }
