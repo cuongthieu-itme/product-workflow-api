@@ -1029,4 +1029,34 @@ export class RequestService {
       ),
     };
   }
+
+  async findByStatusProductIdWithHistory(statusProductId: number) {
+    if (!statusProductId) {
+      throw new BadRequestException('Không tìm thấy trạng thái sản phẩm');
+    }
+    const requests = await this.prismaService.request.findMany({
+      where: { statusProductId },
+      include: {
+        procedureHistory: {
+          include: {
+            subprocessesHistory: {
+              include: {
+                user: {
+                  select: {
+                    fullName: true,
+                    userName: true,
+                    email: true,
+                    phoneNumber: true,
+                    avatar: true,
+                  },
+                },
+              },
+              orderBy: { step: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    return { data: requests };
+  }
 }

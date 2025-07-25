@@ -83,4 +83,13 @@ export class RequestController {
   async remove(@Param('id') id: number) {
     return this.requestService.remove(id);
   }
+
+  @ApiOperation({
+    summary: 'Lấy tất cả yêu cầu theo statusProductId',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('by-status-product/:statusProductId')
+  async findByStatusProductIdWithHistory(@Param('statusProductId') statusProductId: number) {
+    return this.requestService.findByStatusProductIdWithHistory(Number(statusProductId));
+  }
 }
