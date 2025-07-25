@@ -10,7 +10,7 @@ import {
 } from 'class-validator';
 import { StatusSubprocessHistory } from '@prisma/client';
 
-export class CreateSubprocessesHistoryDto {
+export class CreateSubprocessHistoryDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsString()
@@ -54,7 +54,7 @@ export class CreateSubprocessesHistoryDto {
   @ApiProperty()
   @IsNotEmpty()
   @IsInt()
-  procedureId: number;
+  procedureHistoryId: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
@@ -76,13 +76,10 @@ export class CreateSubprocessesHistoryDto {
   @IsDateString()
   endDate?: Date;
 
-  @ApiProperty({
-    enum: StatusSubprocessHistory,
-    default: StatusSubprocessHistory.PENDING,
-  })
+  @ApiProperty({ enum: StatusSubprocessHistory, required: false })
   @IsOptional()
   @IsEnum(StatusSubprocessHistory)
-  status?: StatusSubprocessHistory = StatusSubprocessHistory.PENDING;
+  status?: StatusSubprocessHistory;
 
   @ApiProperty({ required: false })
   @IsOptional()

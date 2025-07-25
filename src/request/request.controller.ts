@@ -72,7 +72,7 @@ export class RequestController {
     @Param('id') id: number,
     @Body() dto: UpdateRequestStatusDto,
   ) {
-    return this.requestService.updateStatus(id, dto);
+    return this.requestService.updateStatusAndSaveHistory(id, dto);
   }
 
   @ApiOperation({
@@ -82,5 +82,14 @@ export class RequestController {
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.requestService.remove(id);
+  }
+
+  @ApiOperation({
+    summary: 'Lấy tất cả yêu cầu theo statusProductId',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('by-status-product/:statusProductId')
+  async findByStatusProductIdWithHistory(@Param('statusProductId') statusProductId: number) {
+    return this.requestService.findByStatusProductIdWithHistory(Number(statusProductId));
   }
 }

@@ -53,6 +53,7 @@ enum StatusSubprocessHistory {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+  SKIPPED
 }
 
 model User {
@@ -141,6 +142,9 @@ model StatusProduct {
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_status_relation")
 
+  procedureHistoryId Int?
+  procedureHistory   ProcedureHistory? @relation(fields: [procedureHistoryId], references: [id], name: "procedure_history_status_relation")
+
   requests Request[] @relation("request_status_product_relation")
 
   createdAt DateTime @default(now())
@@ -205,9 +209,8 @@ model Procedure {
   description String?
   version     Int     @default(1)
 
-  statusProducts      StatusProduct[]     @relation("procedure_status_relation")
-  subprocesses        Subprocess[]        @relation("procedure_subprocess_relation")
-  subprocessesHistory SubprocessHistory[] @relation("procedure_subprocess_history_relation")
+  statusProducts StatusProduct[] @relation("procedure_status_relation")
+  subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -240,18 +243,34 @@ model Subprocess {
   @@map("subprocesses")
 }
 
+model ProcedureHistory {
+  id          Int     @id @default(autoincrement())
+  name        String?
+  description String?
+  version     Int     @default(1)
+
+  statusProducts      StatusProduct[]     @relation("procedure_history_status_relation")
+  subprocessesHistory SubprocessHistory[] @relation("procedure_history_subprocess_history_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  request   Request? @relation("request_procedure_history_relation")
+
+  @@map("procedures_history")
+}
+
 model SubprocessHistory {
-  id                         Int       @id @default(autoincrement())
+  id                         Int              @id @default(autoincrement())
   name                       String
   description                String?
   estimatedNumberOfDays      Int
   numberOfDaysBeforeDeadline Int?
   roleOfThePersonInCharge    String?
-  isRequired                 Boolean   @default(false)
-  isStepWithCost             Boolean   @default(false)
+  isRequired                 Boolean          @default(false)
+  isStepWithCost             Boolean          @default(false)
   step                       Int
-  procedureId                Int
-  procedure                  Procedure @relation(fields: [procedureId], references: [id], name: "procedure_subprocess_history_relation")
+  procedureHistoryId         Int
+  procedureHistory           ProcedureHistory @relation(fields: [procedureHistoryId], references: [id], name: "procedure_history_subprocess_history_relation")
 
   departmentId Int?
   department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_history_relation")
@@ -266,7 +285,7 @@ model SubprocessHistory {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@index([procedureId])
+  @@index([procedureHistoryId])
   @@index([departmentId])
   @@index([userId])
   @@map("subprocesses_history")
@@ -310,14 +329,16 @@ model Request {
   source      SourceRequest
   status      RequestStatus @default(PENDING)
 
-  createdById     Int?
-  createdBy       User?          @relation(fields: [createdById], references: [id], name: "user_request_relation")
-  customerId      Int?
-  customer        Customer?      @relation(fields: [customerId], references: [id], name: "customer_request_relation")
-  sourceOtherId   Int?
-  sourceOther     SourceOther?   @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
-  statusProductId Int?
-  statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "request_status_product_relation")
+  createdById        Int?
+  createdBy          User?             @relation(fields: [createdById], references: [id], name: "user_request_relation")
+  customerId         Int?
+  customer           Customer?         @relation(fields: [customerId], references: [id], name: "customer_request_relation")
+  sourceOtherId      Int?
+  sourceOther        SourceOther?      @relation(fields: [sourceOtherId], references: [id], name: "source_other_request_relation")
+  statusProductId    Int?
+  statusProduct      StatusProduct?    @relation(fields: [statusProductId], references: [id], name: "request_status_product_relation")
+  procedureHistoryId Int?              @unique
+  procedureHistory   ProcedureHistory? @relation(fields: [procedureHistoryId], references: [id], name: "request_procedure_history_relation")
 
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
   evaluates        Evaluate[]        @relation("request_evaluate_relation")

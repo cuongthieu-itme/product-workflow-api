@@ -1,65 +1,49 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import {
-  CreateSubprocessesHistoryDto,
-  UpdateSubprocessesHistoryDto,
-  FilterSubprocessesHistoryDto,
-} from './dto';
-import { StatusSubprocessHistory } from '@prisma/client';
-import { UpdateStatusSubprocessHistoryDto } from './dto/update-status-subprocesses-history.dto';
+import { CreateSubprocessHistoryDto } from './dto/create-subprocess-history.dto';
+import { FilterSubprocessHistoryDto, UpdateSubprocessHistoryDto } from './dto';
+import { UpdateSubprocessHistoryStatusDto } from './dto/update-subprocess-history-status.dto';
 
 @Injectable()
 export class SubprocessesHistoryService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(filters?: FilterSubprocessesHistoryDto) {
-    const whereCondition: any = {};
+  async findAll(filters?: FilterSubprocessHistoryDto) {
+    const where: any = {};
 
     if (filters) {
       if (filters.name) {
-        whereCondition.name = {
-          contains: filters.name,
-          mode: 'insensitive',
-        };
-      }
-      if (filters.procedureId) {
-        whereCondition.procedureId = filters.procedureId;
-      }
-      if (filters.departmentId) {
-        whereCondition.departmentId = filters.departmentId;
-      }
-      if (filters.userId) {
-        whereCondition.userId = filters.userId;
+        where.name = { contains: filters.name, mode: 'insensitive' };
       }
       if (filters.status) {
-        whereCondition.status = filters.status;
+        where.status = filters.status;
+      }
+      if (filters.procedureHistoryId) {
+        where.procedureHistoryId = filters.procedureHistoryId;
+      }
+      if (filters.departmentId) {
+        where.departmentId = filters.departmentId;
+      }
+      if (filters.userId) {
+        where.userId = filters.userId;
       }
     }
 
     const page = filters?.page || 1;
     const limit = filters?.limit || 10;
 
-    const total = await this.prismaService.subprocessHistory.count({
-      where: whereCondition,
-    });
+    const total = await this.prismaService.subprocessHistory.count({ where });
 
     const data = await this.prismaService.subprocessHistory.findMany({
-      where: whereCondition,
+      where,
       take: limit,
       skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
       include: {
-        procedure: true,
+        procedureHistory: true,
         department: true,
         user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
+          select: { id: true, fullName: true },
         },
       },
     });
@@ -71,72 +55,43 @@ export class SubprocessesHistoryService {
     const data = await this.prismaService.subprocessHistory.findUnique({
       where: { id },
       include: {
-        procedure: true,
+        procedureHistory: true,
         department: true,
         user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
+          select: { id: true, fullName: true },
         },
       },
     });
 
     if (!data) {
       throw new NotFoundException(
-        `Không tìm thấy lịch sử quy trình với ID ${id}`,
+        `Không tìm thấy subprocess history với ID ${id}`,
       );
     }
 
     return { data };
   }
 
-  async create(dto: CreateSubprocessesHistoryDto) {
-    const newSubprocessHistory =
-      await this.prismaService.subprocessHistory.create({
-        data: {
-          name: dto.name,
-          description: dto.description,
-          estimatedNumberOfDays: dto.estimatedNumberOfDays,
-          numberOfDaysBeforeDeadline: dto.numberOfDaysBeforeDeadline,
-          roleOfThePersonInCharge: dto.roleOfThePersonInCharge,
-          isRequired: dto.isRequired,
-          isStepWithCost: dto.isStepWithCost,
-          step: dto.step,
-          procedureId: dto.procedureId,
-          departmentId: dto.departmentId,
-          price: dto.price,
-          startDate: dto.startDate,
-          endDate: dto.endDate,
-          status: dto.status,
-          userId: dto.userId,
-        },
-        include: {
-          procedure: true,
-          department: true,
-          user: {
-            select: {
-              id: true,
-              fullName: true,
-            },
-          },
-        },
-      });
-
-    return {
-      message: 'Tạo lịch sử quy trình thành công',
-      data: newSubprocessHistory,
-    };
-  }
-
-  async update(id: number, dto: UpdateSubprocessesHistoryDto) {
-    const existing = await this.prismaService.subprocessHistory.findUnique({
-      where: { id },
+  async create(dto: CreateSubprocessHistoryDto) {
+    const newItem = await this.prismaService.subprocessHistory.create({
+      data: { ...dto },
+      include: {
+        procedureHistory: true,
+        department: true,
+        user: { select: { id: true, fullName: true } },
+      },
     });
 
-    if (!existing) {
+    return { message: 'Tạo subprocess history thành công', data: newItem };
+  }
+
+  async update(id: number, dto: UpdateSubprocessHistoryDto) {
+    const exist = await this.prismaService.subprocessHistory.findUnique({
+      where: { id },
+    });
+    if (!exist) {
       throw new NotFoundException(
-        `Không tìm thấy lịch sử quy trình với ID ${id}`,
+        `Không tìm thấy subprocess history với ID ${id}`,
       );
     }
 
@@ -144,80 +99,40 @@ export class SubprocessesHistoryService {
       where: { id },
       data: dto,
       include: {
-        procedure: true,
+        procedureHistory: true,
         department: true,
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
+        user: { select: { id: true, fullName: true } },
       },
     });
 
-    return {
-      message: 'Cập nhật lịch sử quy trình thành công',
-      data: updated,
-    };
+    return { message: 'Cập nhật subprocess history thành công', data: updated };
   }
 
-  async updateStatus(dto: UpdateStatusSubprocessHistoryDto) {
-    const existing = await this.prismaService.subprocessHistory.findUnique({
-      where: { id: dto.id },
-      include: {
-        procedure: true,
-        department: true,
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
-      },
-    });
-
-    if (!existing) {
-      throw new NotFoundException(
-        `Không tìm thấy lịch sử quy trình với ID ${dto.id}`,
-      );
+  async updateStatus(id: number, dto: UpdateSubprocessHistoryStatusDto) {
+    const exist = await this.prismaService.subprocessHistory.findUnique({ where: { id } });
+    if (!exist) {
+      throw new NotFoundException(`Không tìm thấy subprocess history với ID ${id}`);
     }
 
     const updated = await this.prismaService.subprocessHistory.update({
-      where: { id: dto.id },
+      where: { id },
       data: { status: dto.status },
-      include: {
-        procedure: true,
-        department: true,
-        user: {
-          select: {
-            id: true,
-            fullName: true,
-          },
-        },
-      },
     });
 
-    return {
-      message: 'Cập nhật trạng thái lịch sử quy trình thành công',
-      data: updated,
-    };
+    return { message: 'Cập nhật trạng thái subprocess history thành công', data: updated };
   }
 
   async remove(id: number) {
-    const existing = await this.prismaService.subprocessHistory.findUnique({
+    const exist = await this.prismaService.subprocessHistory.findUnique({
       where: { id },
     });
-
-    if (!existing) {
+    if (!exist) {
       throw new NotFoundException(
-        `Không tìm thấy lịch sử quy trình với ID ${id}`,
+        `Không tìm thấy subprocess history với ID ${id}`,
       );
     }
 
     await this.prismaService.subprocessHistory.delete({ where: { id } });
-
-    return {
-      message: 'Xóa lịch sử quy trình thành công',
-    };
+    return { message: 'Xóa subprocess history thành công' };
   }
 }

@@ -1,3 +1,4 @@
-export * from './create-subprocesses-history.dto';
-export * from './update-subprocesses-history.dto';
-export * from './filter-subprocesses-history.dto';
+export * from './create-subprocess-history.dto';
+export * from './update-subprocess-history.dto';
+export * from './filter-subprocess-history.dto';
+export * from './update-subprocess-history-status.dto';

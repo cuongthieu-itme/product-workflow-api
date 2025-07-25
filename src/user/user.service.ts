@@ -502,4 +502,31 @@ export class UserService {
       data: updatedUser,
     };
   }
+
+  async findUsersWithoutDepartment() {
+    const data = await this.prismaService.user.findMany({
+      where: { departmentId: null },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        isVerifiedAccount: true,
+        verifiedDate: true,
+        createdAt: true,
+        role: true,
+        lastLoginDate: true,
+        department: {
+          select: {
+            id: true,
+            name: true,
+            description: true,
+          },
+        },
+      },
+    });
+    return { data };
+  }
 }

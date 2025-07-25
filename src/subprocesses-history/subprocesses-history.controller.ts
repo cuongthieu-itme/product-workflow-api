@@ -9,69 +9,66 @@ import {
   HttpStatus,
   HttpCode,
   Query,
-  ParseIntPipe,
-  Patch,
 } from '@nestjs/common';
 import { SubprocessesHistoryService } from './subprocesses-history.service';
 import {
-  CreateSubprocessesHistoryDto,
-  UpdateSubprocessesHistoryDto,
-  FilterSubprocessesHistoryDto,
-} from './dto';
+  CreateSubprocessHistoryDto,
+  UpdateSubprocessHistoryDto,
+  FilterSubprocessHistoryDto,
+  UpdateSubprocessHistoryStatusDto,
+} from './dto/index';
 import { AuthGuard } from 'src/common/decorators';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
-import { UpdateStatusSubprocessHistoryDto } from './dto/update-status-subprocesses-history.dto';
+import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 @ApiTags('SubprocessesHistory')
 @AuthGuard()
 @Controller('subprocesses-history')
 export class SubprocessesHistoryController {
-  constructor(
-    private readonly subprocessesHistoryService: SubprocessesHistoryService,
-  ) {}
+  constructor(private readonly subprocessesHistoryService: SubprocessesHistoryService) {}
 
-  @ApiOperation({ summary: 'Lấy danh sách lịch sử quy trình' })
+  @ApiOperation({ summary: 'Lấy danh sách subprocess history' })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query() filters: FilterSubprocessesHistoryDto) {
+  async findAll(@Query() filters: FilterSubprocessHistoryDto) {
     return this.subprocessesHistoryService.findAll(filters);
   }
 
-  @ApiOperation({ summary: 'Lấy thông tin lịch sử quy trình theo ID' })
+  @ApiOperation({ summary: 'Lấy thông tin subprocess history theo ID' })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findOne(@Param('id', ParseIntPipe) id: number) {
-    return this.subprocessesHistoryService.findOne(id);
+  async findOne(@Param('id') id: number) {
+    return this.subprocessesHistoryService.findOne(Number(id));
   }
 
-  @ApiOperation({ summary: 'Tạo lịch sử quy trình mới' })
+  @ApiOperation({ summary: 'Tạo subprocess history mới' })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createDto: CreateSubprocessesHistoryDto) {
-    return this.subprocessesHistoryService.create(createDto);
+  async create(@Body() dto: CreateSubprocessHistoryDto) {
+    return this.subprocessesHistoryService.create(dto);
   }
 
-  @ApiOperation({ summary: 'Cập nhật thông tin lịch sử quy trình' })
+  @ApiOperation({ summary: 'Cập nhật subprocess history' })
   @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
-    @Param('id', ParseIntPipe) id: number,
-    @Body() updateDto: UpdateSubprocessesHistoryDto,
+    @Param('id') id: number,
+    @Body() dto: UpdateSubprocessHistoryDto,
   ) {
-    return this.subprocessesHistoryService.update(id, updateDto);
+    return this.subprocessesHistoryService.update(Number(id), dto);
   }
 
-  @ApiOperation({ summary: 'Xóa lịch sử quy trình' })
+  @ApiOperation({ summary: 'Xóa subprocess history' })
   @HttpCode(HttpStatus.OK)
+  @Put(':id/status')
+  async updateStatus(
+    @Param('id') id: number,
+    @Body() dto: UpdateSubprocessHistoryStatusDto,
+  ) {
+    return this.subprocessesHistoryService.updateStatus(Number(id), dto);
+  }
+
   @Delete(':id')
-  async remove(@Param('id', ParseIntPipe) id: number) {
-    return this.subprocessesHistoryService.remove(id);
-  }
-
-  @ApiOperation({ summary: 'Cập nhật trạng thái lịch sử quy trình' })
-  @HttpCode(HttpStatus.OK)
-  @Patch('status')
-  async updateStatus(@Body() dto: UpdateStatusSubprocessHistoryDto) {
-    return this.subprocessesHistoryService.updateStatus(dto);
+  async remove(@Param('id') id: number) {
+    return this.subprocessesHistoryService.remove(Number(id));
   }
 }

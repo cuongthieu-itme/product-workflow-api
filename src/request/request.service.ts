@@ -129,7 +129,6 @@ export class RequestService {
             procedure: {
               include: {
                 subprocesses: true,
-                subprocessesHistory: true,
               },
             },
           },
@@ -147,6 +146,26 @@ export class RequestService {
           orderBy: {
             material: {
               name: 'asc',
+            },
+          },
+        },
+        procedureHistory: {
+          include: {
+            subprocessesHistory: {
+              include: {
+                user: {
+                  select: {
+                    fullName: true,
+                    userName: true,
+                    email: true,
+                    phoneNumber: true,
+                    avatar: true,
+                  },
+                },
+              },
+              orderBy: {
+                step: 'asc',
+              },
             },
           },
         },
@@ -730,49 +749,200 @@ export class RequestService {
     await Promise.all(validationPromises);
   }
 
-  async updateStatus(id: number, dto: UpdateRequestStatusDto) {
-    const existingRequest = await this.prismaService.request.findUnique({
-      where: { id },
-      select: { id: true, status: true },
-    });
+  async updateStatusAndSaveHistory(id: number, dto: UpdateRequestStatusDto) {
+    return this.prismaService.$transaction(async (prisma) => {
+      // 1. Lấy request hiện tại
+      const request = await this.getRequestWithDetails(prisma, id);
 
-    if (!existingRequest) {
-      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
-    }
+      // 2. Validate dữ liệu đầu vào
+      this.validateStatusUpdate(request, dto);
 
-    if (existingRequest.status === dto.status) {
-      throw new BadRequestException(
-        'Trạng thái mới trùng với trạng thái hiện tại',
+      // 3. Cập nhật request
+      const updatedRequest = await this.updateRequestData(
+        prisma,
+        id,
+        dto,
+        request,
       );
-    }
 
-    const updateData: any = { status: dto.status };
-    if (dto.statusProductId !== undefined) {
-      updateData.statusProductId = dto.statusProductId;
-    }
-    const updatedRequest = await this.prismaService.request.update({
+      // 4. Xử lý procedure history nếu cần
+      await this.handleProcedureHistory(
+        prisma,
+        updatedRequest,
+        dto.statusProductId,
+      );
+
+      return updatedRequest;
+    });
+  }
+
+  private async getRequestWithDetails(prisma: any, id: number) {
+    const request = await prisma.request.findUnique({
       where: { id },
-      data: updateData,
       include: {
-        customer: true,
-        sourceOther: true,
-        requestMaterials: {
+        statusProduct: {
           include: {
-            material: true,
-          },
-          orderBy: {
-            material: {
-              name: 'asc',
+            procedure: {
+              include: {
+                subprocesses: true,
+              },
             },
           },
         },
       },
     });
 
-    return {
-      message: 'Cập nhật trạng thái yêu cầu thành công',
-      data: updatedRequest,
-    };
+    if (!request) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${id}`);
+    }
+
+    return request;
+  }
+
+  private validateStatusUpdate(request: any, dto: UpdateRequestStatusDto) {
+    // Tránh cập nhật trùng trạng thái
+    if (dto.status && dto.status === request.status) {
+      throw new BadRequestException(
+        'Trạng thái mới trùng với trạng thái hiện tại',
+      );
+    }
+  }
+
+  private async updateRequestData(
+    prisma: any,
+    id: number,
+    dto: UpdateRequestStatusDto,
+    request: any,
+  ) {
+    const updateData: Partial<{ status: any; statusProductId: any }> = {};
+
+    if (dto.status !== undefined) {
+      updateData.status = dto.status;
+    }
+
+    if (dto.statusProductId !== undefined) {
+      updateData.statusProductId = dto.statusProductId;
+    }
+
+    // Chỉ update nếu có dữ liệu thay đổi
+    if (Object.keys(updateData).length === 0) {
+      return request;
+    }
+
+    return await prisma.request.update({
+      where: { id },
+      data: updateData,
+    });
+  }
+
+  private async handleProcedureHistory(
+    prisma: any,
+    request: any,
+    newStatusProductId?: number,
+  ) {
+    // Xác định statusProductId cần sử dụng
+    const statusProductId = newStatusProductId ?? request.statusProductId;
+
+    if (!statusProductId) {
+      return; // Không có statusProduct thì không xử lý procedure history
+    }
+
+    // Nếu đã có procedureHistoryId thì không tạo mới
+    if (request.procedureHistoryId) {
+      return;
+    }
+
+    const statusProduct = await this.getStatusProductWithProcedure(
+      prisma,
+      statusProductId,
+    );
+
+    if (!statusProduct?.procedure) {
+      return;
+    }
+
+    const procedureHistory = await this.createProcedureSnapshot(
+      prisma,
+      statusProduct.procedure,
+    );
+
+    await this.linkProcedureHistoryToRequest(
+      prisma,
+      request.id,
+      procedureHistory.id,
+    );
+  }
+
+  private async getStatusProductWithProcedure(
+    prisma: any,
+    statusProductId: number,
+  ) {
+    return await prisma.statusProduct.findUnique({
+      where: { id: statusProductId },
+      include: {
+        procedure: {
+          include: {
+            subprocesses: true,
+          },
+        },
+      },
+    });
+  }
+
+  private async createProcedureSnapshot(prisma: any, procedure: any) {
+    // Tạo procedure history
+    const procedureHistory = await prisma.procedureHistory.create({
+      data: {
+        name: procedure.name,
+        description: procedure.description,
+        version: procedure.version,
+      },
+    });
+
+    // Tạo subprocess history nếu có
+    if (procedure.subprocesses?.length > 0) {
+      await this.createSubprocessHistories(
+        prisma,
+        procedure.subprocesses,
+        procedureHistory.id,
+      );
+    }
+
+    return procedureHistory;
+  }
+
+  private async createSubprocessHistories(
+    prisma: any,
+    subprocesses: any[],
+    procedureHistoryId: number,
+  ) {
+    const subprocessHistoryData = subprocesses.map((subprocess) => ({
+      name: subprocess.name,
+      description: subprocess.description,
+      estimatedNumberOfDays: subprocess.estimatedNumberOfDays,
+      numberOfDaysBeforeDeadline: subprocess.numberOfDaysBeforeDeadline,
+      roleOfThePersonInCharge: subprocess.roleOfThePersonInCharge,
+      isRequired: subprocess.isRequired,
+      isStepWithCost: subprocess.isStepWithCost,
+      step: subprocess.step,
+      departmentId: subprocess.departmentId ?? null,
+      procedureHistoryId,
+    }));
+
+    await prisma.subprocessHistory.createMany({
+      data: subprocessHistoryData,
+    });
+  }
+
+  private async linkProcedureHistoryToRequest(
+    prisma: any,
+    requestId: number,
+    procedureHistoryId: number,
+  ) {
+    await prisma.request.update({
+      where: { id: requestId },
+      data: { procedureHistoryId },
+    });
   }
 
   async remove(id: number) {
@@ -858,5 +1028,35 @@ export class RequestService {
         }),
       ),
     };
+  }
+
+  async findByStatusProductIdWithHistory(statusProductId: number) {
+    if (!statusProductId) {
+      throw new BadRequestException('Không tìm thấy trạng thái sản phẩm');
+    }
+    const requests = await this.prismaService.request.findMany({
+      where: { statusProductId },
+      include: {
+        procedureHistory: {
+          include: {
+            subprocessesHistory: {
+              include: {
+                user: {
+                  select: {
+                    fullName: true,
+                    userName: true,
+                    email: true,
+                    phoneNumber: true,
+                    avatar: true,
+                  },
+                },
+              },
+              orderBy: { step: 'asc' },
+            },
+          },
+        },
+      },
+    });
+    return { data: requests };
   }
 }

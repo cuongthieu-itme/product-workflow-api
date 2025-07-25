@@ -1,12 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsInt, IsEnum } from 'class-validator';
+import { IsEnum } from 'class-validator';
 import { StatusSubprocessHistory } from '@prisma/client';
 
-export class UpdateStatusSubprocessHistoryDto {
-  @ApiProperty()
-  @IsInt()
-  id: number;
-
+export class UpdateSubprocessHistoryStatusDto {
   @ApiProperty({ enum: StatusSubprocessHistory })
   @IsEnum(StatusSubprocessHistory)
   status: StatusSubprocessHistory;
