@@ -59,6 +59,16 @@ export class CreateRequestMaterialDto {
   requestInput?: CreateRequestInputDto;
 }
 
+export class AddMaterialToRequestDto {
+  @ApiProperty()
+  @IsInt()
+  materialId: number;
+
+  @ApiProperty()
+  @IsInt()
+  quantity: number;
+}
+
 export class CreateRequestDto {
   @ApiProperty()
   @IsString()
