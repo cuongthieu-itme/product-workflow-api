@@ -511,6 +511,7 @@ export class UserService {
           { role: 'ADMIN' },
           { role: 'SUPER_ADMIN' },
         ],
+        headOfDepartment: null, // Loại bỏ user là trưởng phòng
       },
       orderBy: { createdAt: 'desc' },
       select: {
