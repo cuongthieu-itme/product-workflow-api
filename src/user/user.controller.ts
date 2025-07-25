@@ -88,4 +88,13 @@ export class UserController {
   async delete(@Param('id') id: number) {
     return this.userService.delete(id);
   }
+
+  @ApiOperation({
+    summary: 'Lấy danh sách người dùng chưa ở phòng ban nào',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('no-department')
+  async findUsersWithoutDepartment() {
+    return this.userService.findUsersWithoutDepartment();
+  }
 }

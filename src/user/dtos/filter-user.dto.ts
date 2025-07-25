@@ -51,6 +51,15 @@ export class FilterUserDTO {
 
   @ApiProperty({
     required: false,
+    description: 'Lọc user chưa ở phòng ban nào (true: chưa ở phòng ban nào)',
+  })
+  @IsOptional()
+  @Transform(({ value }) => value === 'true' || value === true)
+  @IsBoolean()
+  isNoDepartment?: boolean;
+
+  @ApiProperty({
+    required: false,
   })
   @IsOptional()
   @Transform(({ value }) => {
