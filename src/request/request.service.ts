@@ -151,7 +151,22 @@ export class RequestService {
         },
         procedureHistory: {
           include: {
-            subprocessesHistory: true,
+            subprocessesHistory: {
+              include: {
+                user: {
+                  select: {
+                    fullName: true,
+                    userName: true,
+                    email: true,
+                    phoneNumber: true,
+                    avatar: true,
+                  },
+                },
+              },
+              orderBy: {
+                step: 'asc',
+              },
+            },
           },
         },
       },
