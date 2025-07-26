@@ -40,12 +40,12 @@ class SubprocessDto {
   @IsOptional()
   roleOfThePersonInCharge?: string;
 
-  @ApiProperty({ default: false })
+  @ApiProperty()
   @IsBoolean()
   @IsOptional()
   isRequired?: boolean;
 
-  @ApiProperty({ default: false })
+  @ApiProperty()
   @IsBoolean()
   @IsOptional()
   isStepWithCost?: boolean;

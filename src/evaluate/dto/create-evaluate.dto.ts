@@ -28,7 +28,7 @@ export class CreateEvaluateDto {
   @IsString()
   description?: string;
 
-  @ApiProperty({ default: false })
+  @ApiProperty()
   @IsOptional()
   @IsBoolean()
   isAnonymous?: boolean = false;

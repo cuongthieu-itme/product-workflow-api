@@ -36,15 +36,15 @@ export class CreateSubprocessHistoryDto {
   @IsString()
   roleOfThePersonInCharge?: string;
 
-  @ApiProperty({ default: false })
+  @ApiProperty()
   @IsOptional()
   @IsBoolean()
-  isRequired?: boolean = false;
+  isRequired?: boolean;
 
-  @ApiProperty({ default: false })
+  @ApiProperty()
   @IsOptional()
   @IsBoolean()
-  isStepWithCost?: boolean = false;
+  isStepWithCost?: boolean;
 
   @ApiProperty()
   @IsNotEmpty()
