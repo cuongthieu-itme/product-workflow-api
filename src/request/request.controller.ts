@@ -123,7 +123,7 @@ export class RequestController {
     summary: 'Thống kê số lượng request theo từng trạng thái',
   })
   @HttpCode(HttpStatus.OK)
-  @Get('statistics-by-status')
+  @Get('statistics-by-status/current')
   async getStatisticsByStatus() {
     return this.requestService.getRequestStatisticsByStatus();
   }
