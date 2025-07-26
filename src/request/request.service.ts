@@ -1136,7 +1136,6 @@ export class RequestService {
   }
 
   async removeMaterial(requestId: number, dto: RemoveMaterialFromRequestDto) {
-    // Kiểm tra request tồn tại
     const request = await this.prismaService.request.findUnique({
       where: { id: requestId },
     });
@@ -1144,39 +1143,25 @@ export class RequestService {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
     }
 
-    // Kiểm tra material có trong request không
     const requestMaterial = await this.prismaService.requestMaterial.findUnique(
       {
-        where: {
-          requestId_materialId: {
-            requestId,
-            materialId: dto.materialId,
-          },
-        },
+        where: { id: dto.materialRequestId },
       },
     );
-    if (!requestMaterial) {
+    if (!requestMaterial || requestMaterial.requestId !== requestId) {
       throw new NotFoundException(
-        `Material với ID ${dto.materialId} không tồn tại trong request này`,
+        `MaterialRequest với ID ${dto.materialRequestId} không tồn tại trong request này`,
       );
     }
 
-    // Xoá requestMaterial
     await this.prismaService.requestMaterial.delete({
-      where: {
-        requestId_materialId: {
-          requestId,
-          materialId: dto.materialId,
-        },
-      },
+      where: { id: dto.materialRequestId },
     });
 
-    // Xoá luôn requestInput nếu có
     await this.prismaService.requestInput.deleteMany({
-      where: { materialId: dto.materialId },
+      where: { materialId: requestMaterial.materialId },
     });
 
-    // Trả về request sau khi xoá material
     return this.findByIdInternal(requestId);
   }
 }

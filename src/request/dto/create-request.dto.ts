@@ -70,9 +70,7 @@ export class AddMaterialToRequestDto {
 }
 
 export class RemoveMaterialFromRequestDto {
-  @ApiProperty()
-  @IsInt()
-  materialId: number;
+  materialRequestId: number;
 }
 
 export class CreateRequestDto {
