@@ -6,8 +6,6 @@ import {
   Put,
   Param,
   Delete,
-  HttpStatus,
-  HttpCode,
   Query,
   Request,
 } from '@nestjs/common';
@@ -28,7 +26,6 @@ export class CustomerController {
   @ApiOperation({
     summary: 'Lấy danh sách khách hàng',
   })
-  @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(@Query() filters: FilterCustomerDto) {
     return this.customerService.findAll(filters);
@@ -37,7 +34,6 @@ export class CustomerController {
   @ApiOperation({
     summary: 'Lấy thông tin khách hàng theo ID',
   })
-  @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.customerService.findOne(id);
@@ -46,7 +42,6 @@ export class CustomerController {
   @ApiOperation({
     summary: 'Tạo khách hàng mới',
   })
-  @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
     @Body() createCustomerDto: CreateCustomerDto,
@@ -58,7 +53,6 @@ export class CustomerController {
   @ApiOperation({
     summary: 'Cập nhật thông tin khách hàng',
   })
-  @HttpCode(HttpStatus.OK)
   @Put(':id')
   async update(
     @Param('id') id: number,
@@ -70,7 +64,6 @@ export class CustomerController {
   @ApiOperation({
     summary: 'Xóa khách hàng',
   })
-  @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.customerService.remove(id);

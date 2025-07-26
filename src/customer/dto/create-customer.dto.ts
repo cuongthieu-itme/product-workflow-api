@@ -3,7 +3,6 @@ import {
   IsString,
   IsEmail,
   IsEnum,
-  IsOptional,
   IsDateString,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
@@ -31,9 +30,9 @@ export class CreateCustomerDto {
   gender: Gender;
 
   @ApiProperty()
-  @IsOptional()
+  @IsNotEmpty()
   @IsDateString()
-  dateOfBirth?: string;
+  dateOfBirth: string;
 
   @ApiProperty()
   @IsNotEmpty()
