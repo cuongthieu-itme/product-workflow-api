@@ -12,12 +12,9 @@ export const AuthRoles = (...roles: UserRole[]) => {
   );
 };
 
-// Convenience decorators for specific roles
 export const SuperAdminOnly = () => AuthRoles(UserRole.SUPER_ADMIN);
 
 export const AdminOnly = () => AuthRoles(UserRole.SUPER_ADMIN, UserRole.ADMIN);
 
 export const AllRoles = () =>
   AuthRoles(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.USER);
-
-// Note: AuthGuard is already exported from auth-guard.decorator.ts
