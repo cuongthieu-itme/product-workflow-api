@@ -21,8 +21,9 @@ export class FilterDepartmentDTO {
     required: false,
   })
   @IsOptional()
-  @IsString()
-  headId?: string;
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
+  headId?: number;
 
   @ApiProperty({
     required: false,

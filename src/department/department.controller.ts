@@ -6,19 +6,17 @@ import {
   Put,
   Body,
   Post,
-  HttpStatus,
-  HttpCode,
   Query,
   Patch,
 } from '@nestjs/common';
 import { DepartmentService } from './department.service';
-import { AuthGuard } from 'src/common/decorators';
+import { AdminOnly, AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import {
   CreateDepartmentDTO,
   UpdateDepartmentDTO,
   FilterDepartmentDTO,
-} from './dtos';
+} from './dto';
 
 @ApiTags('Department')
 @AuthGuard()
@@ -29,7 +27,6 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Lấy danh sách phòng ban',
   })
-  @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(@Query() filters: FilterDepartmentDTO) {
     return this.departmentService.findAll(filters);
@@ -38,7 +35,6 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Lấy thông tin phòng ban theo ID',
   })
-  @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: number) {
     return this.departmentService.findOne(id);
@@ -47,8 +43,8 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Tạo phòng ban mới',
   })
-  @HttpCode(HttpStatus.CREATED)
   @Post()
+  @AdminOnly()
   async create(@Body() dto: CreateDepartmentDTO) {
     return this.departmentService.create(dto);
   }
@@ -56,8 +52,8 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Cập nhật thông tin phòng ban',
   })
-  @HttpCode(HttpStatus.OK)
   @Put(':id')
+  @AdminOnly()
   async update(@Param('id') id: number, @Body() dto: UpdateDepartmentDTO) {
     return this.departmentService.update(id, dto);
   }
@@ -65,8 +61,8 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Xóa phòng ban',
   })
-  @HttpCode(HttpStatus.OK)
   @Delete(':id')
+  @AdminOnly()
   async delete(@Param('id') id: number) {
     return this.departmentService.delete(id);
   }
@@ -74,8 +70,8 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Phân công người dùng vào phòng ban',
   })
-  @HttpCode(HttpStatus.OK)
   @Patch(':departmentId/assign-user/:userId')
+  @AdminOnly()
   async assignUserToDepartment(
     @Param('departmentId') departmentId: number,
     @Param('userId') userId: number,
@@ -86,8 +82,8 @@ export class DepartmentController {
   @ApiOperation({
     summary: 'Loại bỏ người dùng khỏi phòng ban',
   })
-  @HttpCode(HttpStatus.OK)
   @Patch('remove-user/:userId')
+  @AdminOnly()
   async removeUserFromDepartment(@Param('userId') userId: number) {
     return this.departmentService.removeUserFromDepartment(userId);
   }
