@@ -9,8 +9,6 @@ import {
   Query,
   ParseIntPipe,
   ValidationPipe,
-  HttpCode,
-  HttpStatus,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { ProcedureService } from './procedure.service';
@@ -45,7 +43,6 @@ export class ProcedureController {
 
   @Post()
   @ApiOperation({ summary: 'Tạo quy trình mới' })
-  @HttpCode(HttpStatus.CREATED)
   async create(
     @Body(new ValidationPipe()) createProcedureDto: CreateProcedureDto,
   ) {
