@@ -14,7 +14,7 @@ import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { FilterCategoryDto } from './dto/filter-category.dto';
-import { AuthGuard } from 'src/common/decorators';
+import { AdminOnly, AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('Category')
@@ -45,6 +45,7 @@ export class CategoryController {
     summary: 'Tạo danh mục mới',
   })
   @HttpCode(HttpStatus.CREATED)
+  @AdminOnly()
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
@@ -54,6 +55,7 @@ export class CategoryController {
     summary: 'Cập nhật thông tin danh mục',
   })
   @HttpCode(HttpStatus.OK)
+  @AdminOnly()
   @Put(':id')
   async update(
     @Param('id') id: number,
@@ -66,6 +68,7 @@ export class CategoryController {
     summary: 'Xóa danh mục',
   })
   @HttpCode(HttpStatus.OK)
+  @AdminOnly()
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.categoryService.remove(id);
