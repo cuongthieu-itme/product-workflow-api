@@ -118,4 +118,13 @@ export class RequestController {
   ) {
     return this.requestService.removeMaterial(Number(id), dto);
   }
+
+  @ApiOperation({
+    summary: 'Thống kê số lượng request theo từng trạng thái',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('statistics-by-status')
+  async getStatisticsByStatus() {
+    return this.requestService.getRequestStatisticsByStatus();
+  }
 }

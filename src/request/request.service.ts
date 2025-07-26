@@ -13,6 +13,7 @@ import {
   AddMaterialToRequestDto,
   RemoveMaterialFromRequestDto,
 } from './dto/create-request.dto';
+import { RequestStatus } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
@@ -1051,6 +1052,26 @@ export class RequestService {
           count,
         }),
       ),
+    };
+  }
+
+  async getRequestStatisticsByStatus() {
+    const statuses = Object.values(RequestStatus);
+    const total = await this.prismaService.request.count();
+    const counts = await this.prismaService.request.groupBy({
+      by: ['status'],
+      _count: true,
+    });
+    const result = statuses.map((status) => {
+      const found = counts.find((c) => c.status === status);
+      return {
+        status,
+        count: found ? found._count : 0,
+      };
+    });
+    return {
+      total,
+      byStatus: result,
     };
   }
 
