@@ -8,7 +8,7 @@ import {
   IsString,
   ValidateNested,
 } from 'class-validator';
-import { Type } from 'class-transformer';
+import { Transform, Type } from 'class-transformer';
 import { SourceRequest } from '@prisma/client';
 
 export class CreateRequestInputDto {
@@ -70,6 +70,9 @@ export class AddMaterialToRequestDto {
 }
 
 export class RemoveMaterialFromRequestDto {
+  @ApiProperty()
+  @Transform(({ value }) => parseInt(value, 10))
+  @IsInt()
   materialRequestId: number;
 }
 
