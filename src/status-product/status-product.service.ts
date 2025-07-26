@@ -68,6 +68,7 @@ export class StatusProductService {
             name: true,
           },
         },
+        requests: true,
       },
     });
 
