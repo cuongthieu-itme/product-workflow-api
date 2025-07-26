@@ -78,7 +78,6 @@ export class AccessTokenGuard implements CanActivate {
         throw error;
       }
 
-      // Handle JWT-specific errors
       if (error.name === 'JsonWebTokenError') {
         throw new UnauthorizedException('Định dạng JWT token không hợp lệ');
       }
@@ -91,7 +90,6 @@ export class AccessTokenGuard implements CanActivate {
         throw new UnauthorizedException('JWT token chưa được kích hoạt');
       }
 
-      // Generic error fallback
       throw new UnauthorizedException('Xác thực token thất bại');
     }
   }

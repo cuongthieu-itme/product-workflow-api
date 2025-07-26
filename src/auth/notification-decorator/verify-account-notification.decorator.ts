@@ -7,7 +7,6 @@ export const VerifyAccountNotification = () => {
     descriptor.value = async function (...args) {
       const queue = this.verifyAccountEmailQueueService as Queue;
       const result = await originalMethod.apply(this, args);
-      // Lấy userId từ args (dto.id)
       queue.add(
         'send-email',
         new VerifyAccountEmailQueuePayloadDTO(args[0].id),
