@@ -17,6 +17,8 @@ import { FilterRequestDto } from './dto/filter-request.dto';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { AddMaterialToRequestDto } from './dto/create-request.dto';
+import { RemoveMaterialFromRequestDto } from './dto/create-request.dto';
 
 @ApiTags('Request')
 @AuthGuard()
@@ -76,18 +78,6 @@ export class RequestController {
   }
 
   @ApiOperation({
-    summary: 'Cập nhật nguyên vật liệu cho yêu cầu',
-  })
-  @HttpCode(HttpStatus.OK)
-  @Put(':id/materials')
-  async updateMaterials(
-    @Param('id') id: number,
-    @Body('materials') materials: CreateRequestDto['materials'],
-  ) {
-    return this.requestService.createOrUpdateMaterials(id, materials);
-  }
-
-  @ApiOperation({
     summary: 'Xóa yêu cầu',
   })
   @HttpCode(HttpStatus.OK)
@@ -101,19 +91,31 @@ export class RequestController {
   })
   @HttpCode(HttpStatus.OK)
   @Get('by-status-product/:statusProductId')
-  async findByStatusProductIdWithHistory(@Param('statusProductId') statusProductId: number) {
-    return this.requestService.findByStatusProductIdWithHistory(Number(statusProductId));
+  async findByStatusProductIdWithHistory(
+    @Param('statusProductId') statusProductId: number,
+  ) {
+    return this.requestService.findByStatusProductIdWithHistory(
+      Number(statusProductId),
+    );
   }
 
-  @ApiOperation({
-    summary: 'Xóa một nguyên vật liệu khỏi yêu cầu',
-  })
+  @ApiOperation({ summary: 'Thêm material vào request' })
   @HttpCode(HttpStatus.OK)
-  @Delete(':id/materials')
-  async removeMaterialFromRequest(
+  @Post(':id/material')
+  async addMaterial(
     @Param('id') id: number,
-    @Body('materialId') materialId: number,
+    @Body() dto: AddMaterialToRequestDto,
   ) {
-    return this.requestService.removeMaterialFromRequest(id, materialId);
+    return this.requestService.addMaterial(Number(id), dto);
+  }
+
+  @ApiOperation({ summary: 'Xoá material khỏi request' })
+  @HttpCode(HttpStatus.OK)
+  @Delete(':id/material')
+  async removeMaterial(
+    @Param('id') id: number,
+    @Body() dto: RemoveMaterialFromRequestDto,
+  ) {
+    return this.requestService.removeMaterial(Number(id), dto);
   }
 }
