@@ -34,15 +34,15 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Tạo danh mục mới' })
-  @AdminOnly()
   @Post()
+  @AdminOnly()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
     return this.categoryService.create(createCategoryDto);
   }
 
   @ApiOperation({ summary: 'Cập nhật thông tin danh mục' })
-  @AdminOnly()
   @Put(':id')
+  @AdminOnly()
   async update(
     @Param('id') id: number,
     @Body() updateCategoryDto: UpdateCategoryDto,
@@ -51,8 +51,8 @@ export class CategoryController {
   }
 
   @ApiOperation({ summary: 'Xóa danh mục' })
-  @AdminOnly()
   @Delete(':id')
+  @AdminOnly()
   async remove(@Param('id') id: number) {
     return this.categoryService.remove(id);
   }

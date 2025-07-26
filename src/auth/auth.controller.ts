@@ -3,8 +3,6 @@ import {
   Controller,
   Patch,
   Post,
-  HttpCode,
-  HttpStatus,
   Query,
   Delete,
   Request,
@@ -17,10 +15,6 @@ import {
   ResetPasswordDTO,
   SignupDTO,
   VerifyAccountDTO,
-  LoginResponseDTO,
-  SignupResponseDTO,
-  SuccessResponseDTO,
-  UserResponseDTO,
   ChangePasswordDTO,
   UserChangePasswordDTO,
 } from './dtos';
@@ -33,112 +27,92 @@ import { AuthRequest } from 'src/common/types';
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post('/login')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Đăng nhập',
   })
-  login(@Body() dto: LoginDTO): Promise<LoginResponseDTO> {
+  @Post('/login')
+  login(@Body() dto: LoginDTO) {
     return this.authService.login(dto);
   }
 
-  @Post('/register')
-  @HttpCode(HttpStatus.CREATED)
   @ApiOperation({
     summary: 'Đăng kí',
   })
-  signup(@Body() dto: SignupDTO): Promise<SignupResponseDTO> {
+  @Post('/register')
+  signup(@Body() dto: SignupDTO) {
     return this.authService.signup(dto);
   }
 
-  @Post('forgot-password')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Quên mật khẩu - Gửi email reset password',
   })
-  forgetPassword(@Body() dto: ForgetPasswordDTO): Promise<{ message: string }> {
+  @Post('forgot-password')
+  forgetPassword(@Body() dto: ForgetPasswordDTO) {
     return this.authService.forgetPassword(dto);
   }
 
-  @Post('reset-password')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Đặt lại mật khẩu với token',
   })
-  resetPassword(
-    @Query('token') token: string,
-    @Body() dto: ResetPasswordDTO,
-  ): Promise<{ message: string }> {
+  @Post('reset-password')
+  resetPassword(@Query('token') token: string, @Body() dto: ResetPasswordDTO) {
     return this.authService.resetPassword(token, dto);
   }
 
-  @Patch('verify-account')
-  @HttpCode(HttpStatus.OK)
   @ApiOperation({
     summary: 'Xác thực tài khoản',
   })
-  verifyAccount(@Body() dto: VerifyAccountDTO): Promise<void> {
+  @Patch('verify-account')
+  verifyAccount(@Body() dto: VerifyAccountDTO) {
     return this.authService.verifyAccount(dto);
   }
 
-  @Patch('/change-password')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
   @ApiOperation({
     summary: 'Thay đổi mật khẩu của user hiện tại',
-    description:
-      'User có thể thay đổi mật khẩu của chính mình bằng cách cung cấp mật khẩu cũ và mật khẩu mới',
   })
+  @Patch('/change-password')
+  @AuthGuard()
   changePassword(
     @Request() req: AuthRequest,
     @Body() dto: UserChangePasswordDTO,
-  ): Promise<{
-    message: string;
-  }> {
+  ) {
     return this.authService.changePassword(req.user.id, dto);
   }
 
-  @Delete('/logout')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
   @ApiOperation({
     summary: 'Đăng xuất khỏi thiết bị hiện tại',
   })
-  logout(@Request() req: AuthRequest): Promise<SuccessResponseDTO> {
+  @Delete('/logout')
+  @AuthGuard()
+  logout(@Request() req: AuthRequest) {
     const token = req.header('Authorization')?.split(' ')[1];
     return this.authService.logoutFromCurrentDevice(req.user.id, token);
   }
 
-  @Delete('/logout-all')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
   @ApiOperation({
     summary: 'Đăng xuất khỏi tất cả thiết bị',
   })
-  logoutAll(@Request() req: AuthRequest): Promise<SuccessResponseDTO> {
+  @Delete('/logout-all')
+  @AuthGuard()
+  logoutAll(@Request() req: AuthRequest) {
     return this.authService.logoutAll(req.user.id);
   }
 
-  @Get('/me')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
   @ApiOperation({
     summary: 'Lấy thông tin người dùng hiện tại',
   })
-  getMe(@Request() req: AuthRequest): Promise<UserResponseDTO> {
+  @Get('/me')
+  @AuthGuard()
+  getMe(@Request() req: AuthRequest) {
     return this.authService.getMe(req.user.id);
   }
 
-  @Patch('change-password-admin')
-  @HttpCode(HttpStatus.OK)
-  @AuthGuard()
   @ApiOperation({
     summary: 'Đổi mật khẩu (Admin)',
   })
-  changePasswordAdmin(@Body() dto: ChangePasswordDTO): Promise<{
-    message: string;
-    sessionsClearedCount: number;
-  }> {
+  @Patch('change-password-admin')
+  @AuthGuard()
+  changePasswordAdmin(@Body() dto: ChangePasswordDTO) {
     return this.authService.changePasswordAdmin(dto);
   }
 }
