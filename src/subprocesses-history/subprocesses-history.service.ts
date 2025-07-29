@@ -3,6 +3,7 @@ import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateSubprocessHistoryDto } from './dto/create-subprocess-history.dto';
 import { FilterSubprocessHistoryDto, UpdateSubprocessHistoryDto } from './dto';
 import { UpdateSubprocessHistoryStatusDto } from './dto/update-subprocess-history-status.dto';
+import { UpdateSubprocessHistoryIsApprovedDto } from './dto/update-subprocess-history-is-approved.dto';
 
 @Injectable()
 export class SubprocessesHistoryService {
@@ -109,9 +110,13 @@ export class SubprocessesHistoryService {
   }
 
   async updateStatus(id: number, dto: UpdateSubprocessHistoryStatusDto) {
-    const exist = await this.prismaService.subprocessHistory.findUnique({ where: { id } });
+    const exist = await this.prismaService.subprocessHistory.findUnique({
+      where: { id },
+    });
     if (!exist) {
-      throw new NotFoundException(`Không tìm thấy subprocess history với ID ${id}`);
+      throw new NotFoundException(
+        `Không tìm thấy subprocess history với ID ${id}`,
+      );
     }
 
     const updated = await this.prismaService.subprocessHistory.update({
@@ -119,7 +124,10 @@ export class SubprocessesHistoryService {
       data: { status: dto.status },
     });
 
-    return { message: 'Cập nhật trạng thái subprocess history thành công', data: updated };
+    return {
+      message: 'Cập nhật trạng thái subprocess history thành công',
+      data: updated,
+    };
   }
 
   async remove(id: number) {
@@ -134,5 +142,29 @@ export class SubprocessesHistoryService {
 
     await this.prismaService.subprocessHistory.delete({ where: { id } });
     return { message: 'Xóa subprocess history thành công' };
+  }
+
+  async updateIsApproved(
+    id: number,
+    dto: UpdateSubprocessHistoryIsApprovedDto,
+  ) {
+    const exist = await this.prismaService.subprocessHistory.findUnique({
+      where: { id },
+    });
+    if (!exist) {
+      throw new NotFoundException(
+        `Không tìm thấy subprocess history với ID ${id}`,
+      );
+    }
+
+    const updated = await this.prismaService.subprocessHistory.update({
+      where: { id },
+      data: { isApproved: dto.isApproved },
+    });
+
+    return {
+      message: 'Cập nhật trạng thái subprocess history thành công',
+      data: updated,
+    };
   }
 }

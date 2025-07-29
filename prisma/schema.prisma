@@ -267,27 +267,29 @@ model ProcedureHistory {
 }
 
 model SubprocessHistory {
-  id                         Int              @id @default(autoincrement())
+  id                         Int     @id @default(autoincrement())
   name                       String
   description                String?
   estimatedNumberOfDays      Int
   numberOfDaysBeforeDeadline Int?
   roleOfThePersonInCharge    String?
-  isRequired                 Boolean          @default(false)
-  isStepWithCost             Boolean          @default(false)
+  isRequired                 Boolean @default(false)
+  isStepWithCost             Boolean @default(false)
   step                       Int
-  procedureHistoryId         Int
-  procedureHistory           ProcedureHistory @relation(fields: [procedureHistoryId], references: [id], name: "procedure_history_subprocess_history_relation")
 
-  departmentId Int?
-  department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_history_relation")
+  procedureHistoryId Int
+  procedureHistory   ProcedureHistory @relation(fields: [procedureHistoryId], references: [id], name: "procedure_history_subprocess_history_relation")
+  departmentId       Int?
+  department         Department?      @relation(fields: [departmentId], references: [id], name: "department_subprocess_history_relation")
 
-  price     Int?
-  startDate DateTime?
-  endDate   DateTime?
-  status    StatusSubprocessHistory @default(PENDING)
-  userId    Int?
-  user      User?                   @relation(fields: [userId], references: [id], name: "user_subprocess_history_relation")
+  price      Int?
+  startDate  DateTime?
+  endDate    DateTime?
+  status     StatusSubprocessHistory @default(PENDING)
+  isApproved Boolean                 @default(false)
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], name: "user_subprocess_history_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
