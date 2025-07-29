@@ -43,6 +43,7 @@ enum RequestStatus {
   IN_PROGRESS
   APPROVED
   REJECTED
+  COMPLETED
 }
 
 enum NotificationType {
