@@ -1049,22 +1049,27 @@ export class RequestService {
 
   async getRequestStatisticsByStatus() {
     const statuses = Object.values(RequestStatus);
+
+    // Get total count of all requests
     const total = await this.prismaService.request.count();
+
+    // Get count grouped by each status
     const counts = await this.prismaService.request.groupBy({
       by: ['status'],
       _count: true,
     });
-    const result = statuses.map((status) => {
-      const found = counts.find((c) => c.status === status);
-      return {
-        status,
-        count: found ? found._count : 0,
-      };
-    });
-    return {
-      total,
-      byStatus: result,
+
+    // Build output in the desired shape
+    const statistics: Record<string, number> = {
+      ALL: total,
     };
+
+    statuses.forEach((status) => {
+      const found = counts.find((c) => c.status === status);
+      statistics[status] = found ? found._count : 0;
+    });
+
+    return { data: statistics };
   }
 
   async findByStatusProductIdWithHistory(statusProductId: number) {
