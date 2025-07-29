@@ -272,6 +272,9 @@ export class UserService {
   }
 
   async create(dto: CreateDTO) {
+    if (!dto.password) {
+      dto.password = 'printway@123';
+    }
     const duplicatedEmailAddress = await this.findUserByEmail(dto.email);
     if (duplicatedEmailAddress) {
       throw new ConflictException('Email đã được sử dụng');
@@ -507,10 +510,7 @@ export class UserService {
     const data = await this.prismaService.user.findMany({
       where: {
         departmentId: null,
-        NOT: [
-          { role: 'ADMIN' },
-          { role: 'SUPER_ADMIN' },
-        ],
+        NOT: [{ role: 'ADMIN' }, { role: 'SUPER_ADMIN' }],
         headOfDepartment: null, // Loại bỏ user là trưởng phòng
       },
       orderBy: { createdAt: 'desc' },

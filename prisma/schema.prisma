@@ -69,6 +69,7 @@ model User {
   verifiedToken     String?
   role              UserRole
   lastLoginDate     DateTime?
+  isFirstLogin      Boolean   @default(true)
 
   departmentId Int?
   department   Department? @relation(fields: [departmentId], references: [id], name: "user_department_relation")

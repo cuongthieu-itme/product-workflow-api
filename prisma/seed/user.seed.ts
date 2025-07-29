@@ -16,6 +16,7 @@ export async function seedUser(prisma: PrismaClient) {
       role: UserRole.SUPER_ADMIN,
       isVerifiedAccount: true,
       verifiedDate: new Date(),
+      isFirstLogin: false,
     },
     create: {
       fullName: 'Super Admin',
@@ -26,6 +27,7 @@ export async function seedUser(prisma: PrismaClient) {
       role: UserRole.SUPER_ADMIN,
       isVerifiedAccount: true,
       verifiedDate: new Date(),
+      isFirstLogin: false,
     },
   });
 

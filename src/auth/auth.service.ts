@@ -79,7 +79,11 @@ export class AuthService {
       await this.userService.updateUserById(user.id, {
         lastLoginDate: new Date(),
       });
-      return { accessToken, userEmail: user.email };
+      return {
+        accessToken,
+        userEmail: user.email,
+        isFirstLogin: user.isFirstLogin,
+      };
     } catch (error) {
       if (error instanceof BadRequestException) {
         throw error;
@@ -396,7 +400,7 @@ export class AuthService {
 
       await this.prismaService.user.update({
         where: { id: userId },
-        data: { password: hashedNewPassword },
+        data: { password: hashedNewPassword, isFirstLogin: false },
       });
 
       return {
