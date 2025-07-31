@@ -933,18 +933,60 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    const subprocessHistoryData = subprocesses.map((subprocess) => ({
-      name: subprocess.name,
-      description: subprocess.description,
-      estimatedNumberOfDays: subprocess.estimatedNumberOfDays,
-      numberOfDaysBeforeDeadline: subprocess.numberOfDaysBeforeDeadline,
-      roleOfThePersonInCharge: subprocess.roleOfThePersonInCharge,
-      isRequired: subprocess.isRequired,
-      isStepWithCost: subprocess.isStepWithCost,
-      step: subprocess.step,
-      departmentId: subprocess.departmentId ?? null,
-      procedureHistoryId,
-    }));
+    // Group subprocesses by department to ensure no duplicate users within same department
+    const subprocessesByDepartment = new Map<number, any[]>();
+
+    subprocesses.forEach((subprocess) => {
+      const departmentId = subprocess.departmentId;
+      if (departmentId) {
+        if (!subprocessesByDepartment.has(departmentId)) {
+          subprocessesByDepartment.set(departmentId, []);
+        }
+        subprocessesByDepartment.get(departmentId)!.push(subprocess);
+      }
+    });
+
+    // Get available users for each department
+    const departmentUsers = new Map<number, any[]>();
+    for (const [departmentId, deptSubprocesses] of subprocessesByDepartment) {
+      const users = await this.getUsersByDepartmentId(prisma, departmentId);
+      departmentUsers.set(departmentId, users);
+    }
+
+    // Create subprocess history data with assigned users
+    const subprocessHistoryData = [];
+
+    for (const subprocess of subprocesses) {
+      const departmentId = subprocess.departmentId;
+      let userId = null;
+
+      if (departmentId) {
+        const availableUsers = departmentUsers.get(departmentId);
+        if (availableUsers && availableUsers.length > 0) {
+          // Get a random user from the department
+          const randomIndex = Math.floor(Math.random() * availableUsers.length);
+          const selectedUser = availableUsers[randomIndex];
+          userId = selectedUser.id;
+
+          // Remove the selected user from available users to avoid duplicates
+          availableUsers.splice(randomIndex, 1);
+        }
+      }
+
+      subprocessHistoryData.push({
+        name: subprocess.name,
+        description: subprocess.description,
+        estimatedNumberOfDays: subprocess.estimatedNumberOfDays,
+        numberOfDaysBeforeDeadline: subprocess.numberOfDaysBeforeDeadline,
+        roleOfThePersonInCharge: subprocess.roleOfThePersonInCharge,
+        isRequired: subprocess.isRequired,
+        isStepWithCost: subprocess.isStepWithCost,
+        step: subprocess.step,
+        departmentId: departmentId ?? null,
+        userId: userId,
+        procedureHistoryId,
+      });
+    }
 
     await prisma.subprocessHistory.createMany({
       data: subprocessHistoryData,
@@ -1160,5 +1202,25 @@ export class RequestService {
     });
 
     return this.findByIdInternal(requestId);
+  }
+
+  private async getUsersByDepartmentId(prisma: any, departmentId: number) {
+    const users = await prisma.user.findMany({
+      where: { departmentId },
+      select: { id: true },
+    });
+    return users;
+  }
+
+  private async getRandomUserByDepartmentId(departmentId: number) {
+    const users = await this.prismaService.user.findMany({
+      where: { departmentId },
+    });
+    if (!users || users.length === 0) {
+      throw new NotFoundException(
+        `Không tìm thấy người dùng trong phòng ban với ID ${departmentId}`,
+      );
+    }
+    return users[Math.floor(Math.random() * users.length)];
   }
 }
