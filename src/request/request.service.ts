@@ -933,18 +933,48 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    const subprocessHistoryData = subprocesses.map((subprocess) => ({
-      name: subprocess.name,
-      description: subprocess.description,
-      estimatedNumberOfDays: subprocess.estimatedNumberOfDays,
-      numberOfDaysBeforeDeadline: subprocess.numberOfDaysBeforeDeadline,
-      roleOfThePersonInCharge: subprocess.roleOfThePersonInCharge,
-      isRequired: subprocess.isRequired,
-      isStepWithCost: subprocess.isStepWithCost,
-      step: subprocess.step,
-      departmentId: subprocess.departmentId ?? null,
-      procedureHistoryId,
-    }));
+    // Tạo map để theo dõi user đã được phân công cho mỗi department
+    const departmentUserMap = new Map<number, number>();
+
+    // Tạo array để lưu các subprocess data
+    const subprocessHistoryData = [];
+
+    // Xử lý từng subprocess một cách tuần tự để có thể sử dụng await
+    for (const subprocess of subprocesses) {
+      let userId = null;
+
+      // Nếu subprocess có departmentId, phân công user ngẫu nhiên
+      if (subprocess.departmentId) {
+        // Kiểm tra xem đã có user được phân công cho department này chưa
+        if (departmentUserMap.has(subprocess.departmentId)) {
+          userId = departmentUserMap.get(subprocess.departmentId);
+        } else {
+          // Lấy user ngẫu nhiên cho department này
+          const randomUser = await this.getRandomUserByDepartmentIdInternal(
+            prisma,
+            subprocess.departmentId,
+          );
+          if (randomUser) {
+            userId = randomUser.id;
+            departmentUserMap.set(subprocess.departmentId, userId);
+          }
+        }
+      }
+
+      subprocessHistoryData.push({
+        name: subprocess.name,
+        description: subprocess.description,
+        estimatedNumberOfDays: subprocess.estimatedNumberOfDays,
+        numberOfDaysBeforeDeadline: subprocess.numberOfDaysBeforeDeadline,
+        roleOfThePersonInCharge: subprocess.roleOfThePersonInCharge,
+        isRequired: subprocess.isRequired,
+        isStepWithCost: subprocess.isStepWithCost,
+        step: subprocess.step,
+        departmentId: subprocess.departmentId ?? null,
+        userId: userId,
+        procedureHistoryId,
+      });
+    }
 
     await prisma.subprocessHistory.createMany({
       data: subprocessHistoryData,
@@ -1160,5 +1190,88 @@ export class RequestService {
     });
 
     return this.findByIdInternal(requestId);
+  }
+
+  /**
+   * Lấy ra một user ngẫu nhiên trong department theo departmentId (Internal version)
+   * @param prisma - Prisma client instance
+   * @param departmentId - ID của department
+   * @returns User ngẫu nhiên trong department hoặc null nếu không có user nào
+   */
+  private async getRandomUserByDepartmentIdInternal(
+    prisma: any,
+    departmentId: number,
+  ) {
+    // Lấy tất cả users trong department
+    const users = await prisma.user.findMany({
+      where: {
+        departmentId: departmentId,
+        isVerifiedAccount: true,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        avatar: true,
+        role: true,
+        departmentId: true,
+      },
+    });
+
+    if (users.length === 0) {
+      return null;
+    }
+
+    // Chọn user ngẫu nhiên
+    const randomIndex = Math.floor(Math.random() * users.length);
+    return users[randomIndex];
+  }
+
+  async getRandomUserByDepartmentId(departmentId: number) {
+    const department = await this.prismaService.department.findUnique({
+      where: { id: departmentId },
+    });
+
+    if (!department) {
+      throw new NotFoundException(
+        `Không tìm thấy department với ID ${departmentId}`,
+      );
+    }
+
+    const users = await this.prismaService.user.findMany({
+      where: {
+        departmentId: departmentId,
+        isVerifiedAccount: true,
+      },
+      select: {
+        id: true,
+        fullName: true,
+        userName: true,
+        email: true,
+        phoneNumber: true,
+        avatar: true,
+        role: true,
+        departmentId: true,
+      },
+    });
+
+    if (users.length === 0) {
+      return null;
+    }
+
+    const randomIndex = Math.floor(Math.random() * users.length);
+    const randomUser = users[randomIndex];
+
+    return {
+      data: randomUser,
+      totalUsers: users.length,
+      department: {
+        id: department.id,
+        name: department.name,
+        description: department.description,
+      },
+    };
   }
 }
