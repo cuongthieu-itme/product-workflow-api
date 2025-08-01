@@ -58,6 +58,13 @@ enum StatusSubprocessHistory {
   SKIPPED
 }
 
+// Output
+enum OutputType {
+  PRODUCT
+  INGREDIENT
+  ACCESSORY
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -203,6 +210,9 @@ model Product {
   statusProductId Int?
   statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "product_status_product_relation")
 
+  // Output
+  request Request? @relation("request_product_output_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -255,6 +265,9 @@ model ProcedureHistory {
   name        String?
   description String?
   version     Int     @default(1)
+
+  // Output
+  outputType OutputType?
 
   statusProducts      StatusProduct[]     @relation("procedure_history_status_relation")
   subprocessesHistory SubprocessHistory[] @relation("procedure_history_subprocess_history_relation")
@@ -349,6 +362,12 @@ model Request {
   procedureHistoryId Int?              @unique
   procedureHistory   ProcedureHistory? @relation(fields: [procedureHistoryId], references: [id], name: "request_procedure_history_relation")
 
+  // Output
+  productId  Int?      @unique
+  product    Product?  @relation(fields: [productId], references: [id], name: "request_product_output_relation")
+  materialId Int?      @unique
+  material   Material? @relation(fields: [materialId], references: [id], name: "request_material_output_relation")
+
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
   evaluates        Evaluate[]        @relation("request_evaluate_relation")
 
@@ -390,6 +409,9 @@ model Material {
   requestInput RequestInput? @relation("request_input_material_relation")
 
   requestMaterials RequestMaterial[] @relation("request_materials_relation")
+
+  // Output
+  request Request? @relation("request_material_output_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
