@@ -15,6 +15,7 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
+import { SaveOutputDto } from './dto/save-output.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AddMaterialToRequestDto } from './dto/create-request.dto';
@@ -126,5 +127,17 @@ export class RequestController {
   @Get('statistics-by-status/current')
   async getStatisticsByStatus() {
     return this.requestService.getRequestStatisticsByStatus();
+  }
+
+  @ApiOperation({
+    summary: 'Lưu output cho yêu cầu',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Post(':id/output/save')
+  async saveOutput(
+    @Param('id') id: number,
+    @Body() saveOutputDto: SaveOutputDto,
+  ) {
+    return this.requestService.saveOutput(Number(id), saveOutputDto);
   }
 }

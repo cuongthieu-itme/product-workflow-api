@@ -50,6 +50,7 @@ export class ProcedureService {
           name: true,
           description: true,
           version: true,
+          outputType: true,
           subprocesses: {
             select: {
               id: true,
@@ -61,6 +62,22 @@ export class ProcedureService {
               isRequired: true,
               isStepWithCost: true,
               step: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: {
+              step: 'asc',
+            },
+          },
+          sameAssigns: {
+            select: {
+              id: true,
+              departmentId: true,
+              steps: true,
               department: {
                 select: {
                   id: true,
@@ -89,6 +106,7 @@ export class ProcedureService {
           name: true,
           description: true,
           version: true,
+          outputType: true,
           subprocesses: {
             select: {
               id: true,
@@ -100,6 +118,22 @@ export class ProcedureService {
               isRequired: true,
               isStepWithCost: true,
               step: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+            orderBy: {
+              step: 'asc',
+            },
+          },
+          sameAssigns: {
+            select: {
+              id: true,
+              departmentId: true,
+              steps: true,
               department: {
                 select: {
                   id: true,
@@ -175,7 +209,7 @@ export class ProcedureService {
 
   async createOrUpdate(dto: CreateOrUpdateProcedureDto) {
     try {
-      const { id, subprocesses = [], ...procedureData } = dto;
+      const { id, subprocesses = [], sameAssigns = [], ...procedureData } = dto;
 
       if (id) {
         const existingProcedure = await this.prismaService.procedure.findUnique(
@@ -189,6 +223,7 @@ export class ProcedureService {
 
         const result = await this.prismaService.$transaction(async (tx) => {
           await tx.subprocess.deleteMany({ where: { procedureId: id } });
+          await tx.sameAssign.deleteMany({ where: { procedureId: id } });
 
           const updatedProcedure = await tx.procedure.update({
             where: { id },
@@ -200,11 +235,47 @@ export class ProcedureService {
 
           if (subprocesses.length) {
             await tx.subprocess.createMany({
-              data: subprocesses.map((sp) => ({
-                ...sp,
-                procedureId: id,
-              })),
+              data: subprocesses.map((sp) => {
+                const { id: _, ...subprocessData } = sp;
+                return {
+                  ...subprocessData,
+                  procedureId: id,
+                };
+              }),
             });
+          }
+
+          if (sameAssigns.length > 0) {
+            const sameAssignData = sameAssigns.map((assign) => ({
+              departmentId: assign.departmentId,
+              steps: assign.steps,
+              procedureId: id,
+            }));
+
+            await tx.sameAssign.createMany({
+              data: sameAssignData,
+            });
+
+            for (const assign of sameAssigns) {
+              const { departmentId, steps } = assign;
+
+              const procedureSubprocesses = await tx.subprocess.findMany({
+                where: { procedureId: id },
+              });
+
+              for (const step of steps) {
+                const subprocessToUpdate = procedureSubprocesses.find(
+                  (sp) => sp.step === step,
+                );
+
+                if (subprocessToUpdate) {
+                  await tx.subprocess.update({
+                    where: { id: subprocessToUpdate.id },
+                    data: { departmentId },
+                  });
+                }
+              }
+            }
           }
 
           return updatedProcedure;
@@ -230,11 +301,47 @@ export class ProcedureService {
 
         if (subprocesses.length) {
           await tx.subprocess.createMany({
-            data: subprocesses.map((sp) => ({
-              ...sp,
-              procedureId: created.id,
-            })),
+            data: subprocesses.map((sp) => {
+              const { id: _, ...subprocessData } = sp;
+              return {
+                ...subprocessData,
+                procedureId: created.id,
+              };
+            }),
           });
+        }
+
+        if (sameAssigns.length > 0) {
+          const sameAssignData = sameAssigns.map((assign) => ({
+            departmentId: assign.departmentId,
+            steps: assign.steps,
+            procedureId: created.id,
+          }));
+
+          await tx.sameAssign.createMany({
+            data: sameAssignData,
+          });
+
+          for (const assign of sameAssigns) {
+            const { departmentId, steps } = assign;
+
+            const procedureSubprocesses = await tx.subprocess.findMany({
+              where: { procedureId: created.id },
+            });
+
+            for (const step of steps) {
+              const subprocessToUpdate = procedureSubprocesses.find(
+                (sp) => sp.step === step,
+              );
+
+              if (subprocessToUpdate) {
+                await tx.subprocess.update({
+                  where: { id: subprocessToUpdate.id },
+                  data: { departmentId },
+                });
+              }
+            }
+          }
         }
 
         return created;
