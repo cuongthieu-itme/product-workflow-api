@@ -60,6 +60,17 @@ class SubprocessDto {
   departmentId?: number;
 }
 
+export class SameAssignDto {
+  @ApiProperty()
+  @IsInt()
+  departmentId: number;
+
+  @ApiProperty({ type: [Number] })
+  @IsArray()
+  @IsInt({ each: true })
+  steps: number[];
+}
+
 export class CreateOrUpdateProcedureDto {
   @ApiProperty({ required: false })
   @IsInt()
@@ -81,4 +92,11 @@ export class CreateOrUpdateProcedureDto {
   @ValidateNested({ each: true })
   @Type(() => SubprocessDto)
   subprocesses: SubprocessDto[];
+
+  @ApiProperty({ type: [SameAssignDto], required: false })
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => SameAssignDto)
+  @IsOptional()
+  sameAssign?: SameAssignDto[];
 }

@@ -40,10 +40,8 @@ export class CreateDTO {
   avatar: string;
 
   @ApiProperty()
-  @IsNotEmpty()
-  @IsString()
+  @IsOptional()
   @MinLength(8)
-  @MaxLength(128)
   password: string;
 
   @ApiProperty({

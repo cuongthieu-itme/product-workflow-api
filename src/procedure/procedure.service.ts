@@ -175,7 +175,7 @@ export class ProcedureService {
 
   async createOrUpdate(dto: CreateOrUpdateProcedureDto) {
     try {
-      const { id, subprocesses = [], ...procedureData } = dto;
+      const { id, subprocesses = [], sameAssign = [], ...procedureData } = dto;
 
       if (id) {
         const existingProcedure = await this.prismaService.procedure.findUnique(
@@ -207,6 +207,29 @@ export class ProcedureService {
             });
           }
 
+          if (sameAssign.length > 0) {
+            for (const assign of sameAssign) {
+              const { departmentId, steps } = assign;
+
+              const procedureSubprocesses = await tx.subprocess.findMany({
+                where: { procedureId: id },
+              });
+
+              for (const step of steps) {
+                const subprocessToUpdate = procedureSubprocesses.find(
+                  (sp) => sp.step === step,
+                );
+
+                if (subprocessToUpdate) {
+                  await tx.subprocess.update({
+                    where: { id: subprocessToUpdate.id },
+                    data: { departmentId },
+                  });
+                }
+              }
+            }
+          }
+
           return updatedProcedure;
         });
 
@@ -235,6 +258,32 @@ export class ProcedureService {
               procedureId: created.id,
             })),
           });
+        }
+
+        // Xử lý sameAssign logic cho procedure mới
+        if (sameAssign.length > 0) {
+          for (const assign of sameAssign) {
+            const { departmentId, steps } = assign;
+
+            // Lấy tất cả subprocesses của procedure này
+            const procedureSubprocesses = await tx.subprocess.findMany({
+              where: { procedureId: created.id },
+            });
+
+            // Cập nhật departmentId cho các subprocess có step trong steps array
+            for (const step of steps) {
+              const subprocessToUpdate = procedureSubprocesses.find(
+                (sp) => sp.step === step,
+              );
+
+              if (subprocessToUpdate) {
+                await tx.subprocess.update({
+                  where: { id: subprocessToUpdate.id },
+                  data: { departmentId },
+                });
+              }
+            }
+          }
         }
 
         return created;
