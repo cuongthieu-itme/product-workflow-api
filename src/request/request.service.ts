@@ -13,7 +13,8 @@ import {
   AddMaterialToRequestDto,
   RemoveMaterialFromRequestDto,
 } from './dto/create-request.dto';
-import { RequestStatus } from '@prisma/client';
+import { SaveOutputDto } from './dto/save-output.dto';
+import { RequestStatus, OutputType, MaterialType } from '@prisma/client';
 
 @Injectable()
 export class RequestService {
@@ -1273,5 +1274,177 @@ export class RequestService {
         description: department.description,
       },
     };
+  }
+
+  async saveOutput(requestId: number, saveOutputDto: SaveOutputDto) {
+    const request = await this.prismaService.request.findUnique({
+      where: { id: requestId },
+      include: {
+        product: true,
+        material: true,
+      },
+    });
+
+    if (!request) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
+    }
+
+    if (request.productId || request.materialId) {
+      throw new BadRequestException(
+        'Yêu cầu này đã có output. Không thể thêm output mới.',
+      );
+    }
+
+    const { outputType } = saveOutputDto;
+
+    try {
+      return await this.prismaService.$transaction(async (prisma) => {
+        let outputData: any = {};
+
+        switch (outputType) {
+          case OutputType.PRODUCT:
+            if (!saveOutputDto.productName || !saveOutputDto.categoryId) {
+              throw new BadRequestException(
+                'Tên sản phẩm và categoryId là bắt buộc khi outputType là PRODUCT',
+              );
+            }
+
+            const category = await prisma.category.findUnique({
+              where: { id: saveOutputDto.categoryId },
+            });
+
+            if (!category) {
+              throw new NotFoundException(
+                `Không tìm thấy category với ID ${saveOutputDto.categoryId}`,
+              );
+            }
+
+            const newProduct = await prisma.product.create({
+              data: {
+                name: saveOutputDto.productName,
+                description: saveOutputDto.productDescription || null,
+                categoryId: saveOutputDto.categoryId,
+              },
+            });
+
+            outputData.productId = newProduct.id;
+            break;
+
+          case OutputType.INGREDIENT:
+          case OutputType.ACCESSORY:
+            if (
+              !saveOutputDto.materialName ||
+              !saveOutputDto.materialCode ||
+              !saveOutputDto.materialQuantity ||
+              !saveOutputDto.materialUnit ||
+              !saveOutputDto.originId
+            ) {
+              throw new BadRequestException(
+                'Tên, mã, số lượng, đơn vị và originId là bắt buộc khi outputType là INGREDIENT hoặc ACCESSORY',
+              );
+            }
+
+            const origin = await prisma.origin.findUnique({
+              where: { id: saveOutputDto.originId },
+            });
+
+            if (!origin) {
+              throw new NotFoundException(
+                `Không tìm thấy origin với ID ${saveOutputDto.originId}`,
+              );
+            }
+
+            const existingMaterial = await prisma.material.findUnique({
+              where: { code: saveOutputDto.materialCode },
+            });
+
+            if (existingMaterial) {
+              throw new BadRequestException(
+                `Mã nguyên vật liệu ${saveOutputDto.materialCode} đã tồn tại`,
+              );
+            }
+
+            const materialType =
+              outputType === OutputType.INGREDIENT
+                ? MaterialType.INGREDIENT
+                : MaterialType.ACCESSORY;
+
+            const newMaterial = await prisma.material.create({
+              data: {
+                name: saveOutputDto.materialName,
+                code: saveOutputDto.materialCode,
+                quantity: saveOutputDto.materialQuantity,
+                unit: saveOutputDto.materialUnit,
+                description: saveOutputDto.materialDescription || null,
+                image: saveOutputDto.materialImages || [],
+                type: materialType,
+                originId: saveOutputDto.originId,
+              },
+            });
+
+            outputData.materialId = newMaterial.id;
+            break;
+
+          default:
+            throw new BadRequestException(
+              `OutputType không hợp lệ: ${outputType}`,
+            );
+        }
+
+        const updatedRequest = await prisma.request.update({
+          where: { id: requestId },
+          data: outputData,
+          include: {
+            product: {
+              include: {
+                category: true,
+              },
+            },
+            material: {
+              include: {
+                origin: true,
+              },
+            },
+          },
+        });
+
+        if (request.procedureHistoryId) {
+          await prisma.procedureHistory.update({
+            where: { id: request.procedureHistoryId },
+            data: { outputType },
+          });
+        }
+
+        return {
+          message: `Output ${outputType.toLowerCase()} đã được tạo thành công`,
+          data: updatedRequest,
+        };
+      });
+    } catch (error) {
+      console.error('Lỗi khi tạo output:', error);
+
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          'Dữ liệu bị trùng lặp. Vui lòng kiểm tra lại thông tin.',
+        );
+      }
+
+      if (error.code === 'P2003') {
+        throw new BadRequestException(
+          'Dữ liệu tham chiếu không hợp lệ. Vui lòng kiểm tra lại các ID.',
+        );
+      }
+
+      throw new BadRequestException(
+        'Tạo output thất bại. Vui lòng kiểm tra lại dữ liệu và thử lại.',
+      );
+    }
   }
 }
