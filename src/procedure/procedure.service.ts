@@ -69,6 +69,19 @@ export class ProcedureService {
               },
             },
           },
+          sameAssigns: {
+            select: {
+              id: true,
+              departmentId: true,
+              steps: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
           createdAt: true,
           updatedAt: true,
         },
@@ -100,6 +113,19 @@ export class ProcedureService {
               isRequired: true,
               isStepWithCost: true,
               step: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true,
+                },
+              },
+            },
+          },
+          sameAssigns: {
+            select: {
+              id: true,
+              departmentId: true,
+              steps: true,
               department: {
                 select: {
                   id: true,
@@ -189,6 +215,7 @@ export class ProcedureService {
 
         const result = await this.prismaService.$transaction(async (tx) => {
           await tx.subprocess.deleteMany({ where: { procedureId: id } });
+          await tx.sameAssign.deleteMany({ where: { procedureId: id } });
 
           const updatedProcedure = await tx.procedure.update({
             where: { id },
@@ -208,6 +235,16 @@ export class ProcedureService {
           }
 
           if (sameAssign.length > 0) {
+            const sameAssignData = sameAssign.map((assign) => ({
+              departmentId: assign.departmentId,
+              steps: assign.steps,
+              procedureId: id,
+            }));
+
+            await tx.sameAssign.createMany({
+              data: sameAssignData,
+            });
+
             for (const assign of sameAssign) {
               const { departmentId, steps } = assign;
 
@@ -260,17 +297,24 @@ export class ProcedureService {
           });
         }
 
-        // Xử lý sameAssign logic cho procedure mới
         if (sameAssign.length > 0) {
+          const sameAssignData = sameAssign.map((assign) => ({
+            departmentId: assign.departmentId,
+            steps: assign.steps,
+            procedureId: created.id,
+          }));
+
+          await tx.sameAssign.createMany({
+            data: sameAssignData,
+          });
+
           for (const assign of sameAssign) {
             const { departmentId, steps } = assign;
 
-            // Lấy tất cả subprocesses của procedure này
             const procedureSubprocesses = await tx.subprocess.findMany({
               where: { procedureId: created.id },
             });
 
-            // Cập nhật departmentId cho các subprocess có step trong steps array
             for (const step of steps) {
               const subprocessToUpdate = procedureSubprocesses.find(
                 (sp) => sp.step === step,

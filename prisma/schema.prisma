@@ -135,6 +135,7 @@ model Department {
   members             User[]              @relation("user_department_relation")
   subprocesses        Subprocess[]        @relation("department_subprocess_relation")
   subprocessesHistory SubprocessHistory[] @relation("department_subprocess_history_relation")
+  sameAssigns         SameAssign[]        @relation("department_same_assign_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -228,6 +229,7 @@ model Procedure {
 
   statusProducts StatusProduct[] @relation("procedure_status_relation")
   subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")
+  sameAssigns    SameAssign[]    @relation("procedure_same_assign_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -258,6 +260,24 @@ model Subprocess {
   @@index([procedureId])
   @@index([departmentId])
   @@map("subprocesses")
+}
+
+model SameAssign {
+  id           Int   @id @default(autoincrement())
+  departmentId Int
+  steps        Int[] // Array of step numbers
+
+  procedureId Int
+  procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_same_assign_relation")
+
+  department Department @relation(fields: [departmentId], references: [id], name: "department_same_assign_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([procedureId])
+  @@index([departmentId])
+  @@map("same_assigns")
 }
 
 model ProcedureHistory {
