@@ -69,6 +69,9 @@ export class ProcedureService {
                 },
               },
             },
+            orderBy: {
+              step: 'asc',
+            },
           },
           sameAssigns: {
             select: {
@@ -121,6 +124,9 @@ export class ProcedureService {
                   name: true,
                 },
               },
+            },
+            orderBy: {
+              step: 'asc',
             },
           },
           sameAssigns: {
