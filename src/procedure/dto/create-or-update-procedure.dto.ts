@@ -100,7 +100,7 @@ export class CreateOrUpdateProcedureDto {
   @ValidateNested({ each: true })
   @Type(() => SameAssignDto)
   @IsOptional()
-  sameAssign?: SameAssignDto[];
+  sameAssigns?: SameAssignDto[];
 
   @ApiProperty()
   @IsNotEmpty()

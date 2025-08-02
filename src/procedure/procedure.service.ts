@@ -50,6 +50,7 @@ export class ProcedureService {
           name: true,
           description: true,
           version: true,
+          outputType: true,
           subprocesses: {
             select: {
               id: true,
@@ -102,6 +103,7 @@ export class ProcedureService {
           name: true,
           description: true,
           version: true,
+          outputType: true,
           subprocesses: {
             select: {
               id: true,
@@ -201,7 +203,7 @@ export class ProcedureService {
 
   async createOrUpdate(dto: CreateOrUpdateProcedureDto) {
     try {
-      const { id, subprocesses = [], sameAssign = [], ...procedureData } = dto;
+      const { id, subprocesses = [], sameAssigns = [], ...procedureData } = dto;
 
       if (id) {
         const existingProcedure = await this.prismaService.procedure.findUnique(
@@ -234,8 +236,8 @@ export class ProcedureService {
             });
           }
 
-          if (sameAssign.length > 0) {
-            const sameAssignData = sameAssign.map((assign) => ({
+          if (sameAssigns.length > 0) {
+            const sameAssignData = sameAssigns.map((assign) => ({
               departmentId: assign.departmentId,
               steps: assign.steps,
               procedureId: id,
@@ -245,7 +247,7 @@ export class ProcedureService {
               data: sameAssignData,
             });
 
-            for (const assign of sameAssign) {
+            for (const assign of sameAssigns) {
               const { departmentId, steps } = assign;
 
               const procedureSubprocesses = await tx.subprocess.findMany({
@@ -297,8 +299,8 @@ export class ProcedureService {
           });
         }
 
-        if (sameAssign.length > 0) {
-          const sameAssignData = sameAssign.map((assign) => ({
+        if (sameAssigns.length > 0) {
+          const sameAssignData = sameAssigns.map((assign) => ({
             departmentId: assign.departmentId,
             steps: assign.steps,
             procedureId: created.id,
@@ -308,7 +310,7 @@ export class ProcedureService {
             data: sameAssignData,
           });
 
-          for (const assign of sameAssign) {
+          for (const assign of sameAssigns) {
             const { departmentId, steps } = assign;
 
             const procedureSubprocesses = await tx.subprocess.findMany({
