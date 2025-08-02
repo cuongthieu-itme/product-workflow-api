@@ -1282,6 +1282,11 @@ export class RequestService {
       include: {
         product: true,
         material: true,
+        statusProduct: {
+          include: {
+            procedure: true,
+          },
+        },
       },
     });
 
@@ -1408,9 +1413,9 @@ export class RequestService {
           },
         });
 
-        if (request.procedureHistoryId) {
-          await prisma.procedureHistory.update({
-            where: { id: request.procedureHistoryId },
+        if (request.statusProduct?.procedure?.id) {
+          await prisma.procedure.update({
+            where: { id: request.statusProduct.procedure.id },
             data: { outputType },
           });
         }

@@ -2,6 +2,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsBoolean,
+  IsEnum,
   IsInt,
   IsNotEmpty,
   IsOptional,
@@ -9,6 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
+import { OutputType } from '@prisma/client';
 
 class SubprocessDto {
   @ApiProperty({ required: false })
@@ -99,4 +101,9 @@ export class CreateOrUpdateProcedureDto {
   @Type(() => SameAssignDto)
   @IsOptional()
   sameAssign?: SameAssignDto[];
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsEnum(OutputType)
+  outputType: OutputType;
 }

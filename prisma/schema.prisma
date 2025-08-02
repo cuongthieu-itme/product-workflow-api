@@ -227,6 +227,9 @@ model Procedure {
   description String?
   version     Int     @default(1)
 
+  // output
+  outputType OutputType @default(PRODUCT)
+
   statusProducts StatusProduct[] @relation("procedure_status_relation")
   subprocesses   Subprocess[]    @relation("procedure_subprocess_relation")
   sameAssigns    SameAssign[]    @relation("procedure_same_assign_relation")
@@ -285,9 +288,6 @@ model ProcedureHistory {
   name        String?
   description String?
   version     Int     @default(1)
-
-  // Output
-  outputType OutputType?
 
   statusProducts      StatusProduct[]     @relation("procedure_history_status_relation")
   subprocessesHistory SubprocessHistory[] @relation("procedure_history_subprocess_history_relation")
