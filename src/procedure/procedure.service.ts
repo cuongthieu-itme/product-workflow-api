@@ -229,10 +229,13 @@ export class ProcedureService {
 
           if (subprocesses.length) {
             await tx.subprocess.createMany({
-              data: subprocesses.map((sp) => ({
-                ...sp,
-                procedureId: id,
-              })),
+              data: subprocesses.map((sp) => {
+                const { id: _, ...subprocessData } = sp;
+                return {
+                  ...subprocessData,
+                  procedureId: id,
+                };
+              }),
             });
           }
 
@@ -292,10 +295,13 @@ export class ProcedureService {
 
         if (subprocesses.length) {
           await tx.subprocess.createMany({
-            data: subprocesses.map((sp) => ({
-              ...sp,
-              procedureId: created.id,
-            })),
+            data: subprocesses.map((sp) => {
+              const { id: _, ...subprocessData } = sp;
+              return {
+                ...subprocessData,
+                procedureId: created.id,
+              };
+            }),
           });
         }
 
