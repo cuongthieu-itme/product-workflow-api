@@ -46,6 +46,11 @@ enum RequestStatus {
   COMPLETED
 }
 
+enum RequestApprovalStatus {
+  HOLD
+  DENIED
+}
+
 enum NotificationType {
   REQUEST
 }
@@ -92,12 +97,13 @@ model User {
 
   headOfDepartment Department? @relation("department_head_relation")
 
-  sessions            UserSession?         @relation("user_session_relation")
-  resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
-  customers           Customer[]           @relation("user_customers_relation")
-  requests            Request[]            @relation("user_request_relation")
-  evaluates           Evaluate[]           @relation("user_evaluate_relation")
-  subprocessesHistory SubprocessHistory[]  @relation("user_subprocess_history_relation")
+  sessions             UserSession?          @relation("user_session_relation")
+  resetPasswordTokens  ResetPasswordToken[]  @relation("user_reset_password_relation")
+  customers            Customer[]            @relation("user_customers_relation")
+  requests             Request[]             @relation("user_request_relation")
+  evaluates            Evaluate[]            @relation("user_evaluate_relation")
+  subprocessesHistory  SubprocessHistory[]   @relation("user_subprocess_history_relation")
+  requestApprovalInfos RequestApprovalInfo[] @relation("user_request_approval_info_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -395,11 +401,12 @@ model Request {
   materialId Int?      @unique
   material   Material? @relation(fields: [materialId], references: [id], name: "request_material_output_relation")
 
-  requestMaterials RequestMaterial[] @relation("request_materials_relation")
-  evaluates        Evaluate[]        @relation("request_evaluate_relation")
+  requestMaterials RequestMaterial[]     @relation("request_materials_relation")
+  evaluates        Evaluate[]            @relation("request_evaluate_relation")
+  approvalInfos    RequestApprovalInfo[] @relation("request_approval_info_relation")
 
   // Add field
-  priority PriorityType @default(NORMAL)
+  priority PriorityType
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -498,4 +505,41 @@ model Evaluate {
   updatedAt DateTime @updatedAt
 
   @@map("evaluates")
+}
+
+model RequestApprovalInfo {
+  id        Int                   @id @default(autoincrement())
+  requestId Int
+  request   Request               @relation(fields: [requestId], references: [id], name: "request_approval_info_relation")
+  status    RequestApprovalStatus @default(HOLD)
+
+  holdReason     String?
+  denyReason     String?
+  approvedType   String?
+  productionPlan String?
+
+  files RequestApprovalFile[]
+
+  createdById Int?
+  createdBy   User? @relation(fields: [createdById], references: [id], name: "user_request_approval_info_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([requestId])
+  @@map("request_approval_infos")
+}
+
+model RequestApprovalFile {
+  id     Int                 @id @default(autoincrement())
+  url    String
+  type   String
+  infoId Int
+  info   RequestApprovalInfo @relation(fields: [infoId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([infoId])
+  @@map("request_approval_files")
 }
