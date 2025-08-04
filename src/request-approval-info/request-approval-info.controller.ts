@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  UseGuards,
   Request,
 } from '@nestjs/common';
 import { RequestApprovalInfoService } from './request-approval-info.service';
@@ -16,12 +15,12 @@ import {
   UpdateRequestApprovalInfoDto,
   FilterRequestApprovalInfoDto,
 } from './dto';
-import { AccessTokenGuard } from 'src/auth/guards/access-token.guard';
 import { AuthRequest } from 'src/common/types/auth-request.type';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
+import { AuthGuard } from 'src/common/decorators/auth-guard.decorator';
 
 @ApiTags('Request Approval Info')
-@UseGuards(AccessTokenGuard)
+@AuthGuard()
 @Controller('request-approval-infos')
 export class RequestApprovalInfoController {
   constructor(
