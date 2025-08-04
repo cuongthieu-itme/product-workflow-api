@@ -14,7 +14,6 @@ export class SaveOutputDto {
   @IsEnum(OutputType)
   outputType: OutputType;
 
-  // Product fields (required when outputType is PRODUCT)
   @ValidateIf((o) => o.outputType === 'PRODUCT')
   @IsNotEmpty()
   @IsString()
@@ -30,7 +29,6 @@ export class SaveOutputDto {
   @IsNumber()
   categoryId?: number;
 
-  // Material fields (required when outputType is INGREDIENT or ACCESSORY)
   @ValidateIf(
     (o) => o.outputType === 'INGREDIENT' || o.outputType === 'ACCESSORY',
   )

@@ -9,7 +9,6 @@ export class UpdateRequestStatusDto {
   @IsEnum(RequestStatus)
   status: RequestStatus;
 
-
   @ApiProperty({
     type: Number,
     required: false,

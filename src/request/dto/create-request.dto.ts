@@ -9,7 +9,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Transform, Type } from 'class-transformer';
-import { SourceRequest } from '@prisma/client';
+import { SourceRequest, PriorityType } from '@prisma/client';
 
 export class CreateRequestInputDto {
   @ApiProperty({ required: false })
@@ -128,4 +128,8 @@ export class CreateRequestDto {
   @ValidateNested({ each: true })
   @Type(() => CreateRequestMaterialDto)
   materials?: CreateRequestMaterialDto[];
+
+  @ApiProperty({ enum: PriorityType })
+  @IsEnum(PriorityType)
+  priority: PriorityType;
 }
