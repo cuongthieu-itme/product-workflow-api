@@ -794,6 +794,14 @@ export class RequestService {
         dto.statusProductId,
       );
 
+      // 5. Cập nhật production plan
+      if (dto.productionPlan) {
+        await prisma.request.update({
+          where: { id },
+          data: { productionPlan: dto.productionPlan },
+        });
+      }
+
       return updatedRequest;
     });
   }

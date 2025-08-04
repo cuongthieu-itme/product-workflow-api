@@ -97,13 +97,12 @@ model User {
 
   headOfDepartment Department? @relation("department_head_relation")
 
-  sessions             UserSession?          @relation("user_session_relation")
-  resetPasswordTokens  ResetPasswordToken[]  @relation("user_reset_password_relation")
-  customers            Customer[]            @relation("user_customers_relation")
-  requests             Request[]             @relation("user_request_relation")
-  evaluates            Evaluate[]            @relation("user_evaluate_relation")
-  subprocessesHistory  SubprocessHistory[]   @relation("user_subprocess_history_relation")
-  requestApprovalInfos RequestApprovalInfo[] @relation("user_request_approval_info_relation")
+  sessions            UserSession?         @relation("user_session_relation")
+  resetPasswordTokens ResetPasswordToken[] @relation("user_reset_password_relation")
+  customers           Customer[]           @relation("user_customers_relation")
+  requests            Request[]            @relation("user_request_relation")
+  evaluates           Evaluate[]           @relation("user_evaluate_relation")
+  subprocessesHistory SubprocessHistory[]  @relation("user_subprocess_history_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -406,7 +405,8 @@ model Request {
   approvalInfos    RequestApprovalInfo[] @relation("request_approval_info_relation")
 
   // Add field
-  priority PriorityType @default(NORMAL)
+  priority       PriorityType @default(NORMAL)
+  productionPlan String?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -513,15 +513,10 @@ model RequestApprovalInfo {
   request   Request               @relation(fields: [requestId], references: [id], name: "request_approval_info_relation")
   status    RequestApprovalStatus @default(HOLD)
 
-  holdReason     String?
-  denyReason     String?
-  approvedType   String?
-  productionPlan String?
+  holdReason String?
+  denyReason String?
 
   files String[]
-
-  createdById Int?
-  createdBy   User? @relation(fields: [createdById], references: [id], name: "user_request_approval_info_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

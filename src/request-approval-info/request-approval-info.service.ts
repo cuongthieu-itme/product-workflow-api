@@ -24,13 +24,6 @@ export class RequestApprovalInfoService {
         if (filters.status) {
           whereCondition.status = filters.status;
         }
-
-        if (filters.approvedType) {
-          whereCondition.approvedType = {
-            contains: filters.approvedType,
-            mode: 'insensitive',
-          };
-        }
       }
 
       const page = filters?.page || 1;
@@ -51,8 +44,6 @@ export class RequestApprovalInfoService {
           status: true,
           holdReason: true,
           denyReason: true,
-          approvedType: true,
-          productionPlan: true,
           files: true,
           createdAt: true,
           updatedAt: true,
@@ -62,14 +53,6 @@ export class RequestApprovalInfoService {
               title: true,
               description: true,
               status: true,
-            },
-          },
-          createdBy: {
-            select: {
-              id: true,
-              fullName: true,
-              userName: true,
-              email: true,
             },
           },
         },
@@ -93,8 +76,6 @@ export class RequestApprovalInfoService {
           status: true,
           holdReason: true,
           denyReason: true,
-          approvedType: true,
-          productionPlan: true,
           files: true,
           createdAt: true,
           updatedAt: true,
@@ -110,20 +91,6 @@ export class RequestApprovalInfoService {
                   fullName: true,
                   email: true,
                   phoneNumber: true,
-                },
-              },
-            },
-          },
-          createdBy: {
-            select: {
-              id: true,
-              fullName: true,
-              userName: true,
-              email: true,
-              department: {
-                select: {
-                  id: true,
-                  name: true,
                 },
               },
             },
@@ -146,7 +113,7 @@ export class RequestApprovalInfoService {
     }
   }
 
-  async create(dto: CreateRequestApprovalInfoDto, userId?: number) {
+  async create(dto: CreateRequestApprovalInfoDto) {
     try {
       const existingRequest = await this.prismaService.request.findUnique({
         where: { id: dto.requestId },
@@ -174,9 +141,6 @@ export class RequestApprovalInfoService {
         status: dto.status,
         holdReason: dto.holdReason,
         denyReason: dto.denyReason,
-        approvedType: dto.approvedType,
-        productionPlan: dto.productionPlan,
-        createdById: userId,
       };
 
       if (dto.files && dto.files.length > 0) {
@@ -192,8 +156,6 @@ export class RequestApprovalInfoService {
             status: true,
             holdReason: true,
             denyReason: true,
-            approvedType: true,
-            productionPlan: true,
             files: true,
             createdAt: true,
             updatedAt: true,
@@ -202,13 +164,6 @@ export class RequestApprovalInfoService {
                 id: true,
                 title: true,
                 status: true,
-              },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                fullName: true,
-                userName: true,
               },
             },
           },
@@ -284,8 +239,6 @@ export class RequestApprovalInfoService {
             status: true,
             holdReason: true,
             denyReason: true,
-            approvedType: true,
-            productionPlan: true,
             files: true,
             createdAt: true,
             updatedAt: true,
@@ -294,13 +247,6 @@ export class RequestApprovalInfoService {
                 id: true,
                 title: true,
                 status: true,
-              },
-            },
-            createdBy: {
-              select: {
-                id: true,
-                fullName: true,
-                userName: true,
               },
             },
           },
@@ -357,19 +303,9 @@ export class RequestApprovalInfoService {
           status: true,
           holdReason: true,
           denyReason: true,
-          approvedType: true,
-          productionPlan: true,
           files: true,
           createdAt: true,
           updatedAt: true,
-          createdBy: {
-            select: {
-              id: true,
-              fullName: true,
-              userName: true,
-              email: true,
-            },
-          },
         },
       });
 

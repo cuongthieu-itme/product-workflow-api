@@ -14,11 +14,6 @@ export class FilterRequestApprovalInfoDto {
   @IsOptional()
   status?: RequestApprovalStatus;
 
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  approvedType?: string;
-
   @ApiProperty({
     required: false,
   })

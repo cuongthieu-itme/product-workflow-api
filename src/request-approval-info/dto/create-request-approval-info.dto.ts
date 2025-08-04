@@ -29,16 +29,6 @@ export class CreateRequestApprovalInfoDto {
   denyReason?: string;
 
   @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  approvedType?: string;
-
-  @ApiProperty({ required: false })
-  @IsString()
-  @IsOptional()
-  productionPlan?: string;
-
-  @ApiProperty({ required: false })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()

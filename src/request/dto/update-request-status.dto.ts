@@ -10,10 +10,15 @@ export class UpdateRequestStatusDto {
   status: RequestStatus;
 
   @ApiProperty({
-    type: Number,
     required: false,
   })
   @IsOptional()
   @IsNumber()
   statusProductId?: number;
+
+  @ApiProperty({
+    required: false,
+  })
+  @IsOptional()
+  productionPlan?: string;
 }

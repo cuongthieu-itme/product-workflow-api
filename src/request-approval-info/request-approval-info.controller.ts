@@ -7,7 +7,6 @@ import {
   Param,
   Delete,
   Query,
-  Request,
 } from '@nestjs/common';
 import { RequestApprovalInfoService } from './request-approval-info.service';
 import {
@@ -15,7 +14,6 @@ import {
   UpdateRequestApprovalInfoDto,
   FilterRequestApprovalInfoDto,
 } from './dto';
-import { AuthRequest } from 'src/common/types/auth-request.type';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AuthGuard } from 'src/common/decorators/auth-guard.decorator';
 
@@ -41,14 +39,8 @@ export class RequestApprovalInfoController {
 
   @Post()
   @ApiOperation({ summary: 'Tạo thông tin phê duyệt yêu cầu' })
-  create(
-    @Body() createRequestApprovalInfoDto: CreateRequestApprovalInfoDto,
-    @Request() req: AuthRequest,
-  ) {
-    return this.requestApprovalInfoService.create(
-      createRequestApprovalInfoDto,
-      req.user?.id,
-    );
+  create(@Body() createRequestApprovalInfoDto: CreateRequestApprovalInfoDto) {
+    return this.requestApprovalInfoService.create(createRequestApprovalInfoDto);
   }
 
   @Get('request/:requestId')
