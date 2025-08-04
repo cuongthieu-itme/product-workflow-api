@@ -406,7 +406,7 @@ model Request {
   approvalInfos    RequestApprovalInfo[] @relation("request_approval_info_relation")
 
   // Add field
-  priority PriorityType
+  priority PriorityType @default(NORMAL)
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -518,7 +518,7 @@ model RequestApprovalInfo {
   approvedType   String?
   productionPlan String?
 
-  files RequestApprovalFile[]
+  files String[]
 
   createdById Int?
   createdBy   User? @relation(fields: [createdById], references: [id], name: "user_request_approval_info_relation")
@@ -528,18 +528,4 @@ model RequestApprovalInfo {
 
   @@index([requestId])
   @@map("request_approval_infos")
-}
-
-model RequestApprovalFile {
-  id     Int                 @id @default(autoincrement())
-  url    String
-  type   String
-  infoId Int
-  info   RequestApprovalInfo @relation(fields: [infoId], references: [id])
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  @@index([infoId])
-  @@map("request_approval_files")
 }

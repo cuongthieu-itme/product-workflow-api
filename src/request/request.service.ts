@@ -204,6 +204,7 @@ export class RequestService {
       productLink,
       media,
       source,
+      priority,
       createdById,
       customerId,
       sourceOtherId,
@@ -240,6 +241,7 @@ export class RequestService {
             productLink: productLink || [],
             media: media || [],
             source,
+            priority,
             status: 'PENDING', // Default status
             createdById: createdById || null,
             customerId: customerId || null,
@@ -355,6 +357,7 @@ export class RequestService {
       productLink,
       media,
       source,
+      priority,
       createdById,
       customerId,
       sourceOtherId,
@@ -404,6 +407,7 @@ export class RequestService {
           updateData.productLink = productLink || [];
         if (media !== undefined) updateData.media = media || [];
         if (source !== undefined) updateData.source = source;
+        if (priority !== undefined) updateData.priority = priority;
         if (createdById !== undefined) updateData.createdById = createdById;
         if (customerId !== undefined) updateData.customerId = customerId;
         if (sourceOtherId !== undefined)
