@@ -131,7 +131,7 @@ export class RequestService {
             },
           },
         },
-        approvalInfos: true,
+        approvalInfo: true,
       },
     });
 
@@ -190,7 +190,7 @@ export class RequestService {
             },
           },
         },
-        approvalInfos: true,
+        approvalInfo: true,
       },
     });
 
