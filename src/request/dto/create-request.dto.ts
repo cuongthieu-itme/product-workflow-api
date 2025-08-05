@@ -132,4 +132,9 @@ export class CreateRequestDto {
   @ApiProperty({ enum: PriorityType })
   @IsEnum(PriorityType)
   priority: PriorityType;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsString()
+  code?: string;
 }

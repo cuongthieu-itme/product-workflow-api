@@ -15,12 +15,14 @@ import {
 } from './dto/create-request.dto';
 import { SaveOutputDto } from './dto/save-output.dto';
 import { RequestStatus, OutputType, MaterialType } from '@prisma/client';
+import { CodeGenerationService } from 'src/common/code-generation/code-generation.service';
 
 @Injectable()
 export class RequestService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly notificationAdminService: NotificationAdminService,
+    private readonly codeGenerationService: CodeGenerationService,
   ) {}
 
   async findAll(filters?: FilterRequestDto) {
@@ -233,6 +235,9 @@ export class RequestService {
 
     try {
       return await this.prismaService.$transaction(async (prisma) => {
+        const generatedCode =
+          await this.codeGenerationService.generateRequestCode(source);
+
         // Create the main request
         const newRequest = await prisma.request.create({
           data: {
@@ -247,6 +252,7 @@ export class RequestService {
             customerId: customerId || null,
             sourceOtherId: sourceOtherId || null,
             statusProductId: statusProductId || null,
+            code: generatedCode,
           },
         });
 

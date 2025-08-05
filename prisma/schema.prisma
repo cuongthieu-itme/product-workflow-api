@@ -407,6 +407,7 @@ model Request {
   // Add field
   priority       PriorityType @default(NORMAL)
   productionPlan String?
+  code           String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
