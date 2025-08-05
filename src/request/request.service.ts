@@ -131,6 +131,7 @@ export class RequestService {
             },
           },
         },
+        approvalInfos: true,
       },
     });
 
@@ -189,6 +190,7 @@ export class RequestService {
             },
           },
         },
+        approvalInfos: true,
       },
     });
 
@@ -214,14 +216,11 @@ export class RequestService {
       materials,
     } = createRequestDto;
 
-    // Validate relationships first
     await this.validateRelationships(createRequestDto);
 
-    // Validate materials if provided
     if (materials && materials.length > 0) {
       await this.validateMaterials(materials.map((m) => m.materialId));
 
-      // Check for duplicate materials
       const materialIds = materials.map((m) => m.materialId);
       const duplicates = materialIds.filter(
         (id, index) => materialIds.indexOf(id) !== index,
@@ -238,7 +237,6 @@ export class RequestService {
         const generatedCode =
           await this.codeGenerationService.generateRequestCode(source);
 
-        // Create the main request
         const newRequest = await prisma.request.create({
           data: {
             title,
@@ -247,7 +245,7 @@ export class RequestService {
             media: media || [],
             source,
             priority,
-            status: 'PENDING', // Default status
+            status: 'PENDING',
             createdById: createdById || null,
             customerId: customerId || null,
             sourceOtherId: sourceOtherId || null,
@@ -256,9 +254,7 @@ export class RequestService {
           },
         });
 
-        // Create request materials if provided
         if (materials && materials.length > 0) {
-          // Create RequestMaterial entries
           await prisma.requestMaterial.createMany({
             data: materials.map((material) => ({
               requestId: newRequest.id,
@@ -267,7 +263,6 @@ export class RequestService {
             })),
           });
 
-          // Handle RequestInput for each material
           for (const material of materials) {
             if (material.requestInput) {
               const requestInputData = {
@@ -282,7 +277,6 @@ export class RequestService {
                 materialId: material.materialId,
               };
 
-              // Check if RequestInput already exists for this material
               const existingRequestInput = await prisma.requestInput.findUnique(
                 {
                   where: { materialId: material.materialId },
@@ -290,7 +284,6 @@ export class RequestService {
               );
 
               if (existingRequestInput) {
-                // Update existing RequestInput
                 await prisma.requestInput.update({
                   where: { materialId: material.materialId },
                   data: {
@@ -303,7 +296,6 @@ export class RequestService {
                   },
                 });
               } else {
-                // Create new RequestInput
                 await prisma.requestInput.create({
                   data: requestInputData,
                 });
