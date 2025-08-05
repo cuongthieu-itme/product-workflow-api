@@ -237,6 +237,12 @@ export class RequestService {
         const generatedCode =
           await this.codeGenerationService.generateRequestCode(source);
 
+        if (!generatedCode) {
+          throw new BadRequestException(
+            'Không thể tạo mã yêu cầu (code). Vui lòng kiểm tra lại source hoặc cấu hình sinh mã.',
+          );
+        }
+
         const newRequest = await prisma.request.create({
           data: {
             title,
