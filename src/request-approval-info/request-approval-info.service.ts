@@ -20,10 +20,6 @@ export class RequestApprovalInfoService {
         if (filters.requestId) {
           whereCondition.requestId = filters.requestId;
         }
-
-        if (filters.status) {
-          whereCondition.status = filters.status;
-        }
       }
 
       const page = filters?.page || 1;
@@ -41,7 +37,6 @@ export class RequestApprovalInfoService {
         select: {
           id: true,
           requestId: true,
-          status: true,
           holdReason: true,
           denyReason: true,
           files: true,
@@ -73,7 +68,6 @@ export class RequestApprovalInfoService {
         select: {
           id: true,
           requestId: true,
-          status: true,
           holdReason: true,
           denyReason: true,
           files: true,
@@ -138,7 +132,6 @@ export class RequestApprovalInfoService {
 
       const createData: any = {
         requestId: dto.requestId,
-        status: dto.status,
         holdReason: dto.holdReason,
         denyReason: dto.denyReason,
       };
@@ -153,7 +146,6 @@ export class RequestApprovalInfoService {
           select: {
             id: true,
             requestId: true,
-            status: true,
             holdReason: true,
             denyReason: true,
             files: true,
@@ -236,7 +228,6 @@ export class RequestApprovalInfoService {
           select: {
             id: true,
             requestId: true,
-            status: true,
             holdReason: true,
             denyReason: true,
             files: true,
@@ -300,7 +291,6 @@ export class RequestApprovalInfoService {
         select: {
           id: true,
           requestId: true,
-          status: true,
           holdReason: true,
           denyReason: true,
           files: true,

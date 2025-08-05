@@ -5,18 +5,12 @@ import {
   IsString,
   IsArray,
 } from 'class-validator';
-import { RequestApprovalStatus } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class CreateRequestApprovalInfoDto {
   @ApiProperty({ required: true })
   @IsNumber()
   requestId: number;
-
-  @ApiProperty({ required: false })
-  @IsEnum(RequestApprovalStatus)
-  @IsOptional()
-  status?: RequestApprovalStatus;
 
   @ApiProperty({ required: false })
   @IsString()

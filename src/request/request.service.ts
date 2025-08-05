@@ -800,13 +800,7 @@ export class RequestService {
         dto.statusProductId,
       );
 
-      // 5. Cập nhật production plan
-      if (dto.productionPlan) {
-        await prisma.request.update({
-          where: { id },
-          data: { productionPlan: dto.productionPlan },
-        });
-      }
+      await this.handleRequestApprovalInfo(prisma, id, dto);
 
       return updatedRequest;
     });
@@ -842,6 +836,24 @@ export class RequestService {
         'Trạng thái mới trùng với trạng thái hiện tại',
       );
     }
+
+    if (dto.status === ('HOLD' as RequestStatus) && !dto.holdReason) {
+      throw new BadRequestException(
+        'Lý do tạm hoãn (holdReason) là bắt buộc khi trạng thái là HOLD',
+      );
+    }
+
+    if (dto.status === ('REJECTED' as RequestStatus) && !dto.denyReason) {
+      throw new BadRequestException(
+        'Lý do từ chối (denyReason) là bắt buộc khi trạng thái là REJECTED',
+      );
+    }
+
+    if (dto.status === ('APPROVED' as RequestStatus) && !dto.productionPlan) {
+      throw new BadRequestException(
+        'Kế hoạch sản xuất (productionPlan) là bắt buộc khi trạng thái là APPROVED',
+      );
+    }
   }
 
   private async updateRequestData(
@@ -860,7 +872,6 @@ export class RequestService {
       updateData.statusProductId = dto.statusProductId;
     }
 
-    // Chỉ update nếu có dữ liệu thay đổi
     if (Object.keys(updateData).length === 0) {
       return request;
     }
@@ -876,14 +887,12 @@ export class RequestService {
     request: any,
     newStatusProductId?: number,
   ) {
-    // Xác định statusProductId cần sử dụng
     const statusProductId = newStatusProductId ?? request.statusProductId;
 
     if (!statusProductId) {
-      return; // Không có statusProduct thì không xử lý procedure history
+      return;
     }
 
-    // Nếu đã có procedureHistoryId thì không tạo mới
     if (request.procedureHistoryId) {
       return;
     }
@@ -926,7 +935,6 @@ export class RequestService {
   }
 
   private async createProcedureSnapshot(prisma: any, procedure: any) {
-    // Tạo procedure history
     const procedureHistory = await prisma.procedureHistory.create({
       data: {
         name: procedure.name,
@@ -935,7 +943,6 @@ export class RequestService {
       },
     });
 
-    // Tạo subprocess history nếu có
     if (procedure.subprocesses?.length > 0) {
       await this.createSubprocessHistories(
         prisma,
@@ -952,23 +959,17 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    // Tạo map để theo dõi user đã được phân công cho mỗi department
     const departmentUserMap = new Map<number, number>();
 
-    // Tạo array để lưu các subprocess data
     const subprocessHistoryData = [];
 
-    // Xử lý từng subprocess một cách tuần tự để có thể sử dụng await
     for (const subprocess of subprocesses) {
       let userId = null;
 
-      // Nếu subprocess có departmentId, phân công user ngẫu nhiên
       if (subprocess.departmentId) {
-        // Kiểm tra xem đã có user được phân công cho department này chưa
         if (departmentUserMap.has(subprocess.departmentId)) {
           userId = departmentUserMap.get(subprocess.departmentId);
         } else {
-          // Lấy user ngẫu nhiên cho department này
           const randomUser = await this.getRandomUserByDepartmentIdInternal(
             prisma,
             subprocess.departmentId,
@@ -1009,6 +1010,54 @@ export class RequestService {
       where: { id: requestId },
       data: { procedureHistoryId },
     });
+  }
+
+  private async handleRequestApprovalInfo(
+    prisma: any,
+    requestId: number,
+    dto: UpdateRequestStatusDto,
+  ) {
+    if (
+      dto.status !== ('HOLD' as RequestStatus) &&
+      dto.status !== ('REJECTED' as RequestStatus) &&
+      dto.status !== ('APPROVED' as RequestStatus)
+    ) {
+      return;
+    }
+
+    const existingApprovalInfo = await prisma.requestApprovalInfo.findFirst({
+      where: { requestId },
+    });
+
+    const approvalData: any = {
+      requestId,
+      files: dto.files?.filter((file) => file && file.trim() !== '') || [],
+    };
+
+    if (dto.status === ('HOLD' as RequestStatus)) {
+      approvalData.holdReason = dto.holdReason;
+      approvalData.denyReason = null;
+      approvalData.productionPlan = null;
+    } else if (dto.status === ('REJECTED' as RequestStatus)) {
+      approvalData.denyReason = dto.denyReason;
+      approvalData.holdReason = null;
+      approvalData.productionPlan = null;
+    } else if (dto.status === ('APPROVED' as RequestStatus)) {
+      approvalData.productionPlan = dto.productionPlan;
+      approvalData.holdReason = null;
+      approvalData.denyReason = null;
+    }
+
+    if (existingApprovalInfo) {
+      await prisma.requestApprovalInfo.update({
+        where: { id: existingApprovalInfo.id },
+        data: approvalData,
+      });
+    } else {
+      await prisma.requestApprovalInfo.create({
+        data: approvalData,
+      });
+    }
   }
 
   async remove(id: number) {

@@ -1,5 +1,4 @@
 import { IsEnum, IsNumber, IsOptional, IsString, IsInt } from 'class-validator';
-import { RequestApprovalStatus } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
 
@@ -8,11 +7,6 @@ export class FilterRequestApprovalInfoDto {
   @IsNumber()
   @IsOptional()
   requestId?: number;
-
-  @ApiProperty({ required: false })
-  @IsEnum(RequestApprovalStatus)
-  @IsOptional()
-  status?: RequestApprovalStatus;
 
   @ApiProperty({
     required: false,

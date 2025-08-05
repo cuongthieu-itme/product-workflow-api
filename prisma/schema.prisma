@@ -44,11 +44,7 @@ enum RequestStatus {
   APPROVED
   REJECTED
   COMPLETED
-}
-
-enum RequestApprovalStatus {
   HOLD
-  DENIED
 }
 
 enum NotificationType {
@@ -405,9 +401,8 @@ model Request {
   approvalInfos    RequestApprovalInfo[] @relation("request_approval_info_relation")
 
   // Add field
-  priority       PriorityType @default(NORMAL)
-  productionPlan String?
-  code           String
+  priority PriorityType @default(NORMAL)
+  code     String
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -509,13 +504,13 @@ model Evaluate {
 }
 
 model RequestApprovalInfo {
-  id        Int                   @id @default(autoincrement())
+  id        Int     @id @default(autoincrement())
   requestId Int
-  request   Request               @relation(fields: [requestId], references: [id], name: "request_approval_info_relation")
-  status    RequestApprovalStatus @default(HOLD)
+  request   Request @relation(fields: [requestId], references: [id], name: "request_approval_info_relation")
 
-  holdReason String?
-  denyReason String?
+  holdReason     String?
+  denyReason     String?
+  productionPlan String?
 
   files String[]
 
