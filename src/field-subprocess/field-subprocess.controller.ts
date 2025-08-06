@@ -13,10 +13,16 @@ import { FieldSubprocessService } from './field-subprocess.service';
 import { CreateFieldSubprocessDto } from './dto/create-field-subprocess.dto';
 import { UpdateFieldSubprocessDto } from './dto/update-field-subprocess.dto';
 import { FilterFieldSubprocessDto } from './dto/filter-field-subprocess.dto';
+import { AuthGuard } from 'src/common/decorators';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('FieldSubprocess')
+@AuthGuard()
 @Controller('field-subprocess')
 export class FieldSubprocessController {
-  constructor(private readonly fieldSubprocessService: FieldSubprocessService) {}
+  constructor(
+    private readonly fieldSubprocessService: FieldSubprocessService,
+  ) {}
 
   @Get()
   async findAll(@Query() query: FilterFieldSubprocessDto) {
