@@ -23,6 +23,7 @@ import { NotificationAdminModule } from './notification-admin/notification-admin
 import { RequestInputModule } from './request-input/request-input.module';
 import { EvaluateModule } from './evaluate/evaluate.module';
 import { SubprocessesHistoryModule } from './subprocesses-history/subprocesses-history.module';
+import { RequestApprovalInfoModule } from './request-approval-info/request-approval-info.module';
 
 @Module({
   imports: [
@@ -50,6 +51,7 @@ import { SubprocessesHistoryModule } from './subprocesses-history/subprocesses-h
     RequestInputModule,
     EvaluateModule,
     SubprocessesHistoryModule,
+    RequestApprovalInfoModule,
   ],
 })
 export class AppModule {}

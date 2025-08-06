@@ -1,0 +1,30 @@
+import {
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsArray,
+} from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
+
+export class CreateRequestApprovalInfoDto {
+  @ApiProperty({ required: true })
+  @IsNumber()
+  requestId: number;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  holdReason?: string;
+
+  @ApiProperty({ required: false })
+  @IsString()
+  @IsOptional()
+  denyReason?: string;
+
+  @ApiProperty({ required: false })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  files?: string[];
+}

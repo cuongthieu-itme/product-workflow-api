@@ -15,12 +15,14 @@ import {
 } from './dto/create-request.dto';
 import { SaveOutputDto } from './dto/save-output.dto';
 import { RequestStatus, OutputType, MaterialType } from '@prisma/client';
+import { CodeGenerationService } from 'src/common/code-generation/code-generation.service';
 
 @Injectable()
 export class RequestService {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly notificationAdminService: NotificationAdminService,
+    private readonly codeGenerationService: CodeGenerationService,
   ) {}
 
   async findAll(filters?: FilterRequestDto) {
@@ -129,6 +131,7 @@ export class RequestService {
             },
           },
         },
+        approvalInfo: true,
       },
     });
 
@@ -187,6 +190,7 @@ export class RequestService {
             },
           },
         },
+        approvalInfo: true,
       },
     });
 
@@ -204,6 +208,7 @@ export class RequestService {
       productLink,
       media,
       source,
+      priority,
       createdById,
       customerId,
       sourceOtherId,
@@ -211,14 +216,11 @@ export class RequestService {
       materials,
     } = createRequestDto;
 
-    // Validate relationships first
     await this.validateRelationships(createRequestDto);
 
-    // Validate materials if provided
     if (materials && materials.length > 0) {
       await this.validateMaterials(materials.map((m) => m.materialId));
 
-      // Check for duplicate materials
       const materialIds = materials.map((m) => m.materialId);
       const duplicates = materialIds.filter(
         (id, index) => materialIds.indexOf(id) !== index,
@@ -232,7 +234,15 @@ export class RequestService {
 
     try {
       return await this.prismaService.$transaction(async (prisma) => {
-        // Create the main request
+        const generatedCode =
+          await this.codeGenerationService.generateRequestCode(source);
+
+        if (!generatedCode) {
+          throw new BadRequestException(
+            'Không thể tạo mã yêu cầu (code). Vui lòng kiểm tra lại source hoặc cấu hình sinh mã.',
+          );
+        }
+
         const newRequest = await prisma.request.create({
           data: {
             title,
@@ -240,17 +250,17 @@ export class RequestService {
             productLink: productLink || [],
             media: media || [],
             source,
-            status: 'PENDING', // Default status
+            priority,
+            status: 'PENDING',
             createdById: createdById || null,
             customerId: customerId || null,
             sourceOtherId: sourceOtherId || null,
             statusProductId: statusProductId || null,
+            code: generatedCode,
           },
         });
 
-        // Create request materials if provided
         if (materials && materials.length > 0) {
-          // Create RequestMaterial entries
           await prisma.requestMaterial.createMany({
             data: materials.map((material) => ({
               requestId: newRequest.id,
@@ -259,7 +269,6 @@ export class RequestService {
             })),
           });
 
-          // Handle RequestInput for each material
           for (const material of materials) {
             if (material.requestInput) {
               const requestInputData = {
@@ -274,7 +283,6 @@ export class RequestService {
                 materialId: material.materialId,
               };
 
-              // Check if RequestInput already exists for this material
               const existingRequestInput = await prisma.requestInput.findUnique(
                 {
                   where: { materialId: material.materialId },
@@ -282,7 +290,6 @@ export class RequestService {
               );
 
               if (existingRequestInput) {
-                // Update existing RequestInput
                 await prisma.requestInput.update({
                   where: { materialId: material.materialId },
                   data: {
@@ -295,7 +302,6 @@ export class RequestService {
                   },
                 });
               } else {
-                // Create new RequestInput
                 await prisma.requestInput.create({
                   data: requestInputData,
                 });
@@ -355,6 +361,7 @@ export class RequestService {
       productLink,
       media,
       source,
+      priority,
       createdById,
       customerId,
       sourceOtherId,
@@ -404,6 +411,7 @@ export class RequestService {
           updateData.productLink = productLink || [];
         if (media !== undefined) updateData.media = media || [];
         if (source !== undefined) updateData.source = source;
+        if (priority !== undefined) updateData.priority = priority;
         if (createdById !== undefined) updateData.createdById = createdById;
         if (customerId !== undefined) updateData.customerId = customerId;
         if (sourceOtherId !== undefined)
@@ -790,6 +798,8 @@ export class RequestService {
         dto.statusProductId,
       );
 
+      await this.handleRequestApprovalInfo(prisma, id, dto);
+
       return updatedRequest;
     });
   }
@@ -824,6 +834,24 @@ export class RequestService {
         'Trạng thái mới trùng với trạng thái hiện tại',
       );
     }
+
+    if (dto.status === ('HOLD' as RequestStatus) && !dto.holdReason) {
+      throw new BadRequestException(
+        'Lý do tạm hoãn (holdReason) là bắt buộc khi trạng thái là HOLD',
+      );
+    }
+
+    if (dto.status === ('REJECTED' as RequestStatus) && !dto.denyReason) {
+      throw new BadRequestException(
+        'Lý do từ chối (denyReason) là bắt buộc khi trạng thái là REJECTED',
+      );
+    }
+
+    if (dto.status === ('APPROVED' as RequestStatus) && !dto.productionPlan) {
+      throw new BadRequestException(
+        'Kế hoạch sản xuất (productionPlan) là bắt buộc khi trạng thái là APPROVED',
+      );
+    }
   }
 
   private async updateRequestData(
@@ -842,7 +870,6 @@ export class RequestService {
       updateData.statusProductId = dto.statusProductId;
     }
 
-    // Chỉ update nếu có dữ liệu thay đổi
     if (Object.keys(updateData).length === 0) {
       return request;
     }
@@ -858,14 +885,12 @@ export class RequestService {
     request: any,
     newStatusProductId?: number,
   ) {
-    // Xác định statusProductId cần sử dụng
     const statusProductId = newStatusProductId ?? request.statusProductId;
 
     if (!statusProductId) {
-      return; // Không có statusProduct thì không xử lý procedure history
+      return;
     }
 
-    // Nếu đã có procedureHistoryId thì không tạo mới
     if (request.procedureHistoryId) {
       return;
     }
@@ -908,7 +933,6 @@ export class RequestService {
   }
 
   private async createProcedureSnapshot(prisma: any, procedure: any) {
-    // Tạo procedure history
     const procedureHistory = await prisma.procedureHistory.create({
       data: {
         name: procedure.name,
@@ -917,7 +941,6 @@ export class RequestService {
       },
     });
 
-    // Tạo subprocess history nếu có
     if (procedure.subprocesses?.length > 0) {
       await this.createSubprocessHistories(
         prisma,
@@ -934,23 +957,17 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    // Tạo map để theo dõi user đã được phân công cho mỗi department
     const departmentUserMap = new Map<number, number>();
 
-    // Tạo array để lưu các subprocess data
     const subprocessHistoryData = [];
 
-    // Xử lý từng subprocess một cách tuần tự để có thể sử dụng await
     for (const subprocess of subprocesses) {
       let userId = null;
 
-      // Nếu subprocess có departmentId, phân công user ngẫu nhiên
       if (subprocess.departmentId) {
-        // Kiểm tra xem đã có user được phân công cho department này chưa
         if (departmentUserMap.has(subprocess.departmentId)) {
           userId = departmentUserMap.get(subprocess.departmentId);
         } else {
-          // Lấy user ngẫu nhiên cho department này
           const randomUser = await this.getRandomUserByDepartmentIdInternal(
             prisma,
             subprocess.departmentId,
@@ -991,6 +1008,54 @@ export class RequestService {
       where: { id: requestId },
       data: { procedureHistoryId },
     });
+  }
+
+  private async handleRequestApprovalInfo(
+    prisma: any,
+    requestId: number,
+    dto: UpdateRequestStatusDto,
+  ) {
+    if (
+      dto.status !== ('HOLD' as RequestStatus) &&
+      dto.status !== ('REJECTED' as RequestStatus) &&
+      dto.status !== ('APPROVED' as RequestStatus)
+    ) {
+      return;
+    }
+
+    const existingApprovalInfo = await prisma.requestApprovalInfo.findFirst({
+      where: { requestId },
+    });
+
+    const approvalData: any = {
+      requestId,
+      files: dto.files?.filter((file) => file && file.trim() !== '') || [],
+    };
+
+    if (dto.status === ('HOLD' as RequestStatus)) {
+      approvalData.holdReason = dto.holdReason;
+      approvalData.denyReason = null;
+      approvalData.productionPlan = null;
+    } else if (dto.status === ('REJECTED' as RequestStatus)) {
+      approvalData.denyReason = dto.denyReason;
+      approvalData.holdReason = null;
+      approvalData.productionPlan = null;
+    } else if (dto.status === ('APPROVED' as RequestStatus)) {
+      approvalData.productionPlan = dto.productionPlan;
+      approvalData.holdReason = null;
+      approvalData.denyReason = null;
+    }
+
+    if (existingApprovalInfo) {
+      await prisma.requestApprovalInfo.update({
+        where: { id: existingApprovalInfo.id },
+        data: approvalData,
+      });
+    } else {
+      await prisma.requestApprovalInfo.create({
+        data: approvalData,
+      });
+    }
   }
 
   async remove(id: number) {
