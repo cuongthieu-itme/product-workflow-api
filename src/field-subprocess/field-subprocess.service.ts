@@ -85,9 +85,11 @@ export class FieldSubprocessService {
   async update(id: number, dto: UpdateFieldSubprocessDto) {
     try {
       const existing = await this.prismaService.fieldSubprocess.findUnique({ where: { id } });
+
       if (!existing) {
         throw new NotFoundException(`Không tìm thấy fieldSubprocess với ID ${id}`);
       }
+
       if (dto.materialId && dto.materialId !== existing.materialId) {
         const duplicated = await this.prismaService.fieldSubprocess.findUnique({
           where: { materialId: dto.materialId },
@@ -96,7 +98,9 @@ export class FieldSubprocessService {
           throw new ConflictException('MaterialId đã tồn tại trong fieldSubprocess');
         }
       }
+
       const updated = await this.prismaService.fieldSubprocess.update({ where: { id }, data: dto });
+
       return {
         message: 'Cập nhật fieldSubprocess thành công',
         data: updated,
