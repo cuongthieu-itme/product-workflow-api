@@ -57,11 +57,12 @@ export class FieldSubprocessService {
       const newFieldSubprocess =
         await this.prismaService.fieldSubprocess.create({
           data: {
+            subprocessId: dto.subprocessId,
             materials: {
               connect: dto.materialIds.map((id) => ({ id })),
             },
           },
-          include: { materials: true },
+          include: { materials: true, subprocess: true },
         });
 
       return {
@@ -96,16 +97,22 @@ export class FieldSubprocessService {
         (id) => !currentMaterialIds.includes(id),
       );
 
+      const updateData: any = {
+        materials: {
+          disconnect: toRemove.map((id) => ({ id })),
+          connect: toAdd.map((id) => ({ id })),
+        },
+      };
+
+      if (dto.subprocessId !== undefined) {
+        updateData.subprocessId = dto.subprocessId;
+      }
+
       const updatedFieldSubprocess =
         await this.prismaService.fieldSubprocess.update({
           where: { id },
-          data: {
-            materials: {
-              disconnect: toRemove.map((id) => ({ id })),
-              connect: toAdd.map((id) => ({ id })),
-            },
-          },
-          include: { materials: true },
+          data: updateData,
+          include: { materials: true, subprocess: true },
         });
 
       return {

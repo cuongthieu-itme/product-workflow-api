@@ -265,6 +265,8 @@ model Subprocess {
   departmentId Int?
   department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_relation")
 
+  fieldSubprocesses FieldSubprocess[] @relation("subprocess_field_subprocess_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -526,6 +528,9 @@ model RequestApprovalInfo {
 
 model FieldSubprocess {
   id Int @id @default(autoincrement())
+
+  subprocessId Int
+  subprocess   Subprocess @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
 
   materials Material[] @relation("field_subprocess_material_relation")
 

@@ -1,10 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, ArrayNotEmpty, IsInt } from 'class-validator';
+import { IsArray, ArrayNotEmpty, IsInt, IsNotEmpty } from 'class-validator';
 
 export class CreateFieldSubprocessDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  subprocessId: number;
+
   @ApiProperty({
     type: [Number],
-    description: 'Danh sách id của Material sẽ gán vào FieldSubprocess',
   })
   @IsArray()
   @ArrayNotEmpty()
