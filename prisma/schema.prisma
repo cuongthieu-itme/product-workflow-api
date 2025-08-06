@@ -446,6 +446,9 @@ model Material {
   // Output
   request Request? @relation("request_material_output_relation")
 
+  // Add field step
+  fieldSubprocess FieldSubprocess? @relation("field_subprocess_material_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -519,4 +522,16 @@ model RequestApprovalInfo {
 
   @@index([requestId])
   @@map("request_approval_infos")
+}
+
+model FieldSubprocess {
+  id Int @id @default(autoincrement())
+
+  materialId Int?      @unique
+  material   Material? @relation(fields: [materialId], references: [id], name: "field_subprocess_material_relation")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("field_subprocesses")
 }
