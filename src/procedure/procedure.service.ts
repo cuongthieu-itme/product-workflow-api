@@ -128,6 +128,7 @@ export class ProcedureService {
                   name: true,
                 },
               },
+              fieldSubprocesses: true,
             },
             orderBy: {
               step: 'asc',
