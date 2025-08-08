@@ -6,9 +6,9 @@ export class FilterFieldSubprocessDto {
   @ApiProperty({ required: false })
   @IsInt()
   @IsOptional()
-  materialId?: number;
+  subprocessId?: number;
 
- @ApiProperty({
+  @ApiProperty({
     required: false,
   })
   @IsOptional()

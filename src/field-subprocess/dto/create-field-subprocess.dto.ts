@@ -6,12 +6,4 @@ export class CreateFieldSubprocessDto {
   @IsNotEmpty()
   @IsInt()
   subprocessId: number;
-
-  @ApiProperty({
-    type: [Number],
-  })
-  @IsArray()
-  @ArrayNotEmpty()
-  @IsInt({ each: true })
-  materialIds: number[];
 }

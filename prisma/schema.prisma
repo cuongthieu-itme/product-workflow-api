@@ -448,9 +448,6 @@ model Material {
   // Output
   request Request? @relation("request_material_output_relation")
 
-  // Add field step
-  fieldSubprocesses FieldSubprocess[] @relation("field_subprocess_material_relation")
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -531,8 +528,6 @@ model FieldSubprocess {
 
   subprocessId Int
   subprocess   Subprocess @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
-
-  materials Material[] @relation("field_subprocess_material_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

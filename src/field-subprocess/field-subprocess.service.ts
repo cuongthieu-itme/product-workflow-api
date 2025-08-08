@@ -1,8 +1,4 @@
-import {
-  ConflictException,
-  Injectable,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateFieldSubprocessDto } from './dto/create-field-subprocess.dto';
 import { UpdateFieldSubprocessDto } from './dto/update-field-subprocess.dto';
@@ -15,7 +11,8 @@ export class FieldSubprocessService {
   async findAll(filters?: FilterFieldSubprocessDto) {
     try {
       const where: any = {};
-      if (filters?.materialId) where.materialId = filters.materialId;
+      if (filters?.subprocessId) where.subprocessId = filters.subprocessId;
+
       const page = filters?.page || 1;
       const limit = filters?.limit || 10;
       const total = await this.prismaService.fieldSubprocess.count({ where });
@@ -58,11 +55,8 @@ export class FieldSubprocessService {
         await this.prismaService.fieldSubprocess.create({
           data: {
             subprocessId: dto.subprocessId,
-            materials: {
-              connect: dto.materialIds.map((id) => ({ id })),
-            },
           },
-          include: { materials: true, subprocess: true },
+          include: { subprocess: true },
         });
 
       return {
@@ -78,7 +72,6 @@ export class FieldSubprocessService {
     try {
       const existing = await this.prismaService.fieldSubprocess.findUnique({
         where: { id },
-        include: { materials: true },
       });
 
       if (!existing) {
@@ -87,22 +80,7 @@ export class FieldSubprocessService {
         );
       }
 
-      const currentMaterialIds = existing.materials.map((m) => m.id);
-      const newMaterialIds = dto.materialIds || [];
-
-      const toRemove = currentMaterialIds.filter(
-        (id) => !newMaterialIds.includes(id),
-      );
-      const toAdd = newMaterialIds.filter(
-        (id) => !currentMaterialIds.includes(id),
-      );
-
-      const updateData: any = {
-        materials: {
-          disconnect: toRemove.map((id) => ({ id })),
-          connect: toAdd.map((id) => ({ id })),
-        },
-      };
+      const updateData: any = {};
 
       if (dto.subprocessId !== undefined) {
         updateData.subprocessId = dto.subprocessId;
@@ -112,7 +90,7 @@ export class FieldSubprocessService {
         await this.prismaService.fieldSubprocess.update({
           where: { id },
           data: updateData,
-          include: { materials: true, subprocess: true },
+          include: { subprocess: true },
         });
 
       return {
