@@ -5,3 +5,5 @@ export * from './delete-multiple.dto';
 export * from './bulk-update.dto';
 export * from './update-or-create-check-field.dto';
 export * from './check-field-response.dto';
+export * from './check-field-option.dto';
+export * from './check-field-options-response.dto';

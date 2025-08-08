@@ -17,6 +17,8 @@ import { DeleteMultipleFieldSubprocessDto } from './dto/delete-multiple.dto';
 import { BulkUpdateFieldSubprocessDto } from './dto/bulk-update.dto';
 import { UpdateOrCreateCheckFieldDto } from './dto/update-or-create-check-field.dto';
 import { CheckFieldResponseDto } from './dto/check-field-response.dto';
+import { CheckFieldOptionDto } from './dto/check-field-option.dto';
+import { CheckFieldOptionsResponseDto } from './dto/check-field-options-response.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
@@ -32,6 +34,19 @@ export class FieldSubprocessController {
   @ApiOperation({ summary: 'Lấy danh sách các trường tiến trình' })
   async findAll(@Query() query: FilterFieldSubprocessDto) {
     return this.fieldSubprocessService.findAll(query);
+  }
+
+  @Get('check-field-options')
+  @ApiOperation({
+    summary: 'Lấy danh sách các CheckField với label tiếng Việt và type',
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Lấy danh sách CheckField thành công',
+    type: CheckFieldOptionsResponseDto,
+  })
+  async getCheckFieldOptions(): Promise<{ data: CheckFieldOptionDto[] }> {
+    return this.fieldSubprocessService.getCheckFieldOptions();
   }
 
   @Get('statistics')

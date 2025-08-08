@@ -4,6 +4,7 @@ import { CreateFieldSubprocessDto } from './dto/create-field-subprocess.dto';
 import { UpdateFieldSubprocessDto } from './dto/update-field-subprocess.dto';
 import { FilterFieldSubprocessDto } from './dto/filter-field-subprocess.dto';
 import { UpdateOrCreateCheckFieldDto } from './dto/update-or-create-check-field.dto';
+import { CheckFieldOptionDto } from './dto/check-field-option.dto';
 
 @Injectable()
 export class FieldSubprocessService {
@@ -205,6 +206,108 @@ export class FieldSubprocessService {
     }
   }
 
+  async getCheckFieldOptions(): Promise<{ data: CheckFieldOptionDto[] }> {
+    try {
+      const checkFieldMapping: Record<string, { label: string; type: string }> =
+        {
+          MATERIAL_CODE: { label: 'Mã vật liệu', type: 'input' },
+          MATERIAL_NAME: { label: 'Tên vật liệu', type: 'input' },
+          REQUEST_ID: { label: 'ID yêu cầu', type: 'input' },
+          REQUEST_DATE: { label: 'Ngày yêu cầu', type: 'date' },
+          PRIORITY: { label: 'Độ ưu tiên', type: 'select' },
+          CREATED_BY: { label: 'Người tạo', type: 'input' },
+          REQUEST_SOURCE: { label: 'Nguồn yêu cầu', type: 'select' },
+          CHECKER: { label: 'Người kiểm tra', type: 'input' },
+          DESCRIPTION_MATERIAL: { label: 'Mô tả vật liệu', type: 'textarea' },
+          STATUS: { label: 'Trạng thái', type: 'select' },
+          QUANTITY: { label: 'Số lượng', type: 'number' },
+          UNIT: { label: 'Đơn vị', type: 'input' },
+          COLOR: { label: 'Màu sắc', type: 'input' },
+          MATERIAL_TYPE: { label: 'Loại vật liệu', type: 'select' },
+          MEDIA: { label: 'Tệp đa phương tiện', type: 'file' },
+          PURCHASE_LINK: { label: 'Liên kết mua hàng', type: 'input' },
+          ADDITIONAL_NOTE: { label: 'Ghi chú bổ sung', type: 'textarea' },
+          APPROVED_BY: { label: 'Người phê duyệt', type: 'input' },
+          APPROVED_TIME: { label: 'Thời gian phê duyệt', type: 'date' },
+          PURCHASER: { label: 'Người mua', type: 'input' },
+          PURCHASING_TIME: { label: 'Thời gian mua', type: 'date' },
+          TRACKING_LINK: { label: 'Liên kết theo dõi', type: 'input' },
+          RECEIVED_QUANTITY: { label: 'Số lượng đã nhận', type: 'number' },
+          CHECKED_BY: { label: 'Người kiểm tra', type: 'input' },
+          CHECKED_TIME: { label: 'Thời gian kiểm tra', type: 'date' },
+          SAMPLE_PRODUCTION_PLAN: {
+            label: 'Kế hoạch sản xuất mẫu',
+            type: 'textarea',
+          },
+          DESIGNER: { label: 'Nhà thiết kế', type: 'input' },
+          START_TIME: { label: 'Thời gian bắt đầu', type: 'date' },
+          COMPLETED_TIME: { label: 'Thời gian hoàn thành', type: 'date' },
+          PRODUCTION_FILE_LINK: {
+            label: 'Liên kết tệp sản xuất',
+            type: 'input',
+          },
+          SAMPLE_MAKER: { label: 'Người làm mẫu', type: 'input' },
+          SAMPLE_STATUS: { label: 'Trạng thái mẫu', type: 'select' },
+          SAMPLE_MEDIA_LINK: {
+            label: 'Liên kết đa phương tiện mẫu',
+            type: 'file',
+          },
+          NOTE: { label: 'Ghi chú', type: 'textarea' },
+          FINAL_APPROVED_SAMPLE_IMAGE: {
+            label: 'Hình ảnh mẫu được phê duyệt cuối cùng',
+            type: 'file',
+          },
+          FINAL_PRODUCT_VIDEO: {
+            label: 'Video sản phẩm cuối cùng',
+            type: 'file',
+          },
+          PRODUCT_MANUFACTURING_PLAN: {
+            label: 'Kế hoạch sản xuất sản phẩm',
+            type: 'textarea',
+          },
+          PRODUCT_FEEDBACK_RESPONDER: {
+            label: 'Người phản hồi phản hồi sản phẩm',
+            type: 'input',
+          },
+          DEADLINE_CHECKING: { label: 'Hạn chót kiểm tra', type: 'date' },
+          PRODUCT_FEEDBACK_STATUS: {
+            label: 'Trạng thái phản hồi sản phẩm',
+            type: 'select',
+          },
+          REASON_FOR_NON_PRODUCTION: {
+            label: 'Lý do không sản xuất',
+            type: 'textarea',
+          },
+          SAMPLE_FEEDBACK_RESPONDER: {
+            label: 'Người phản hồi phản hồi mẫu',
+            type: 'input',
+          },
+          DEMO_PRICE: { label: 'Giá demo', type: 'number' },
+          SAMPLE_FEEDBACK: { label: 'Phản hồi mẫu', type: 'textarea' },
+        };
+
+      const checkFieldOptions: CheckFieldOptionDto[] = Object.entries(
+        checkFieldMapping,
+      ).map(([value, { label, type }]) => ({
+        label,
+        value,
+        type: type as
+          | 'input'
+          | 'select'
+          | 'textarea'
+          | 'date'
+          | 'number'
+          | 'checkbox'
+          | 'radio'
+          | 'file',
+      }));
+
+      return { data: checkFieldOptions };
+    } catch (error) {
+      throw new Error(`Lỗi khi lấy danh sách CheckField: ${error.message}`);
+    }
+  }
+
   async updateOrCreateCheckField(dto: UpdateOrCreateCheckFieldDto) {
     try {
       const subprocess = await this.prismaService.subprocess.findUnique({
@@ -229,7 +332,7 @@ export class FieldSubprocessService {
           where: { id: existingFieldSubprocess.id },
           data: {
             checkField: dto.checkFields,
-          },
+          } as any,
           include: {
             subprocess: {
               include: {
