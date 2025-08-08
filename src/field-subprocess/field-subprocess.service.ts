@@ -29,7 +29,7 @@ export class FieldSubprocessService {
       return { data, page, limit, total };
     } catch (error) {
       throw new Error(
-        `Lỗi khi lấy danh sách fieldSubprocess: ${error.message}`,
+        `Lỗi khi lấy danh sách các trường tiến trình: ${error.message}`,
       );
     }
   }
@@ -42,14 +42,14 @@ export class FieldSubprocessService {
 
       if (!data) {
         throw new NotFoundException(
-          `Không tìm thấy fieldSubprocess với ID ${id}`,
+          `Không tìm thấy các trường tiến trình với ID ${id}`,
         );
       }
 
       return { data };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new Error(`Lỗi khi tìm fieldSubprocess: ${error.message}`);
+      throw new Error(`Lỗi khi tìm các trường tiến trình: ${error.message}`);
     }
   }
 
@@ -62,11 +62,11 @@ export class FieldSubprocessService {
         });
 
       return {
-        message: 'Tạo fieldSubprocess thành công',
+        message: 'Tạo các trường tiến trình thành công',
         data: newFieldSubprocess,
       };
     } catch (error) {
-      throw new Error(`Lỗi khi tạo fieldSubprocess: ${error.message}`);
+      throw new Error(`Lỗi khi tạo các trường tiến trình: ${error.message}`);
     }
   }
 
@@ -78,7 +78,7 @@ export class FieldSubprocessService {
 
       if (!existing) {
         throw new NotFoundException(
-          `Không tìm thấy fieldSubprocess với ID ${id}`,
+          `Không tìm thấy các trường tiến trình với ID ${id}`,
         );
       }
 
@@ -94,12 +94,14 @@ export class FieldSubprocessService {
         });
 
       return {
-        message: 'Cập nhật fieldSubprocess thành công',
+        message: 'Cập nhật các trường tiến trình thành công',
         data: updatedFieldSubprocess,
       };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new Error(`Lỗi khi cập nhật fieldSubprocess: ${error.message}`);
+      throw new Error(
+        `Lỗi khi cập nhật các trường tiến trình: ${error.message}`,
+      );
     }
   }
 
@@ -111,16 +113,16 @@ export class FieldSubprocessService {
 
       if (!existing) {
         throw new NotFoundException(
-          `Không tìm thấy fieldSubprocess với ID ${id}`,
+          `Không tìm thấy các trường tiến trình với ID ${id}`,
         );
       }
 
       await this.prismaService.fieldSubprocess.delete({ where: { id } });
 
-      return { message: 'Xóa fieldSubprocess thành công' };
+      return { message: 'Xóa các trường tiến trình thành công' };
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
-      throw new Error(`Lỗi khi xóa fieldSubprocess: ${error.message}`);
+      throw new Error(`Lỗi khi xóa các trường tiến trình: ${error.message}`);
     }
   }
 }
