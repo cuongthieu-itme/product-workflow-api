@@ -4,8 +4,11 @@ export class CheckFieldOptionDto {
   @ApiProperty({ description: 'Nhãn hiển thị bằng tiếng Việt' })
   label: string;
 
-  @ApiProperty({ description: 'Giá trị của field' })
+  @ApiProperty({ description: 'Tên trường trong model' })
   value: string;
+
+  @ApiProperty({ description: 'Giá trị enum' })
+  enumValue: string;
 
   @ApiProperty({
     enum: [

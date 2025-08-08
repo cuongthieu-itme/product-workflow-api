@@ -208,89 +208,186 @@ export class FieldSubprocessService {
 
   async getCheckFieldOptions(): Promise<{ data: CheckFieldOptionDto[] }> {
     try {
-      const checkFieldMapping: Record<string, { label: string; type: string }> =
-        {
-          MATERIAL_CODE: { label: 'Mã vật liệu', type: 'input' },
-          MATERIAL_NAME: { label: 'Tên vật liệu', type: 'input' },
-          REQUEST_ID: { label: 'ID yêu cầu', type: 'input' },
-          REQUEST_DATE: { label: 'Ngày yêu cầu', type: 'date' },
-          PRIORITY: { label: 'Độ ưu tiên', type: 'select' },
-          CREATED_BY: { label: 'Người tạo', type: 'input' },
-          REQUEST_SOURCE: { label: 'Nguồn yêu cầu', type: 'select' },
-          CHECKER: { label: 'Người kiểm tra', type: 'input' },
-          DESCRIPTION_MATERIAL: { label: 'Mô tả vật liệu', type: 'textarea' },
-          STATUS: { label: 'Trạng thái', type: 'select' },
-          QUANTITY: { label: 'Số lượng', type: 'number' },
-          UNIT: { label: 'Đơn vị', type: 'input' },
-          COLOR: { label: 'Màu sắc', type: 'input' },
-          MATERIAL_TYPE: { label: 'Loại vật liệu', type: 'select' },
-          MEDIA: { label: 'Tệp đa phương tiện', type: 'file' },
-          PURCHASE_LINK: { label: 'Liên kết mua hàng', type: 'input' },
-          ADDITIONAL_NOTE: { label: 'Ghi chú bổ sung', type: 'textarea' },
-          APPROVED_BY: { label: 'Người phê duyệt', type: 'input' },
-          APPROVED_TIME: { label: 'Thời gian phê duyệt', type: 'date' },
-          PURCHASER: { label: 'Người mua', type: 'input' },
-          PURCHASING_TIME: { label: 'Thời gian mua', type: 'date' },
-          TRACKING_LINK: { label: 'Liên kết theo dõi', type: 'input' },
-          RECEIVED_QUANTITY: { label: 'Số lượng đã nhận', type: 'number' },
-          CHECKED_BY: { label: 'Người kiểm tra', type: 'input' },
-          CHECKED_TIME: { label: 'Thời gian kiểm tra', type: 'date' },
-          SAMPLE_PRODUCTION_PLAN: {
-            label: 'Kế hoạch sản xuất mẫu',
-            type: 'textarea',
-          },
-          DESIGNER: { label: 'Nhà thiết kế', type: 'input' },
-          START_TIME: { label: 'Thời gian bắt đầu', type: 'date' },
-          COMPLETED_TIME: { label: 'Thời gian hoàn thành', type: 'date' },
-          PRODUCTION_FILE_LINK: {
-            label: 'Liên kết tệp sản xuất',
-            type: 'input',
-          },
-          SAMPLE_MAKER: { label: 'Người làm mẫu', type: 'input' },
-          SAMPLE_STATUS: { label: 'Trạng thái mẫu', type: 'select' },
-          SAMPLE_MEDIA_LINK: {
-            label: 'Liên kết đa phương tiện mẫu',
-            type: 'file',
-          },
-          NOTE: { label: 'Ghi chú', type: 'textarea' },
-          FINAL_APPROVED_SAMPLE_IMAGE: {
-            label: 'Hình ảnh mẫu được phê duyệt cuối cùng',
-            type: 'file',
-          },
-          FINAL_PRODUCT_VIDEO: {
-            label: 'Video sản phẩm cuối cùng',
-            type: 'file',
-          },
-          PRODUCT_MANUFACTURING_PLAN: {
-            label: 'Kế hoạch sản xuất sản phẩm',
-            type: 'textarea',
-          },
-          PRODUCT_FEEDBACK_RESPONDER: {
-            label: 'Người phản hồi phản hồi sản phẩm',
-            type: 'input',
-          },
-          DEADLINE_CHECKING: { label: 'Hạn chót kiểm tra', type: 'date' },
-          PRODUCT_FEEDBACK_STATUS: {
-            label: 'Trạng thái phản hồi sản phẩm',
-            type: 'select',
-          },
-          REASON_FOR_NON_PRODUCTION: {
-            label: 'Lý do không sản xuất',
-            type: 'textarea',
-          },
-          SAMPLE_FEEDBACK_RESPONDER: {
-            label: 'Người phản hồi phản hồi mẫu',
-            type: 'input',
-          },
-          DEMO_PRICE: { label: 'Giá demo', type: 'number' },
-          SAMPLE_FEEDBACK: { label: 'Phản hồi mẫu', type: 'textarea' },
-        };
+      const checkFieldMapping: Record<
+        string,
+        { label: string; type: string; field: string }
+      > = {
+        MATERIAL_CODE: {
+          label: 'Mã vật liệu',
+          type: 'input',
+          field: 'materialCode',
+        },
+        MATERIAL_NAME: {
+          label: 'Tên vật liệu',
+          type: 'input',
+          field: 'materialName',
+        },
+        REQUEST_ID: { label: 'ID yêu cầu', type: 'input', field: 'requestId' },
+        REQUEST_DATE: {
+          label: 'Ngày yêu cầu',
+          type: 'date',
+          field: 'requestDate',
+        },
+        PRIORITY: { label: 'Độ ưu tiên', type: 'select', field: 'priority' },
+        CREATED_BY: { label: 'Người tạo', type: 'input', field: 'createdBy' },
+        REQUEST_SOURCE: {
+          label: 'Nguồn yêu cầu',
+          type: 'select',
+          field: 'requestSource',
+        },
+        CHECKER: { label: 'Người kiểm tra', type: 'input', field: 'checker' },
+        DESCRIPTION_MATERIAL: {
+          label: 'Mô tả vật liệu',
+          type: 'textarea',
+          field: 'descriptionMaterial',
+        },
+        STATUS: { label: 'Trạng thái', type: 'select', field: 'status' },
+        QUANTITY: { label: 'Số lượng', type: 'number', field: 'quantity' },
+        UNIT: { label: 'Đơn vị', type: 'input', field: 'unit' },
+        COLOR: { label: 'Màu sắc', type: 'input', field: 'color' },
+        MATERIAL_TYPE: {
+          label: 'Loại vật liệu',
+          type: 'select',
+          field: 'materialType',
+        },
+        MEDIA: { label: 'Tệp đa phương tiện', type: 'file', field: 'media' },
+        PURCHASE_LINK: {
+          label: 'Liên kết mua hàng',
+          type: 'input',
+          field: 'purchaseLink',
+        },
+        ADDITIONAL_NOTE: {
+          label: 'Ghi chú bổ sung',
+          type: 'textarea',
+          field: 'additionalNote',
+        },
+        APPROVED_BY: {
+          label: 'Người phê duyệt',
+          type: 'input',
+          field: 'approvedBy',
+        },
+        APPROVED_TIME: {
+          label: 'Thời gian phê duyệt',
+          type: 'date',
+          field: 'approvedTime',
+        },
+        PURCHASER: { label: 'Người mua', type: 'input', field: 'purchaser' },
+        PURCHASING_TIME: {
+          label: 'Thời gian mua',
+          type: 'date',
+          field: 'purchasingTime',
+        },
+        TRACKING_LINK: {
+          label: 'Liên kết theo dõi',
+          type: 'input',
+          field: 'trackingLink',
+        },
+        RECEIVED_QUANTITY: {
+          label: 'Số lượng đã nhận',
+          type: 'number',
+          field: 'receivedQuantity',
+        },
+        CHECKED_BY: {
+          label: 'Người kiểm tra',
+          type: 'input',
+          field: 'checkedBy',
+        },
+        CHECKED_TIME: {
+          label: 'Thời gian kiểm tra',
+          type: 'date',
+          field: 'checkedTime',
+        },
+        SAMPLE_PRODUCTION_PLAN: {
+          label: 'Kế hoạch sản xuất mẫu',
+          type: 'textarea',
+          field: 'sampleProductionPlan',
+        },
+        DESIGNER: { label: 'Nhà thiết kế', type: 'input', field: 'designer' },
+        START_TIME: {
+          label: 'Thời gian bắt đầu',
+          type: 'date',
+          field: 'startTime',
+        },
+        COMPLETED_TIME: {
+          label: 'Thời gian hoàn thành',
+          type: 'date',
+          field: 'completedTime',
+        },
+        PRODUCTION_FILE_LINK: {
+          label: 'Liên kết tệp sản xuất',
+          type: 'input',
+          field: 'productionFileLink',
+        },
+        SAMPLE_MAKER: {
+          label: 'Người làm mẫu',
+          type: 'input',
+          field: 'sampleMaker',
+        },
+        SAMPLE_STATUS: {
+          label: 'Trạng thái mẫu',
+          type: 'select',
+          field: 'sampleStatus',
+        },
+        SAMPLE_MEDIA_LINK: {
+          label: 'Liên kết đa phương tiện mẫu',
+          type: 'file',
+          field: 'sampleMediaLink',
+        },
+        NOTE: { label: 'Ghi chú', type: 'textarea', field: 'note' },
+        FINAL_APPROVED_SAMPLE_IMAGE: {
+          label: 'Hình ảnh mẫu được phê duyệt cuối cùng',
+          type: 'file',
+          field: 'finalApprovedSampleImage',
+        },
+        FINAL_PRODUCT_VIDEO: {
+          label: 'Video sản phẩm cuối cùng',
+          type: 'file',
+          field: 'finalProductVideo',
+        },
+        PRODUCT_MANUFACTURING_PLAN: {
+          label: 'Kế hoạch sản xuất sản phẩm',
+          type: 'textarea',
+          field: 'productManufacturingPlan',
+        },
+        PRODUCT_FEEDBACK_RESPONDER: {
+          label: 'Người phản hồi phản hồi sản phẩm',
+          type: 'input',
+          field: 'productFeedbackResponder',
+        },
+        DEADLINE_CHECKING: {
+          label: 'Hạn chót kiểm tra',
+          type: 'date',
+          field: 'deadlineChecking',
+        },
+        PRODUCT_FEEDBACK_STATUS: {
+          label: 'Trạng thái phản hồi sản phẩm',
+          type: 'select',
+          field: 'productFeedbackStatus',
+        },
+        REASON_FOR_NON_PRODUCTION: {
+          label: 'Lý do không sản xuất',
+          type: 'textarea',
+          field: 'reasonForNonProduction',
+        },
+        SAMPLE_FEEDBACK_RESPONDER: {
+          label: 'Người phản hồi phản hồi mẫu',
+          type: 'input',
+          field: 'sampleFeedbackResponder',
+        },
+        DEMO_PRICE: { label: 'Giá demo', type: 'number', field: 'demoPrice' },
+        SAMPLE_FEEDBACK: {
+          label: 'Phản hồi mẫu',
+          type: 'textarea',
+          field: 'sampleFeedback',
+        },
+      };
 
       const checkFieldOptions: CheckFieldOptionDto[] = Object.entries(
         checkFieldMapping,
-      ).map(([value, { label, type }]) => ({
+      ).map(([enumValue, { label, type, field }]) => ({
         label,
-        value,
+        value: field,
+        enumValue,
         type: type as
           | 'input'
           | 'select'
@@ -353,7 +450,7 @@ export class FieldSubprocessService {
           data: {
             subprocessId: dto.subprocessId,
             checkField: dto.checkFields,
-          },
+          } as any,
           include: {
             subprocess: {
               include: {
