@@ -401,7 +401,7 @@ export class FieldSubprocessService {
 
       return { data: checkFieldOptions };
     } catch (error) {
-      throw new Error(`Lỗi khi lấy danh sách CheckField: ${error.message}`);
+      throw new Error(`Lỗi khi lấy danh sách CheckFields: ${error.message}`);
     }
   }
 
@@ -441,7 +441,7 @@ export class FieldSubprocessService {
         });
 
         return {
-          message: 'Cập nhật checkField thành công',
+          message: 'Cập nhật checkFields thành công',
           data: result,
           action: 'updated',
         };
@@ -462,7 +462,7 @@ export class FieldSubprocessService {
         });
 
         return {
-          message: 'Tạo mới checkField thành công',
+          message: 'Tạo mới checkFields thành công',
           data: result,
           action: 'created',
         };
@@ -470,7 +470,7 @@ export class FieldSubprocessService {
     } catch (error) {
       if (error instanceof NotFoundException) throw error;
       throw new Error(
-        `Lỗi khi cập nhật hoặc tạo mới checkField: ${error.message}`,
+        `Lỗi khi cập nhật hoặc tạo mới checkFields: ${error.message}`,
       );
     }
   }
@@ -648,8 +648,8 @@ export class FieldSubprocessService {
     if (dto.sampleFeedback !== undefined)
       data.sampleFeedback = dto.sampleFeedback;
 
-    // CheckField array
-    if (dto.checkField !== undefined) data.checkField = dto.checkField;
+    // CheckFields array
+    if (dto.checkFields !== undefined) data.checkField = dto.checkFields;
 
     return data;
   }

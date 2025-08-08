@@ -247,5 +247,5 @@ export class CreateFieldSubprocessDto {
   @IsOptional()
   @IsArray()
   @IsEnum(CheckField, { each: true })
-  checkField?: CheckField[];
+  checkFields?: CheckField[];
 }

@@ -312,7 +312,7 @@ model Subprocess {
   departmentId Int?
   department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_relation")
 
-  fieldSubprocesses FieldSubprocess[] @relation("subprocess_field_subprocess_relation")
+  fieldSubprocess FieldSubprocess? @relation(name: "subprocess_field_subprocess_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -573,8 +573,8 @@ model RequestApprovalInfo {
 model FieldSubprocess {
   id Int @id @default(autoincrement())
 
-  subprocessId Int?
-  subprocess   Subprocess? @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
+  subprocessId Int        @unique
+  subprocess   Subprocess @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
 
   // step-1
   materialCode        String?
@@ -633,7 +633,7 @@ model FieldSubprocess {
   // step-6
 
   // field-step
-  checkField CheckField[]
+  checkFields CheckField[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
