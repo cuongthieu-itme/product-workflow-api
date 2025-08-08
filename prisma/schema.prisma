@@ -529,6 +529,62 @@ model FieldSubprocess {
   subprocessId Int
   subprocess   Subprocess @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
 
+  // step-1
+  materialCode        String?
+  materialName        String?
+  requestId           Int?
+  requestDate         DateTime?
+  priority            String?
+  createdBy           String?
+  requestSource       String?
+  checker             String?
+  descriptionMaterial String?
+  status              String?
+  quantity            Int?
+  unit                String?
+  color               String?
+  materialType        String?
+  media               String[]
+  purchaseLink        String[]
+  additionalNote      String?
+  approvedBy          String?
+  approvedTime        DateTime?
+  purchaser           String?
+  purchasingTime      DateTime?
+  trackingLink        String?
+  receivedQuantity    Int?
+  checkedBy           String?
+  checkedTime         DateTime?
+
+  // step-2
+  sampleProductionPlan String?
+  designer             String?
+  startTime            DateTime?
+  completedTime        DateTime?
+  productionFileLink   String?
+
+  // step-3
+  sampleMaker              String?
+  sampleStatus             String?
+  sampleMediaLink          String[]
+  note                     String?
+  finalApprovedSampleImage String?
+  finalProductVideo        String?
+
+  // step-4
+  productManufacturingPlan String?
+  productFeedbackResponder String?
+  deadlineChecking         DateTime?
+  productFeedbackStatus    String?
+  reasonForNonProduction   String?
+
+  // step-5
+  sampleFeedbackResponder String?
+  demoPrice               Int?
+  sampleFeedback          String?
+
+  // step-6
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
