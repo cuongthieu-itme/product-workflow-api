@@ -15,13 +15,17 @@ export class FieldSubprocessService {
 
       const page = filters?.page || 1;
       const limit = filters?.limit || 10;
-      const total = await this.prismaService.fieldSubprocess.count({ where });
-      const data = await this.prismaService.fieldSubprocess.findMany({
-        where,
-        take: limit,
-        skip: (page - 1) * limit,
-        orderBy: { id: 'desc' },
-      });
+
+      const [total, data] = await Promise.all([
+        this.prismaService.fieldSubprocess.count({ where }),
+        this.prismaService.fieldSubprocess.findMany({
+          where,
+          take: limit,
+          skip: (page - 1) * limit,
+          orderBy: { id: 'desc' },
+        }),
+      ]);
+
       return { data, page, limit, total };
     } catch (error) {
       throw new Error(
@@ -35,16 +39,16 @@ export class FieldSubprocessService {
       const data = await this.prismaService.fieldSubprocess.findUnique({
         where: { id },
       });
+
       if (!data) {
         throw new NotFoundException(
           `Không tìm thấy fieldSubprocess với ID ${id}`,
         );
       }
+
       return { data };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new Error(`Lỗi khi tìm fieldSubprocess: ${error.message}`);
     }
   }
@@ -53,9 +57,7 @@ export class FieldSubprocessService {
     try {
       const newFieldSubprocess =
         await this.prismaService.fieldSubprocess.create({
-          data: {
-            subprocessId: dto.subprocessId,
-          },
+          data: { subprocessId: dto.subprocessId },
           include: { subprocess: true },
         });
 
@@ -81,10 +83,8 @@ export class FieldSubprocessService {
       }
 
       const updateData: any = {};
-
-      if (dto.subprocessId !== undefined) {
+      if (dto.subprocessId !== undefined)
         updateData.subprocessId = dto.subprocessId;
-      }
 
       const updatedFieldSubprocess =
         await this.prismaService.fieldSubprocess.update({
@@ -98,9 +98,7 @@ export class FieldSubprocessService {
         data: updatedFieldSubprocess,
       };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new Error(`Lỗi khi cập nhật fieldSubprocess: ${error.message}`);
     }
   }
@@ -110,19 +108,18 @@ export class FieldSubprocessService {
       const existing = await this.prismaService.fieldSubprocess.findUnique({
         where: { id },
       });
+
       if (!existing) {
         throw new NotFoundException(
           `Không tìm thấy fieldSubprocess với ID ${id}`,
         );
       }
+
       await this.prismaService.fieldSubprocess.delete({ where: { id } });
-      return {
-        message: 'Xóa fieldSubprocess thành công',
-      };
+
+      return { message: 'Xóa fieldSubprocess thành công' };
     } catch (error) {
-      if (error instanceof NotFoundException) {
-        throw error;
-      }
+      if (error instanceof NotFoundException) throw error;
       throw new Error(`Lỗi khi xóa fieldSubprocess: ${error.message}`);
     }
   }
