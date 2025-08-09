@@ -428,8 +428,8 @@ export class FieldSubprocessService {
         result = await this.prismaService.fieldSubprocess.update({
           where: { id: existingFieldSubprocess.id },
           data: {
-            checkField: dto.checkFields,
-          } as any,
+            checkFields: dto.checkFields,
+          },
           include: {
             subprocess: {
               include: {
@@ -449,8 +449,8 @@ export class FieldSubprocessService {
         result = await this.prismaService.fieldSubprocess.create({
           data: {
             subprocessId: dto.subprocessId,
-            checkField: dto.checkFields,
-          } as any,
+            checkFields: dto.checkFields,
+          },
           include: {
             subprocess: {
               include: {
