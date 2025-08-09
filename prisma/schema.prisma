@@ -631,6 +631,59 @@ model FieldSubprocess {
   sampleFeedback          String?
 
   // step-6
+  MOQInput          Int?
+  sizeDimension     String?
+  materialConfirmer String?
+  purchaseStatus    String?
+  confirmedQuantity String?
+
+  // step-7
+  orderPlaced           String?
+  orderDate             DateTime?
+  estimatedArrivalDate  DateTime?
+  actualArrivalDate     DateTime?
+  warehouseChecker      String?
+  quantityReceived      Int?
+  checkedDate           DateTime?
+  materialSentToRD      String?
+  sentDateToRD          DateTime?
+  receivedDateByRD      DateTime?
+  RDMaterialChecker     String?
+  sampleQualityFeedback String?
+  feedbackDate          DateTime?
+
+  // step-8
+  startedTime            DateTime?
+  assignedTo             String?
+  linkTemplateMockup     String?
+  templateChecker        String?
+  templateCheckingStatus String?
+  mockupChecker          String?
+  mockupCheckingStatus   String?
+
+  // step-9
+  priceCalculator    Int?
+  priceList          Int[]
+  productDescription String?
+  variant            String?
+
+  // step-10
+  estimatedUploadDate DateTime?
+  actualUploadTime    DateTime?
+  productCode         String?
+  productPageLink     String?
+  SKU                 String?
+  SKUDescription      String?
+
+  // step-11
+  productName       String?
+  category          String?
+  howToProduce      String?
+  materialNeedToUse String?
+
+  // step-12
+  groupAnnouncementAllDepartments String?
+  announcementOfRndWorkshopGroup  String?
 
   // field-step
   checkFields CheckField[]

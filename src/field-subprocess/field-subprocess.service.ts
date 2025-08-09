@@ -380,6 +380,218 @@ export class FieldSubprocessService {
           type: 'textarea',
           field: 'sampleFeedback',
         },
+        // Step 6 fields
+        MOQInput: {
+          label: 'MOQ Input',
+          type: 'number',
+          field: 'MOQInput',
+        },
+        sizeDimension: {
+          label: 'Kích thước',
+          type: 'input',
+          field: 'sizeDimension',
+        },
+        materialConfirmer: {
+          label: 'Người xác nhận vật liệu',
+          type: 'input',
+          field: 'materialConfirmer',
+        },
+        purchaseStatus: {
+          label: 'Trạng thái mua hàng',
+          type: 'select',
+          field: 'purchaseStatus',
+        },
+        confirmedQuantity: {
+          label: 'Số lượng đã xác nhận',
+          type: 'input',
+          field: 'confirmedQuantity',
+        },
+        // Step 7 fields
+        orderPlaced: {
+          label: 'Đơn hàng đã đặt',
+          type: 'input',
+          field: 'orderPlaced',
+        },
+        orderDate: {
+          label: 'Ngày đặt hàng',
+          type: 'date',
+          field: 'orderDate',
+        },
+        estimatedArrivalDate: {
+          label: 'Ngày dự kiến đến',
+          type: 'date',
+          field: 'estimatedArrivalDate',
+        },
+        actualArrivalDate: {
+          label: 'Ngày thực tế đến',
+          type: 'date',
+          field: 'actualArrivalDate',
+        },
+        warehouseChecker: {
+          label: 'Người kiểm tra kho',
+          type: 'input',
+          field: 'warehouseChecker',
+        },
+        quantityReceived: {
+          label: 'Số lượng đã nhận',
+          type: 'number',
+          field: 'quantityReceived',
+        },
+        checkedDate: {
+          label: 'Ngày kiểm tra',
+          type: 'date',
+          field: 'checkedDate',
+        },
+        materialSentToRD: {
+          label: 'Vật liệu gửi đến RD',
+          type: 'input',
+          field: 'materialSentToRD',
+        },
+        sentDateToRD: {
+          label: 'Ngày gửi đến RD',
+          type: 'date',
+          field: 'sentDateToRD',
+        },
+        receivedDateByRD: {
+          label: 'Ngày nhận bởi RD',
+          type: 'date',
+          field: 'receivedDateByRD',
+        },
+        RDMaterialChecker: {
+          label: 'Người kiểm tra vật liệu RD',
+          type: 'input',
+          field: 'RDMaterialChecker',
+        },
+        sampleQualityFeedback: {
+          label: 'Phản hồi chất lượng mẫu',
+          type: 'textarea',
+          field: 'sampleQualityFeedback',
+        },
+        feedbackDate: {
+          label: 'Ngày phản hồi',
+          type: 'date',
+          field: 'feedbackDate',
+        },
+        // Step 8 fields
+        startedTime: {
+          label: 'Thời gian bắt đầu',
+          type: 'date',
+          field: 'startedTime',
+        },
+        assignedTo: {
+          label: 'Giao cho',
+          type: 'input',
+          field: 'assignedTo',
+        },
+        linkTemplateMockup: {
+          label: 'Liên kết template mockup',
+          type: 'input',
+          field: 'linkTemplateMockup',
+        },
+        templateChecker: {
+          label: 'Người kiểm tra template',
+          type: 'input',
+          field: 'templateChecker',
+        },
+        templateCheckingStatus: {
+          label: 'Trạng thái kiểm tra template',
+          type: 'select',
+          field: 'templateCheckingStatus',
+        },
+        mockupChecker: {
+          label: 'Người kiểm tra mockup',
+          type: 'input',
+          field: 'mockupChecker',
+        },
+        mockupCheckingStatus: {
+          label: 'Trạng thái kiểm tra mockup',
+          type: 'select',
+          field: 'mockupCheckingStatus',
+        },
+        // Step 9 fields
+        priceCalculator: {
+          label: 'Máy tính giá',
+          type: 'number',
+          field: 'priceCalculator',
+        },
+        priceList: {
+          label: 'Danh sách giá',
+          type: 'input',
+          field: 'priceList',
+        },
+        productDescription: {
+          label: 'Mô tả sản phẩm',
+          type: 'textarea',
+          field: 'productDescription',
+        },
+        variant: {
+          label: 'Biến thể',
+          type: 'input',
+          field: 'variant',
+        },
+        // Step 10 fields
+        estimatedUploadDate: {
+          label: 'Ngày dự kiến upload',
+          type: 'date',
+          field: 'estimatedUploadDate',
+        },
+        actualUploadTime: {
+          label: 'Thời gian upload thực tế',
+          type: 'date',
+          field: 'actualUploadTime',
+        },
+        productCode: {
+          label: 'Mã sản phẩm',
+          type: 'input',
+          field: 'productCode',
+        },
+        productPageLink: {
+          label: 'Liên kết trang sản phẩm',
+          type: 'input',
+          field: 'productPageLink',
+        },
+        SKU: {
+          label: 'SKU',
+          type: 'input',
+          field: 'SKU',
+        },
+        SKUDescription: {
+          label: 'Mô tả SKU',
+          type: 'textarea',
+          field: 'SKUDescription',
+        },
+        // Step 11 fields
+        productName: {
+          label: 'Tên sản phẩm',
+          type: 'input',
+          field: 'productName',
+        },
+        category: {
+          label: 'Danh mục',
+          type: 'select',
+          field: 'category',
+        },
+        howToProduce: {
+          label: 'Cách sản xuất',
+          type: 'textarea',
+          field: 'howToProduce',
+        },
+        materialNeedToUse: {
+          label: 'Vật liệu cần sử dụng',
+          type: 'textarea',
+          field: 'materialNeedToUse',
+        },
+        // Step 12 fields
+        groupAnnouncementAllDepartments: {
+          label: 'Thông báo nhóm tất cả phòng ban',
+          type: 'textarea',
+          field: 'groupAnnouncementAllDepartments',
+        },
+        announcementOfRndWorkshopGroup: {
+          label: 'Thông báo nhóm workshop R&D',
+          type: 'textarea',
+          field: 'announcementOfRndWorkshopGroup',
+        },
       };
 
       const checkFieldOptions: CheckFieldOptionDto[] = Object.entries(
@@ -539,6 +751,8 @@ export class FieldSubprocessService {
         bySubprocessCount,
         byStatusCount,
         bySampleStatusCount,
+        byPurchaseStatusCount,
+        byCategoryCount,
       ] = await Promise.all([
         this.prismaService.fieldSubprocess.count(),
         this.prismaService.fieldSubprocess.groupBy({
@@ -553,6 +767,14 @@ export class FieldSubprocessService {
           by: ['sampleStatus'],
           _count: { id: true },
         }),
+        this.prismaService.fieldSubprocess.groupBy({
+          by: ['purchaseStatus'],
+          _count: { id: true },
+        }),
+        this.prismaService.fieldSubprocess.groupBy({
+          by: ['category'],
+          _count: { id: true },
+        }),
       ]);
 
       return {
@@ -560,6 +782,8 @@ export class FieldSubprocessService {
         bySubprocess: bySubprocessCount,
         byStatus: byStatusCount,
         bySampleStatus: bySampleStatusCount,
+        byPurchaseStatus: byPurchaseStatusCount,
+        byCategory: byCategoryCount,
       };
     } catch (error) {
       throw new Error(`Lỗi khi lấy thống kê: ${error.message}`);
@@ -648,8 +872,92 @@ export class FieldSubprocessService {
     if (dto.sampleFeedback !== undefined)
       data.sampleFeedback = dto.sampleFeedback;
 
+    // Step 6 fields
+    if (dto.MOQInput !== undefined) data.MOQInput = dto.MOQInput;
+    if (dto.sizeDimension !== undefined) data.sizeDimension = dto.sizeDimension;
+    if (dto.materialConfirmer !== undefined)
+      data.materialConfirmer = dto.materialConfirmer;
+    if (dto.purchaseStatus !== undefined)
+      data.purchaseStatus = dto.purchaseStatus;
+    if (dto.confirmedQuantity !== undefined)
+      data.confirmedQuantity = dto.confirmedQuantity;
+
+    // Step 7 fields
+    if (dto.orderPlaced !== undefined) data.orderPlaced = dto.orderPlaced;
+    if (dto.orderDate !== undefined) data.orderDate = new Date(dto.orderDate);
+    if (dto.estimatedArrivalDate !== undefined)
+      data.estimatedArrivalDate = new Date(dto.estimatedArrivalDate);
+    if (dto.actualArrivalDate !== undefined)
+      data.actualArrivalDate = new Date(dto.actualArrivalDate);
+    if (dto.warehouseChecker !== undefined)
+      data.warehouseChecker = dto.warehouseChecker;
+    if (dto.quantityReceived !== undefined)
+      data.quantityReceived = dto.quantityReceived;
+    if (dto.checkedDate !== undefined)
+      data.checkedDate = new Date(dto.checkedDate);
+    if (dto.materialSentToRD !== undefined)
+      data.materialSentToRD = dto.materialSentToRD;
+    if (dto.sentDateToRD !== undefined)
+      data.sentDateToRD = new Date(dto.sentDateToRD);
+    if (dto.receivedDateByRD !== undefined)
+      data.receivedDateByRD = new Date(dto.receivedDateByRD);
+    if (dto.RDMaterialChecker !== undefined)
+      data.RDMaterialChecker = dto.RDMaterialChecker;
+    if (dto.sampleQualityFeedback !== undefined)
+      data.sampleQualityFeedback = dto.sampleQualityFeedback;
+    if (dto.feedbackDate !== undefined)
+      data.feedbackDate = new Date(dto.feedbackDate);
+
+    // Step 8 fields
+    if (dto.startedTime !== undefined)
+      data.startedTime = new Date(dto.startedTime);
+    if (dto.assignedTo !== undefined) data.assignedTo = dto.assignedTo;
+    if (dto.linkTemplateMockup !== undefined)
+      data.linkTemplateMockup = dto.linkTemplateMockup;
+    if (dto.templateChecker !== undefined)
+      data.templateChecker = dto.templateChecker;
+    if (dto.templateCheckingStatus !== undefined)
+      data.templateCheckingStatus = dto.templateCheckingStatus;
+    if (dto.mockupChecker !== undefined) data.mockupChecker = dto.mockupChecker;
+    if (dto.mockupCheckingStatus !== undefined)
+      data.mockupCheckingStatus = dto.mockupCheckingStatus;
+
+    // Step 9 fields
+    if (dto.priceCalculator !== undefined)
+      data.priceCalculator = dto.priceCalculator;
+    if (dto.priceList !== undefined) data.priceList = dto.priceList;
+    if (dto.productDescription !== undefined)
+      data.productDescription = dto.productDescription;
+    if (dto.variant !== undefined) data.variant = dto.variant;
+
+    // Step 10 fields
+    if (dto.estimatedUploadDate !== undefined)
+      data.estimatedUploadDate = new Date(dto.estimatedUploadDate);
+    if (dto.actualUploadTime !== undefined)
+      data.actualUploadTime = new Date(dto.actualUploadTime);
+    if (dto.productCode !== undefined) data.productCode = dto.productCode;
+    if (dto.productPageLink !== undefined)
+      data.productPageLink = dto.productPageLink;
+    if (dto.SKU !== undefined) data.SKU = dto.SKU;
+    if (dto.SKUDescription !== undefined)
+      data.SKUDescription = dto.SKUDescription;
+
+    // Step 11 fields
+    if (dto.productName !== undefined) data.productName = dto.productName;
+    if (dto.category !== undefined) data.category = dto.category;
+    if (dto.howToProduce !== undefined) data.howToProduce = dto.howToProduce;
+    if (dto.materialNeedToUse !== undefined)
+      data.materialNeedToUse = dto.materialNeedToUse;
+
+    // Step 12 fields
+    if (dto.groupAnnouncementAllDepartments !== undefined)
+      data.groupAnnouncementAllDepartments =
+        dto.groupAnnouncementAllDepartments;
+    if (dto.announcementOfRndWorkshopGroup !== undefined)
+      data.announcementOfRndWorkshopGroup = dto.announcementOfRndWorkshopGroup;
+
     // CheckFields array
-    if (dto.checkFields !== undefined) data.checkField = dto.checkFields;
+    if (dto.checkFields !== undefined) data.checkFields = dto.checkFields;
 
     return data;
   }
