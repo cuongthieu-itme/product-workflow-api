@@ -29,6 +29,17 @@ export class CodeGenerationService {
     return `${sourceCode}-${dateStr}-${formattedCounter}`;
   }
 
+  async generateMaterialCode(type: 'INGREDIENT' | 'ACCESSORY'): Promise<string> {
+    const today = new Date();
+    const prefix = type === 'ACCESSORY' ? 'AT' : 'MT';
+    const dateStr = this.formatDate(today);
+    const redisKey = `material_counter:${prefix}:${dateStr}`;
+    const counter = await this.redis.incr(redisKey);
+    await this.redis.expire(redisKey, 2 * 24 * 60 * 60);
+    const formattedCounter = counter.toString().padStart(3, '0');
+    return `${prefix}-${dateStr}-${formattedCounter}`;
+  }
+
   private formatDate(date: Date): string {
     const day = date.getDate().toString().padStart(2, '0');
     const month = (date.getMonth() + 1).toString().padStart(2, '0');

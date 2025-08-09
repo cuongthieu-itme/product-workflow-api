@@ -6,10 +6,15 @@ import {
 import { PrismaService } from 'src/common/prisma/prisma.service';
 import { CreateMaterialDto, UpdateMaterialDto } from './dto';
 import { FilterMaterialDto } from './dto';
+import { CodeGenerationService } from 'src/common/code-generation/code-generation.service';
+import { MaterialType } from '@prisma/client';
 
 @Injectable()
 export class MaterialService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly codeGenerationService: CodeGenerationService,
+  ) {}
 
   async findAll(filters?: FilterMaterialDto) {
     try {
@@ -127,28 +132,22 @@ export class MaterialService {
 
   async create(dto: CreateMaterialDto) {
     try {
+      let code = dto.code;
+      if (!code) {
+        code = await this.codeGenerationService.generateMaterialCode(dto.type ?? 'INGREDIENT');
+      }
       const existingCode = await this.prismaService.material.findUnique({
-        where: { code: dto.code },
+        where: { code },
       });
-
       if (existingCode) {
         throw new ConflictException('Mã vật liệu đã tồn tại');
       }
-
       const newMaterial = await this.prismaService.material.create({
         data: {
-          name: dto.name,
-          code: dto.code,
-          quantity: dto.quantity,
-          unit: dto.unit,
-          description: dto.description,
-          image: dto.image,
-          isActive: dto.isActive ?? true,
-          type: dto.type,
-          originId: dto.originId,
+          ...dto,
+          code,
         },
       });
-
       return {
         message: 'Tạo vật liệu thành công',
         data: newMaterial,

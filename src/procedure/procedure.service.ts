@@ -8,10 +8,14 @@ import { UpdateProcedureDto } from './dto/update-procedure.dto';
 import { CreateOrUpdateProcedureDto } from './dto/create-or-update-procedure.dto';
 import { FilterProcedureDto } from './dto/filter-procedure.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
+import { FieldSubprocessService } from 'src/field-subprocess/field-subprocess.service';
 
 @Injectable()
 export class ProcedureService {
-  constructor(private readonly prismaService: PrismaService) {}
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly fieldSubprocessService: FieldSubprocessService,
+  ) {}
 
   async findAll(filters?: FilterProcedureDto) {
     try {
@@ -124,6 +128,7 @@ export class ProcedureService {
                   name: true,
                 },
               },
+              fieldSubprocess: true,
             },
             orderBy: {
               step: 'asc',
@@ -236,7 +241,7 @@ export class ProcedureService {
           if (subprocesses.length) {
             await tx.subprocess.createMany({
               data: subprocesses.map((sp) => {
-                const { id: _, ...subprocessData } = sp;
+                const { id: _, checkFields: __, ...subprocessData } = sp;
                 return {
                   ...subprocessData,
                   procedureId: id,
@@ -281,6 +286,26 @@ export class ProcedureService {
           return updatedProcedure;
         });
 
+        // Sau khi tạo/cập nhật subprocesses, gọi updateOrCreateCheckField cho mỗi subprocess có checkFields
+        const createdSubprocesses =
+          await this.prismaService.subprocess.findMany({
+            where: { procedureId: result.id },
+          });
+
+        for (const subprocess of subprocesses) {
+          if (subprocess.checkFields && subprocess.checkFields.length > 0) {
+            const createdSubprocess = createdSubprocesses.find(
+              (sp) => sp.step === subprocess.step,
+            );
+            if (createdSubprocess) {
+              await this.fieldSubprocessService.updateOrCreateCheckField({
+                subprocessId: createdSubprocess.id,
+                checkFields: subprocess.checkFields,
+              });
+            }
+          }
+        }
+
         return {
           message: 'Cập nhật quy trình thành công',
           data: await this.findOne(result.id),
@@ -302,7 +327,7 @@ export class ProcedureService {
         if (subprocesses.length) {
           await tx.subprocess.createMany({
             data: subprocesses.map((sp) => {
-              const { id: _, ...subprocessData } = sp;
+              const { id: _, checkFields: __, ...subprocessData } = sp;
               return {
                 ...subprocessData,
                 procedureId: created.id,
@@ -346,6 +371,25 @@ export class ProcedureService {
 
         return created;
       });
+
+      // Sau khi tạo subprocesses, gọi updateOrCreateCheckField cho mỗi subprocess có checkFields
+      const createdSubprocesses = await this.prismaService.subprocess.findMany({
+        where: { procedureId: newProcedure.id },
+      });
+
+      for (const subprocess of subprocesses) {
+        if (subprocess.checkFields && subprocess.checkFields.length > 0) {
+          const createdSubprocess = createdSubprocesses.find(
+            (sp) => sp.step === subprocess.step,
+          );
+          if (createdSubprocess) {
+            await this.fieldSubprocessService.updateOrCreateCheckField({
+              subprocessId: createdSubprocess.id,
+              checkFields: subprocess.checkFields,
+            });
+          }
+        }
+      }
 
       return {
         message: 'Tạo quy trình thành công',
