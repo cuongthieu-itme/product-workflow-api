@@ -573,8 +573,8 @@ model RequestApprovalInfo {
 model FieldSubprocess {
   id Int @id @default(autoincrement())
 
-  subprocessId Int        @unique
-  subprocess   Subprocess @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
+  subprocessId Int?        @unique
+  subprocess   Subprocess? @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
 
   // step-1
   materialCode        String?
