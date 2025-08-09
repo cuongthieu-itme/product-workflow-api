@@ -38,7 +38,6 @@ export class FieldSubprocessService {
           contains: filters.productFeedbackStatus,
           mode: 'insensitive',
         };
-      if (filters?.checkField) where.checkField = { has: filters.checkField };
 
       const page = filters?.page || 1;
       const limit = filters?.limit || 10;
@@ -381,171 +380,171 @@ export class FieldSubprocessService {
           field: 'sampleFeedback',
         },
         // Step 6 fields
-        MOQInput: {
+        MOQ_INPUT: {
           label: 'MOQ Input',
           type: 'number',
           field: 'MOQInput',
         },
-        sizeDimension: {
+        SIZE_DIMENSION: {
           label: 'Kích thước',
           type: 'input',
           field: 'sizeDimension',
         },
-        materialConfirmer: {
+        MATERIAL_CONFIRMER: {
           label: 'Người xác nhận vật liệu',
           type: 'input',
           field: 'materialConfirmer',
         },
-        purchaseStatus: {
+        PURCHASE_STATUS: {
           label: 'Trạng thái mua hàng',
           type: 'select',
           field: 'purchaseStatus',
         },
-        confirmedQuantity: {
+        CONFIRMED_QUANTITY: {
           label: 'Số lượng đã xác nhận',
           type: 'input',
           field: 'confirmedQuantity',
         },
         // Step 7 fields
-        orderPlaced: {
+        ORDER_PLACED: {
           label: 'Đơn hàng đã đặt',
           type: 'input',
           field: 'orderPlaced',
         },
-        orderDate: {
+        ORDER_DATE: {
           label: 'Ngày đặt hàng',
           type: 'date',
           field: 'orderDate',
         },
-        estimatedArrivalDate: {
+        ESTIMATED_ARRIVAL_DATE: {
           label: 'Ngày dự kiến đến',
           type: 'date',
           field: 'estimatedArrivalDate',
         },
-        actualArrivalDate: {
+        ACTUAL_ARRIVAL_DATE: {
           label: 'Ngày thực tế đến',
           type: 'date',
           field: 'actualArrivalDate',
         },
-        warehouseChecker: {
+        WAREHOUSE_CHECKER: {
           label: 'Người kiểm tra kho',
           type: 'input',
           field: 'warehouseChecker',
         },
-        quantityReceived: {
+        QUANTITY_RECEIVED: {
           label: 'Số lượng đã nhận',
           type: 'number',
           field: 'quantityReceived',
         },
-        checkedDate: {
+        CHECKED_DATE: {
           label: 'Ngày kiểm tra',
           type: 'date',
           field: 'checkedDate',
         },
-        materialSentToRD: {
+        MATERIAL_SENT_TO_RD: {
           label: 'Vật liệu gửi đến RD',
           type: 'input',
           field: 'materialSentToRD',
         },
-        sentDateToRD: {
+        SENT_DATE_TO_RD: {
           label: 'Ngày gửi đến RD',
           type: 'date',
           field: 'sentDateToRD',
         },
-        receivedDateByRD: {
+        RECEIVED_DATE_BY_RD: {
           label: 'Ngày nhận bởi RD',
           type: 'date',
           field: 'receivedDateByRD',
         },
-        RDMaterialChecker: {
+        RD_MATERIAL_CHECKER: {
           label: 'Người kiểm tra vật liệu RD',
           type: 'input',
           field: 'RDMaterialChecker',
         },
-        sampleQualityFeedback: {
+        SAMPLE_QUALITY_FEEDBACK: {
           label: 'Phản hồi chất lượng mẫu',
           type: 'textarea',
           field: 'sampleQualityFeedback',
         },
-        feedbackDate: {
+        FEEDBACK_DATE: {
           label: 'Ngày phản hồi',
           type: 'date',
           field: 'feedbackDate',
         },
         // Step 8 fields
-        startedTime: {
+        STARTED_TIME: {
           label: 'Thời gian bắt đầu',
           type: 'date',
           field: 'startedTime',
         },
-        assignedTo: {
+        ASSIGNED_TO: {
           label: 'Giao cho',
           type: 'input',
           field: 'assignedTo',
         },
-        linkTemplateMockup: {
+        LINK_TEMPLATE_MOCKUP: {
           label: 'Liên kết template mockup',
           type: 'input',
           field: 'linkTemplateMockup',
         },
-        templateChecker: {
+        TEMPLATE_CHECKER: {
           label: 'Người kiểm tra template',
           type: 'input',
           field: 'templateChecker',
         },
-        templateCheckingStatus: {
+        TEMPLATE_CHECKING_STATUS: {
           label: 'Trạng thái kiểm tra template',
           type: 'select',
           field: 'templateCheckingStatus',
         },
-        mockupChecker: {
+        MOCKUP_CHECKER: {
           label: 'Người kiểm tra mockup',
           type: 'input',
           field: 'mockupChecker',
         },
-        mockupCheckingStatus: {
+        MOCKUP_CHECKING_STATUS: {
           label: 'Trạng thái kiểm tra mockup',
           type: 'select',
           field: 'mockupCheckingStatus',
         },
         // Step 9 fields
-        priceCalculator: {
+        PRICE_CALCULATOR: {
           label: 'Máy tính giá',
           type: 'number',
           field: 'priceCalculator',
         },
-        priceList: {
+        PRICE_LIST: {
           label: 'Danh sách giá',
           type: 'input',
           field: 'priceList',
         },
-        productDescription: {
+        PRODUCT_DESCRIPTION: {
           label: 'Mô tả sản phẩm',
           type: 'textarea',
           field: 'productDescription',
         },
-        variant: {
+        VARIANT: {
           label: 'Biến thể',
           type: 'input',
           field: 'variant',
         },
         // Step 10 fields
-        estimatedUploadDate: {
+        ESTIMATED_UPLOAD_DATE: {
           label: 'Ngày dự kiến upload',
           type: 'date',
           field: 'estimatedUploadDate',
         },
-        actualUploadTime: {
+        ACTUAL_UPLOAD_TIME: {
           label: 'Thời gian upload thực tế',
           type: 'date',
           field: 'actualUploadTime',
         },
-        productCode: {
+        PRODUCT_CODE: {
           label: 'Mã sản phẩm',
           type: 'input',
           field: 'productCode',
         },
-        productPageLink: {
+        PRODUCT_PAGE_LINK: {
           label: 'Liên kết trang sản phẩm',
           type: 'input',
           field: 'productPageLink',
@@ -555,39 +554,39 @@ export class FieldSubprocessService {
           type: 'input',
           field: 'SKU',
         },
-        SKUDescription: {
+        SKU_DESCRIPTION: {
           label: 'Mô tả SKU',
           type: 'textarea',
           field: 'SKUDescription',
         },
         // Step 11 fields
-        productName: {
+        PRODUCT_NAME: {
           label: 'Tên sản phẩm',
           type: 'input',
           field: 'productName',
         },
-        category: {
+        CATEGORY: {
           label: 'Danh mục',
           type: 'select',
           field: 'category',
         },
-        howToProduce: {
+        HOW_TO_PRODUCE: {
           label: 'Cách sản xuất',
           type: 'textarea',
           field: 'howToProduce',
         },
-        materialNeedToUse: {
+        MATERIAL_NEED_TO_USE: {
           label: 'Vật liệu cần sử dụng',
           type: 'textarea',
           field: 'materialNeedToUse',
         },
         // Step 12 fields
-        groupAnnouncementAllDepartments: {
+        GROUP_ANNOUNCEMENT_ALL_DEPARTMENTS: {
           label: 'Thông báo nhóm tất cả phòng ban',
           type: 'textarea',
           field: 'groupAnnouncementAllDepartments',
         },
-        announcementOfRndWorkshopGroup: {
+        ANNOUNCEMENT_OF_RND_WORKSHOP_GROUP: {
           label: 'Thông báo nhóm workshop R&D',
           type: 'textarea',
           field: 'announcementOfRndWorkshopGroup',
