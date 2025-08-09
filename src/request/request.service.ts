@@ -174,6 +174,7 @@ export class RequestService {
           include: {
             subprocessesHistory: {
               include: {
+                fieldSubprocess: true,
                 user: {
                   select: {
                     fullName: true,
