@@ -429,6 +429,8 @@ model SubprocessHistory {
   userId Int?
   user   User? @relation(fields: [userId], references: [id], name: "user_subprocess_history_relation")
 
+  fieldSubprocess FieldSubprocess? @relation(name: "subprocess_history_field_subprocess_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -623,6 +625,9 @@ model FieldSubprocess {
 
   subprocessId Int?        @unique
   subprocess   Subprocess? @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
+
+  subprocessesHistoryId Int?               @unique
+  subprocessesHistory   SubprocessHistory? @relation(fields: [subprocessesHistoryId], references: [id], name: "subprocess_history_field_subprocess_relation")
 
   // step-1
   materialCode        String?

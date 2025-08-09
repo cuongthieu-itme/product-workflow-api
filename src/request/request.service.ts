@@ -994,9 +994,52 @@ export class RequestService {
       });
     }
 
-    await prisma.subprocessHistory.createMany({
-      data: subprocessHistoryData,
-    });
+    const createdSubprocessHistories =
+      await prisma.subprocessHistory.createMany({
+        data: subprocessHistoryData,
+      });
+
+    // Sau khi tạo SubprocessHistory, tự động tạo FieldSubprocess với subprocessesHistoryId
+    if (createdSubprocessHistories.count > 0) {
+      await this.createFieldSubprocessForSubprocessHistories(
+        prisma,
+        subprocesses,
+        procedureHistoryId,
+      );
+    }
+  }
+
+  private async createFieldSubprocessForSubprocessHistories(
+    prisma: any,
+    subprocesses: any[],
+    procedureHistoryId: number,
+  ) {
+    for (const subprocess of subprocesses) {
+      // Tìm FieldSubprocess hiện có với subprocessId
+      const existingFieldSubprocess = await prisma.fieldSubprocess.findUnique({
+        where: { subprocessId: subprocess.id },
+      });
+
+      if (existingFieldSubprocess) {
+        // Tìm SubprocessHistory tương ứng với step này
+        const subprocessHistory = await prisma.subprocessHistory.findFirst({
+          where: {
+            procedureHistoryId,
+            step: subprocess.step,
+          },
+        });
+
+        if (subprocessHistory) {
+          // Cập nhật FieldSubprocess hiện có để gán subprocessesHistoryId
+          await prisma.fieldSubprocess.update({
+            where: { id: existingFieldSubprocess.id },
+            data: {
+              subprocessesHistoryId: subprocessHistory.id,
+            },
+          });
+        }
+      }
+    }
   }
 
   private async linkProcedureHistoryToRequest(
