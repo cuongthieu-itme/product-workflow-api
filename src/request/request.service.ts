@@ -958,26 +958,54 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    const departmentUserMap = new Map<number, number>();
-
+    const departmentUserMap = new Map<number, number[]>(); // Cache danh sách user theo department
     const subprocessHistoryData = [];
 
     for (const subprocess of subprocesses) {
       let userId = null;
 
       if (subprocess.departmentId) {
-        if (departmentUserMap.has(subprocess.departmentId)) {
-          userId = departmentUserMap.get(subprocess.departmentId);
-        } else {
-          const randomUser = await this.getRandomUserByDepartmentIdInternal(
-            prisma,
-            subprocess.departmentId,
-          );
-          if (randomUser) {
-            userId = randomUser.id;
-            departmentUserMap.set(subprocess.departmentId, userId);
+        if (!departmentUserMap.has(subprocess.departmentId)) {
+          // Lấy tất cả user trong department và cache lại
+          const users = await prisma.user.findMany({
+            where: {
+              departmentId: subprocess.departmentId,
+              isVerifiedAccount: true,
+            },
+            select: { id: true },
+          });
+
+          if (users.length === 0) {
+            throw new BadRequestException(
+              `Department ${subprocess.departmentId} không có user nào được verify. Không thể tạo procedure history.`,
+            );
           }
+
+          departmentUserMap.set(
+            subprocess.departmentId,
+            users.map((u) => u.id),
+          );
         }
+
+        // Random user từ danh sách đã cache
+        const userIds = departmentUserMap.get(subprocess.departmentId);
+        if (userIds && userIds.length > 0) {
+          const randomIndex = Math.floor(Math.random() * userIds.length);
+          userId = userIds[randomIndex];
+        }
+      } else {
+        // Subprocess không có departmentId: Tìm user mặc định
+        const defaultUser = await this.findDefaultUser(prisma);
+        if (defaultUser) {
+          userId = defaultUser.id;
+        }
+      }
+
+      // Validate trước khi tạo - đảm bảo không bao giờ có userId = null
+      if (!userId) {
+        throw new BadRequestException(
+          `Không thể tìm thấy user phù hợp cho subprocess: ${subprocess.name} (step: ${subprocess.step})`,
+        );
       }
 
       subprocessHistoryData.push({
@@ -990,7 +1018,7 @@ export class RequestService {
         isStepWithCost: subprocess.isStepWithCost,
         step: subprocess.step,
         departmentId: subprocess.departmentId ?? null,
-        userId: userId,
+        userId: userId, // Đảm bảo không bao giờ null
         procedureHistoryId,
       });
     }
@@ -1008,6 +1036,31 @@ export class RequestService {
         procedureHistoryId,
       );
     }
+  }
+
+  private async findDefaultUser(prisma: any) {
+    // 1. Tìm user có role ADMIN hoặc SUPER_ADMIN
+    const adminUser = await prisma.user.findFirst({
+      where: {
+        role: { in: ['ADMIN', 'SUPER_ADMIN'] },
+        isVerifiedAccount: true,
+      },
+      select: { id: true },
+    });
+
+    if (adminUser) {
+      return adminUser;
+    }
+
+    // 2. Tìm user đầu tiên được verify
+    const verifiedUser = await prisma.user.findFirst({
+      where: {
+        isVerifiedAccount: true,
+      },
+      select: { id: true },
+    });
+
+    return verifiedUser;
   }
 
   private async createFieldSubprocessForSubprocessHistories(
