@@ -630,31 +630,25 @@ model FieldSubprocess {
   subprocessesHistory   SubprocessHistory? @relation(fields: [subprocessesHistoryId], references: [id], name: "subprocess_history_field_subprocess_relation")
 
   // step-1
-  materialCode        String?
-  materialName        String?
-  requestId           Int?
-  requestDate         DateTime?
-  priority            String?
-  createdBy           String?
-  requestSource       String?
-  checker             String?
-  descriptionMaterial String?
-  status              String?
-  quantity            Int?
-  unit                String?
-  color               String?
-  materialType        String?
-  media               String[]
-  purchaseLink        String[]
-  additionalNote      String?
-  approvedBy          String?
-  approvedTime        DateTime?
-  purchaser           String?
-  purchasingTime      DateTime?
-  trackingLink        String?
-  receivedQuantity    Int?
-  checkedBy           String?
-  checkedTime         DateTime?
+  isShowRequestInformation Boolean   @default(false)
+  materialCode             String?
+  materialName             String?
+  descriptionMaterial      String?
+  quantity                 Int?
+  unit                     String?
+  color                    String?
+  materialType             String?
+  media                    String[]
+  purchaseLink             String[]
+  additionalNote           String?
+  approvedBy               String?
+  approvedTime             DateTime?
+  purchaser                String?
+  purchasingTime           DateTime?
+  trackingLink             String?
+  receivedQuantity         Int?
+  checkedBy                String?
+  checkedTime              DateTime?
 
   // step-2
   sampleProductionPlan String?
