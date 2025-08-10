@@ -796,6 +796,8 @@ export class FieldSubprocessService {
 
     // Basic fields
     if (dto.subprocessId !== undefined) data.subprocessId = dto.subprocessId;
+    if (dto.subprocessesHistoryId !== undefined)
+      data.subprocessesHistoryId = dto.subprocessesHistoryId;
 
     // Step 1 fields
     if (dto.materialCode !== undefined) data.materialCode = dto.materialCode;

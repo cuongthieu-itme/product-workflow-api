@@ -17,6 +17,11 @@ export class CreateFieldSubprocessDto {
   @IsInt()
   subprocessId?: number;
 
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsInt()
+  subprocessesHistoryId?: number;
+
   // step-1 fields
   @ApiProperty({ required: false })
   @IsOptional()
