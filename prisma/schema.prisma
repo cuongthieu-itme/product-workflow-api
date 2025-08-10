@@ -431,6 +431,15 @@ model SubprocessHistory {
 
   fieldSubprocess FieldSubprocess? @relation(name: "subprocess_history_field_subprocess_relation")
 
+  realStartDate     DateTime?
+  realEndDate       DateTime?
+  holdDateOne       DateTime?
+  continueDateOne   DateTime?
+  holdDateTwo       DateTime?
+  continueDateTwo   DateTime?
+  holdDateThree     DateTime?
+  continueDateThree DateTime?
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

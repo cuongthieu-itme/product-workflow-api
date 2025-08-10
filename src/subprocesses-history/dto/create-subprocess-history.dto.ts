@@ -85,4 +85,44 @@ export class CreateSubprocessHistoryDto {
   @IsOptional()
   @IsInt()
   userId?: number;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  realStartDate?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  realEndDate?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  holdDateOne?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  continueDateOne?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  holdDateTwo?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  continueDateTwo?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  holdDateThree?: Date;
+
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @IsDateString()
+  continueDateThree?: Date;
 }
