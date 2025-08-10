@@ -743,52 +743,6 @@ export class FieldSubprocessService {
     }
   }
 
-  async getStatistics() {
-    try {
-      const [
-        totalCount,
-        bySubprocessCount,
-        byStatusCount,
-        bySampleStatusCount,
-        byPurchaseStatusCount,
-        byCategoryCount,
-      ] = await Promise.all([
-        this.prismaService.fieldSubprocess.count(),
-        this.prismaService.fieldSubprocess.groupBy({
-          by: ['subprocessId'],
-          _count: { id: true },
-        }),
-        this.prismaService.fieldSubprocess.groupBy({
-          by: ['status'],
-          _count: { id: true },
-        }),
-        this.prismaService.fieldSubprocess.groupBy({
-          by: ['sampleStatus'],
-          _count: { id: true },
-        }),
-        this.prismaService.fieldSubprocess.groupBy({
-          by: ['purchaseStatus'],
-          _count: { id: true },
-        }),
-        this.prismaService.fieldSubprocess.groupBy({
-          by: ['category'],
-          _count: { id: true },
-        }),
-      ]);
-
-      return {
-        totalCount,
-        bySubprocess: bySubprocessCount,
-        byStatus: byStatusCount,
-        bySampleStatus: bySampleStatusCount,
-        byPurchaseStatus: byPurchaseStatusCount,
-        byCategory: byCategoryCount,
-      };
-    } catch (error) {
-      throw new Error(`Lỗi khi lấy thống kê: ${error.message}`);
-    }
-  }
-
   private transformDtoData(
     dto: CreateFieldSubprocessDto | UpdateFieldSubprocessDto,
   ) {

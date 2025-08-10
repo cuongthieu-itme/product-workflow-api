@@ -49,12 +49,6 @@ export class FieldSubprocessController {
     return this.fieldSubprocessService.getCheckFieldOptions();
   }
 
-  @Get('statistics')
-  @ApiOperation({ summary: 'Lấy thống kê các trường tiến trình' })
-  async getStatistics() {
-    return this.fieldSubprocessService.getStatistics();
-  }
-
   @Get('subprocess/:subprocessId')
   @ApiOperation({ summary: 'Lấy các trường tiến trình theo subprocess ID' })
   async findBySubprocessId(
