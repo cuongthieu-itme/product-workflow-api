@@ -57,6 +57,7 @@ enum StatusSubprocessHistory {
   COMPLETED
   CANCELLED
   SKIPPED
+  HOLD
 }
 
 // Output
