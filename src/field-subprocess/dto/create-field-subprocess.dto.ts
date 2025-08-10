@@ -10,6 +10,7 @@ import {
   IsBoolean,
 } from 'class-validator';
 import { CheckField } from '@prisma/client';
+import { Transform } from 'class-transformer';
 
 export class CreateFieldSubprocessDto {
   @ApiProperty({ required: false })
@@ -35,6 +36,7 @@ export class CreateFieldSubprocessDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
+  @Transform(({ value }) => parseInt(value, 10))
   @IsInt()
   requestId?: number;
 
