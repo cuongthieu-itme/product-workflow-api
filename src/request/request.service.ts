@@ -14,7 +14,12 @@ import {
   RemoveMaterialFromRequestDto,
 } from './dto/create-request.dto';
 import { SaveOutputDto } from './dto/save-output.dto';
-import { RequestStatus, OutputType, MaterialType } from '@prisma/client';
+import {
+  RequestStatus,
+  OutputType,
+  MaterialType,
+  NotificationType,
+} from '@prisma/client';
 import { CodeGenerationService } from 'src/common/code-generation/code-generation.service';
 
 @Injectable()
@@ -796,13 +801,26 @@ export class RequestService {
       );
 
       // 4. Xử lý procedure history nếu cần
-      await this.handleProcedureHistory(
+      const assignedUserIds = await this.handleProcedureHistory(
         prisma,
         updatedRequest,
         dto.statusProductId,
       );
 
       await this.handleRequestApprovalInfo(prisma, id, dto);
+
+      // 5. Tạo thông báo cho các user được gán ngẫu nhiên (nếu có)
+      if (assignedUserIds && assignedUserIds.length > 0) {
+        const uniqueUserIds = Array.from(new Set(assignedUserIds));
+        await prisma.broadcast.createMany({
+          data: uniqueUserIds.map((userId) => ({
+            title: 'Phân công mới',
+            content: `Bạn được phân công xử lý yêu cầu ${updatedRequest.code}`,
+            type: NotificationType.REQUEST,
+            userId,
+          })),
+        });
+      }
 
       return updatedRequest;
     });
@@ -888,7 +906,7 @@ export class RequestService {
     prisma: any,
     request: any,
     newStatusProductId?: number,
-  ) {
+  ): Promise<number[] | void> {
     const statusProductId = newStatusProductId ?? request.statusProductId;
 
     if (!statusProductId) {
@@ -908,16 +926,16 @@ export class RequestService {
       return;
     }
 
-    const procedureHistory = await this.createProcedureSnapshot(
-      prisma,
-      statusProduct.procedure,
-    );
+    const { procedureHistory, assignedUserIds } =
+      await this.createProcedureSnapshot(prisma, statusProduct.procedure);
 
     await this.linkProcedureHistoryToRequest(
       prisma,
       request.id,
       procedureHistory.id,
     );
+
+    return assignedUserIds;
   }
 
   private async getStatusProductWithProcedure(
@@ -945,15 +963,16 @@ export class RequestService {
       },
     });
 
+    let assignedUserIds: number[] = [];
     if (procedure.subprocesses?.length > 0) {
-      await this.createSubprocessHistories(
+      assignedUserIds = await this.createSubprocessHistories(
         prisma,
         procedure.subprocesses,
         procedureHistory.id,
       );
     }
 
-    return procedureHistory;
+    return { procedureHistory, assignedUserIds };
   }
 
   private async createSubprocessHistories(
@@ -963,6 +982,7 @@ export class RequestService {
   ) {
     const departmentUserMap = new Map<number, number[]>(); // Cache danh sách user theo department
     const subprocessHistoryData = [];
+    const assignedUserIds: number[] = [];
 
     for (const subprocess of subprocesses) {
       let userId = null;
@@ -1024,6 +1044,8 @@ export class RequestService {
         userId: userId, // Đảm bảo không bao giờ null
         procedureHistoryId,
       });
+
+      assignedUserIds.push(userId);
     }
 
     const createdSubprocessHistories =
@@ -1039,6 +1061,8 @@ export class RequestService {
         procedureHistoryId,
       );
     }
+
+    return assignedUserIds;
   }
 
   private async findDefaultUser(prisma: any) {
