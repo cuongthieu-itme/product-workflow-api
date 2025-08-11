@@ -315,7 +315,7 @@ export class RequestService {
           where: { id: createdById },
         });
 
-        await this.notificationAdminService.create({
+        await this.notificationAdminService.create(createdById || 0, {
           title: 'Yêu cầu mới',
           content: `Yêu cầu mới bởi ${infoCreatedBy?.fullName}`,
           type: 'REQUEST',
@@ -495,11 +495,14 @@ export class RequestService {
           where: { id: existingRequest.createdById },
         });
 
-        await this.notificationAdminService.create({
-          title: 'Yêu cầu cập nhật',
-          content: `Yêu cầu cập nhật bởi ${infoCreatedBy?.fullName}`,
-          type: 'REQUEST',
-        });
+        await this.notificationAdminService.create(
+          existingRequest.createdById || 0,
+          {
+            title: 'Yêu cầu cập nhật',
+            content: `Yêu cầu cập nhật bởi ${infoCreatedBy?.fullName}`,
+            type: 'REQUEST',
+          },
+        );
 
         // Return updated request with all relations
         return await this.findByIdInternal(id, this.prismaService);

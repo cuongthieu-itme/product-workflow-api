@@ -11,6 +11,7 @@ import {
   Put,
   Query,
   Patch,
+  Request,
 } from '@nestjs/common';
 import { BroadcastService } from './broadcast.service';
 import { CreateNotificationAdminDto } from './dto/create-broadcast.dto';
@@ -19,6 +20,7 @@ import { FilterNotificationAdminDto } from './dto/filter-broadcast.dto';
 import { UpdateIsReadDto } from './dto/update-is-read.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthRequest } from 'src/common/types/auth-request.type';
 
 @ApiTags('Broadcast')
 @AuthGuard()
@@ -29,22 +31,28 @@ export class BroadcastController {
   @ApiOperation({ summary: 'Lấy danh sách thông báo' })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query() filters: FilterNotificationAdminDto) {
-    return this.notificationAdminService.findAll(filters);
+  async findAll(
+    @Query() filters: FilterNotificationAdminDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.notificationAdminService.findAll(filters, req.user.id);
   }
 
   @ApiOperation({ summary: 'Lấy thông tin thông báo theo ID' })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findOne(@Param('id') id: number) {
-    return this.notificationAdminService.findOne(id);
+  async findOne(@Param('id') id: number, @Request() req: AuthRequest) {
+    return this.notificationAdminService.findOne(id, req.user.id);
   }
 
   @ApiOperation({ summary: 'Tạo thông báo mới' })
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() dto: CreateNotificationAdminDto) {
-    return this.notificationAdminService.create(dto);
+  async create(
+    @Body() dto: CreateNotificationAdminDto,
+    @Request() req: AuthRequest,
+  ) {
+    return this.notificationAdminService.create(req.user.id, dto);
   }
 
   @ApiOperation({ summary: 'Cập nhật thông báo' })
@@ -53,8 +61,9 @@ export class BroadcastController {
   async update(
     @Param('id') id: number,
     @Body() dto: UpdateNotificationAdminDto,
+    @Request() req: AuthRequest,
   ) {
-    return this.notificationAdminService.update(id, dto);
+    return this.notificationAdminService.update(id, req.user.id, dto);
   }
 
   @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
@@ -63,14 +72,15 @@ export class BroadcastController {
   updateIsRead(
     @Body(new ValidationPipe({ whitelist: true }))
     dto: UpdateIsReadDto,
+    @Request() req: AuthRequest,
   ) {
-    return this.notificationAdminService.updateIsRead(dto.ids);
+    return this.notificationAdminService.updateIsRead(req.user.id, dto.ids);
   }
 
   @ApiOperation({ summary: 'Xóa thông báo' })
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(@Param('id') id: number) {
-    return this.notificationAdminService.remove(id);
+  async remove(@Param('id') id: number, @Request() req: AuthRequest) {
+    return this.notificationAdminService.remove(id, req.user.id);
   }
 }

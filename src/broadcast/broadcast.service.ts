@@ -8,8 +8,11 @@ import { FilterNotificationAdminDto } from './dto/filter-broadcast.dto';
 export class BroadcastService {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findAll(filters?: FilterNotificationAdminDto) {
-    const where: any = {};
+  async findAll(
+    filters: FilterNotificationAdminDto | undefined,
+    userId: number,
+  ) {
+    const where: any = { userId };
 
     if (filters) {
       if (filters.title) {
@@ -42,6 +45,7 @@ export class BroadcastService {
         content: true,
         type: true,
         isRead: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -50,15 +54,16 @@ export class BroadcastService {
     return { data, page, limit, total };
   }
 
-  async findOne(id: number) {
-    const data = await this.prismaService.broadcast.findUnique({
-      where: { id },
+  async findOne(id: number, userId: number) {
+    const data = await this.prismaService.broadcast.findFirst({
+      where: { id, userId },
       select: {
         id: true,
         title: true,
         content: true,
         type: true,
         isRead: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -71,12 +76,13 @@ export class BroadcastService {
     return { data };
   }
 
-  async create(dto: CreateNotificationAdminDto) {
+  async create(userId: number | undefined, dto: CreateNotificationAdminDto) {
     const created = await this.prismaService.broadcast.create({
       data: {
         title: dto.title,
         content: dto.content,
         type: dto.type,
+        ...(userId !== undefined ? { userId } : {}),
       },
       select: {
         id: true,
@@ -84,6 +90,7 @@ export class BroadcastService {
         content: true,
         type: true,
         isRead: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -95,9 +102,9 @@ export class BroadcastService {
     };
   }
 
-  async update(id: number, dto: UpdateNotificationAdminDto) {
-    const existing = await this.prismaService.broadcast.findUnique({
-      where: { id },
+  async update(id: number, userId: number, dto: UpdateNotificationAdminDto) {
+    const existing = await this.prismaService.broadcast.findFirst({
+      where: { id, userId },
     });
 
     if (!existing) {
@@ -113,6 +120,7 @@ export class BroadcastService {
         content: true,
         type: true,
         isRead: true,
+        userId: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -125,6 +133,7 @@ export class BroadcastService {
   }
 
   async updateIsRead(
+    userId: number,
     ids: number[],
   ): Promise<{ message: string; count?: number }> {
     if (!Array.isArray(ids) || ids.length === 0) {
@@ -133,7 +142,7 @@ export class BroadcastService {
 
     try {
       const result = await this.prismaService.broadcast.updateMany({
-        where: { id: { in: ids } },
+        where: { id: { in: ids }, userId },
         data: { isRead: true },
       });
 
@@ -148,9 +157,9 @@ export class BroadcastService {
     }
   }
 
-  async remove(id: number) {
-    const existing = await this.prismaService.broadcast.findUnique({
-      where: { id },
+  async remove(id: number, userId: number) {
+    const existing = await this.prismaService.broadcast.findFirst({
+      where: { id, userId },
     });
 
     if (!existing) {

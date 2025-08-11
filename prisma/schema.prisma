@@ -195,6 +195,7 @@ model User {
   requests            Request[]            @relation("user_request_relation")
   evaluates           Evaluate[]           @relation("user_evaluate_relation")
   subprocessesHistory SubprocessHistory[]  @relation("user_subprocess_history_relation")
+  broadcasts          Broadcast[]          @relation("user_broadcast_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -567,6 +568,9 @@ model Broadcast {
   content String
   type    NotificationType
   isRead  Boolean          @default(false)
+
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], name: "user_broadcast_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
