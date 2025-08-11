@@ -19,7 +19,7 @@ import { RequestModule } from './request/request.module';
 import { MaterialModule } from './material/material.module';
 import { OriginModule } from './origin/origin.module';
 import { SourceOtherModule } from './source-other/source-other.module';
-import { NotificationAdminModule } from './notification-admin/notification-admin.module';
+import { BroadcastModule } from './broadcast/broadcast.module';
 import { RequestInputModule } from './request-input/request-input.module';
 import { EvaluateModule } from './evaluate/evaluate.module';
 import { SubprocessesHistoryModule } from './subprocesses-history/subprocesses-history.module';
@@ -48,7 +48,7 @@ import { FieldSubprocessModule } from './field-subprocess/field-subprocess.modul
     MaterialModule,
     OriginModule,
     SourceOtherModule,
-    NotificationAdminModule,
+    BroadcastModule,
     RequestInputModule,
     EvaluateModule,
     SubprocessesHistoryModule,

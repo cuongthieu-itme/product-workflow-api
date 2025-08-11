@@ -561,7 +561,7 @@ model Material {
   @@map("materials")
 }
 
-model NotificationAdmin {
+model Broadcast {
   id      Int              @id @default(autoincrement())
   title   String
   content String
@@ -571,7 +571,7 @@ model NotificationAdmin {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("notification_admins")
+  @@map("broadcasts")
 }
 
 model RequestInput {

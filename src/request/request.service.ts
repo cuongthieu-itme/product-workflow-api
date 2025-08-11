@@ -7,7 +7,7 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { NotificationAdminService } from 'src/notification-admin/notification-admin.service';
+import { BroadcastService } from 'src/broadcast/broadcast.service';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import {
   AddMaterialToRequestDto,
@@ -21,7 +21,7 @@ import { CodeGenerationService } from 'src/common/code-generation/code-generatio
 export class RequestService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly notificationAdminService: NotificationAdminService,
+    private readonly notificationAdminService: BroadcastService,
     private readonly codeGenerationService: CodeGenerationService,
   ) {}
 

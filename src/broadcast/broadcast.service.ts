@@ -1,11 +1,11 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { CreateNotificationAdminDto } from './dto/create-notification-admin.dto';
-import { UpdateNotificationAdminDto } from './dto/update-notification-admin.dto';
-import { FilterNotificationAdminDto } from './dto/filter-notification-admin.dto';
+import { CreateNotificationAdminDto } from './dto/create-broadcast.dto';
+import { UpdateNotificationAdminDto } from './dto/update-broadcast.dto';
+import { FilterNotificationAdminDto } from './dto/filter-broadcast.dto';
 
 @Injectable()
-export class NotificationAdminService {
+export class BroadcastService {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findAll(filters?: FilterNotificationAdminDto) {
@@ -29,9 +29,9 @@ export class NotificationAdminService {
     const page = filters?.page || 1;
     const limit = filters?.limit || 10;
 
-    const total = await this.prismaService.notificationAdmin.count({ where });
+    const total = await this.prismaService.broadcast.count({ where });
 
-    const data = await this.prismaService.notificationAdmin.findMany({
+    const data = await this.prismaService.broadcast.findMany({
       where,
       take: limit,
       skip: (page - 1) * limit,
@@ -51,7 +51,7 @@ export class NotificationAdminService {
   }
 
   async findOne(id: number) {
-    const data = await this.prismaService.notificationAdmin.findUnique({
+    const data = await this.prismaService.broadcast.findUnique({
       where: { id },
       select: {
         id: true,
@@ -72,7 +72,7 @@ export class NotificationAdminService {
   }
 
   async create(dto: CreateNotificationAdminDto) {
-    const created = await this.prismaService.notificationAdmin.create({
+    const created = await this.prismaService.broadcast.create({
       data: {
         title: dto.title,
         content: dto.content,
@@ -96,7 +96,7 @@ export class NotificationAdminService {
   }
 
   async update(id: number, dto: UpdateNotificationAdminDto) {
-    const existing = await this.prismaService.notificationAdmin.findUnique({
+    const existing = await this.prismaService.broadcast.findUnique({
       where: { id },
     });
 
@@ -104,7 +104,7 @@ export class NotificationAdminService {
       throw new NotFoundException(`Không tìm thấy thông báo với ID ${id}`);
     }
 
-    const updated = await this.prismaService.notificationAdmin.update({
+    const updated = await this.prismaService.broadcast.update({
       where: { id },
       data: dto,
       select: {
@@ -132,7 +132,7 @@ export class NotificationAdminService {
     }
 
     try {
-      const result = await this.prismaService.notificationAdmin.updateMany({
+      const result = await this.prismaService.broadcast.updateMany({
         where: { id: { in: ids } },
         data: { isRead: true },
       });
@@ -149,7 +149,7 @@ export class NotificationAdminService {
   }
 
   async remove(id: number) {
-    const existing = await this.prismaService.notificationAdmin.findUnique({
+    const existing = await this.prismaService.broadcast.findUnique({
       where: { id },
     });
 
@@ -157,7 +157,7 @@ export class NotificationAdminService {
       throw new NotFoundException(`Không tìm thấy thông báo với ID ${id}`);
     }
 
-    await this.prismaService.notificationAdmin.delete({ where: { id } });
+    await this.prismaService.broadcast.delete({ where: { id } });
 
     return { message: 'Xóa thông báo thành công' };
   }

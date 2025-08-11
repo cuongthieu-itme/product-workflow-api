@@ -12,21 +12,19 @@ import {
   Query,
   Patch,
 } from '@nestjs/common';
-import { NotificationAdminService } from './notification-admin.service';
-import { CreateNotificationAdminDto } from './dto/create-notification-admin.dto';
-import { UpdateNotificationAdminDto } from './dto/update-notification-admin.dto';
-import { FilterNotificationAdminDto } from './dto/filter-notification-admin.dto';
+import { BroadcastService } from './broadcast.service';
+import { CreateNotificationAdminDto } from './dto/create-broadcast.dto';
+import { UpdateNotificationAdminDto } from './dto/update-broadcast.dto';
+import { FilterNotificationAdminDto } from './dto/filter-broadcast.dto';
 import { UpdateIsReadDto } from './dto/update-is-read.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
-@ApiTags('NotificationAdmin')
+@ApiTags('Broadcast')
 @AuthGuard()
-@Controller('notification-admins')
-export class NotificationAdminController {
-  constructor(
-    private readonly notificationAdminService: NotificationAdminService,
-  ) {}
+@Controller('broadcasts')
+export class BroadcastController {
+  constructor(private readonly notificationAdminService: BroadcastService) {}
 
   @ApiOperation({ summary: 'Lấy danh sách thông báo' })
   @HttpCode(HttpStatus.OK)
@@ -62,8 +60,10 @@ export class NotificationAdminController {
   @ApiOperation({ summary: 'Cập nhật trạng thái đã đọc' })
   @HttpCode(HttpStatus.OK)
   @Patch('is-read')
-  updateIsRead(@Body(new ValidationPipe({ whitelist: true }))
-  dto: UpdateIsReadDto) {
+  updateIsRead(
+    @Body(new ValidationPipe({ whitelist: true }))
+    dto: UpdateIsReadDto,
+  ) {
     return this.notificationAdminService.updateIsRead(dto.ids);
   }
 
