@@ -170,4 +170,23 @@ export class BroadcastService {
 
     return { message: 'Xóa thông báo thành công' };
   }
+
+  async findAllByUserId(userId: number) {
+    const data = await this.prismaService.broadcast.findMany({
+      where: { userId },
+      orderBy: { createdAt: 'desc' },
+      select: {
+        id: true,
+        title: true,
+        content: true,
+        type: true,
+        isRead: true,
+        userId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
+
+    return { data };
+  }
 }

@@ -38,6 +38,15 @@ export class BroadcastController {
     return this.notificationAdminService.findAll(filters, req.user.id);
   }
 
+  @ApiOperation({
+    summary: 'Lấy tất cả thông báo theo userId (không phân trang)',
+  })
+  @HttpCode(HttpStatus.OK)
+  @Get('user')
+  async findAllByUser(@Request() req: AuthRequest) {
+    return this.notificationAdminService.findAllByUserId(req.user.id);
+  }
+
   @ApiOperation({ summary: 'Lấy thông tin thông báo theo ID' })
   @HttpCode(HttpStatus.OK)
   @Get(':id')
