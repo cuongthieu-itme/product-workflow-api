@@ -576,6 +576,8 @@ model MaterialRequestSubprocessHistory {
   isActive    Boolean      @default(true)
   type        MaterialType @default(INGREDIENT)
 
+  priority PriorityType @default(NORMAL)
+
   originId Int
   origin   Origin @relation(fields: [originId], references: [id], name: "origin_material_request_subprocess_history_relation")
 

@@ -17,7 +17,7 @@ import {
   UpdateMaterialRequestSubprocessHistoryDto,
 } from './dto/index';
 
-@ApiTags('MaterialRequestSubprocessHistory')
+@ApiTags('Material Request Subprocess History')
 @AuthGuard()
 @Controller('material-requests-subprocess-history')
 export class MaterialRequestsSubprocessHistoryController {
