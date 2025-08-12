@@ -57,6 +57,7 @@ enum StatusSubprocessHistory {
   COMPLETED
   CANCELLED
   SKIPPED
+  HOLD
 }
 
 // Output
@@ -71,6 +72,101 @@ enum PriorityType {
   MEDIUM
   HIGH
   VERY_HIGH
+}
+
+enum CheckField {
+  MATERIAL_CODE
+  MATERIAL_NAME
+  REQUEST_ID
+  REQUEST_DATE
+  PRIORITY
+  CREATED_BY
+  REQUEST_SOURCE
+  CHECKER
+  DESCRIPTION_MATERIAL
+  STATUS
+  QUANTITY
+  UNIT
+  COLOR
+  MATERIAL_TYPE
+  MEDIA
+  PURCHASE_LINK
+  ADDITIONAL_NOTE
+  APPROVED_BY
+  APPROVED_TIME
+  PURCHASER
+  PURCHASING_TIME
+  TRACKING_LINK
+  RECEIVED_QUANTITY
+  CHECKED_BY
+  CHECKED_TIME
+  SAMPLE_PRODUCTION_PLAN
+  DESIGNER
+  START_TIME
+  COMPLETED_TIME
+  PRODUCTION_FILE_LINK
+  SAMPLE_MAKER
+  SAMPLE_STATUS
+  SAMPLE_MEDIA_LINK
+  NOTE
+  FINAL_APPROVED_SAMPLE_IMAGE
+  FINAL_PRODUCT_VIDEO
+  PRODUCT_MANUFACTURING_PLAN
+  PRODUCT_FEEDBACK_RESPONDER
+  DEADLINE_CHECKING
+  PRODUCT_FEEDBACK_STATUS
+  REASON_FOR_NON_PRODUCTION
+  SAMPLE_FEEDBACK_RESPONDER
+  DEMO_PRICE
+  SAMPLE_FEEDBACK
+  // Step 6 fields
+  MOQ_INPUT
+  SIZE_DIMENSION
+  MATERIAL_CONFIRMER
+  PURCHASE_STATUS
+  CONFIRMED_QUANTITY
+  // Step 7 fields
+  ORDER_PLACED
+  ORDER_DATE
+  ESTIMATED_ARRIVAL_DATE
+  ACTUAL_ARRIVAL_DATE
+  WAREHOUSE_CHECKER
+  QUANTITY_RECEIVED
+  CHECKED_DATE
+  MATERIAL_SENT_TO_RD
+  SENT_DATE_TO_RD
+  RECEIVED_DATE_BY_RD
+  RD_MATERIAL_CHECKER
+  SAMPLE_QUALITY_FEEDBACK
+  FEEDBACK_DATE
+  // Step 8 fields
+  STARTED_TIME
+  ASSIGNED_TO
+  LINK_TEMPLATE_MOCKUP
+  TEMPLATE_CHECKER
+  TEMPLATE_CHECKING_STATUS
+  MOCKUP_CHECKER
+  MOCKUP_CHECKING_STATUS
+  // Step 9 fields
+  PRICE_CALCULATOR
+  PRICE_LIST
+  PRODUCT_DESCRIPTION
+  VARIANT
+  // Step 10 fields
+  ESTIMATED_UPLOAD_DATE
+  ACTUAL_UPLOAD_TIME
+  PRODUCT_CODE
+  PRODUCT_PAGE_LINK
+  SKU
+  SKU_DESCRIPTION
+  // Step 11 fields
+  PRODUCT_NAME
+  CATEGORY
+  HOW_TO_PRODUCE
+  MATERIAL_NEED_TO_USE
+  // Step 12 fields
+  GROUP_ANNOUNCEMENT_ALL_DEPARTMENTS
+  ANNOUNCEMENT_OF_RND_WORKSHOP_GROUP
 }
 
 model User {
@@ -99,6 +195,7 @@ model User {
   requests            Request[]            @relation("user_request_relation")
   evaluates           Evaluate[]           @relation("user_evaluate_relation")
   subprocessesHistory SubprocessHistory[]  @relation("user_subprocess_history_relation")
+  broadcasts          Broadcast[]          @relation("user_broadcast_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -265,6 +362,8 @@ model Subprocess {
   departmentId Int?
   department   Department? @relation(fields: [departmentId], references: [id], name: "department_subprocess_relation")
 
+  fieldSubprocess FieldSubprocess? @relation(name: "subprocess_field_subprocess_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -331,6 +430,17 @@ model SubprocessHistory {
 
   userId Int?
   user   User? @relation(fields: [userId], references: [id], name: "user_subprocess_history_relation")
+
+  fieldSubprocess FieldSubprocess? @relation(name: "subprocess_history_field_subprocess_relation")
+
+  realStartDate     DateTime?
+  realEndDate       DateTime?
+  holdDateOne       DateTime?
+  continueDateOne   DateTime?
+  holdDateTwo       DateTime?
+  continueDateTwo   DateTime?
+  holdDateThree     DateTime?
+  continueDateThree DateTime?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -452,17 +562,20 @@ model Material {
   @@map("materials")
 }
 
-model NotificationAdmin {
+model Broadcast {
   id      Int              @id @default(autoincrement())
   title   String
   content String
   type    NotificationType
   isRead  Boolean          @default(false)
 
+  userId Int?
+  user   User? @relation(fields: [userId], references: [id], name: "user_broadcast_relation")
+
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  @@map("notification_admins")
+  @@map("broadcasts")
 }
 
 model RequestInput {
@@ -519,4 +632,125 @@ model RequestApprovalInfo {
 
   @@index([requestId])
   @@map("request_approval_infos")
+}
+
+model FieldSubprocess {
+  id Int @id @default(autoincrement())
+
+  subprocessId Int?        @unique
+  subprocess   Subprocess? @relation(fields: [subprocessId], references: [id], name: "subprocess_field_subprocess_relation")
+
+  subprocessesHistoryId Int?               @unique
+  subprocessesHistory   SubprocessHistory? @relation(fields: [subprocessesHistoryId], references: [id], name: "subprocess_history_field_subprocess_relation")
+
+  // step-1
+  isShowRequestInformation Boolean   @default(false)
+  materialCode             String?
+  materialName             String?
+  descriptionMaterial      String?
+  quantity                 Int?
+  unit                     String?
+  color                    String?
+  materialType             String?
+  media                    String[]
+  purchaseLink             String[]
+  additionalNote           String?
+  approvedBy               String?
+  approvedTime             DateTime?
+  purchaser                String?
+  purchasingTime           DateTime?
+  trackingLink             String?
+  receivedQuantity         Int?
+  checkedBy                String?
+  checkedTime              DateTime?
+
+  // step-2
+  sampleProductionPlan String?
+  designer             String?
+  startTime            DateTime?
+  completedTime        DateTime?
+  productionFileLink   String?
+
+  // step-3
+  sampleMaker              String?
+  sampleStatus             String?
+  sampleMediaLink          String[]
+  note                     String?
+  finalApprovedSampleImage String?
+  finalProductVideo        String?
+
+  // step-4
+  productManufacturingPlan String?
+  productFeedbackResponder String?
+  deadlineChecking         DateTime?
+  productFeedbackStatus    String?
+  reasonForNonProduction   String?
+
+  // step-5
+  sampleFeedbackResponder String?
+  demoPrice               Int?
+  sampleFeedback          String?
+
+  // step-6
+  MOQInput          Int?
+  sizeDimension     String?
+  materialConfirmer String?
+  purchaseStatus    String?
+  confirmedQuantity String?
+
+  // step-7
+  orderPlaced           String?
+  orderDate             DateTime?
+  estimatedArrivalDate  DateTime?
+  actualArrivalDate     DateTime?
+  warehouseChecker      String?
+  quantityReceived      Int?
+  checkedDate           DateTime?
+  materialSentToRD      String?
+  sentDateToRD          DateTime?
+  receivedDateByRD      DateTime?
+  RDMaterialChecker     String?
+  sampleQualityFeedback String?
+  feedbackDate          DateTime?
+
+  // step-8
+  startedTime            DateTime?
+  assignedTo             String?
+  linkTemplateMockup     String?
+  templateChecker        String?
+  templateCheckingStatus String?
+  mockupChecker          String?
+  mockupCheckingStatus   String?
+
+  // step-9
+  priceCalculator    Int?
+  priceList          Int[]
+  productDescription String?
+  variant            String?
+
+  // step-10
+  estimatedUploadDate DateTime?
+  actualUploadTime    DateTime?
+  productCode         String?
+  productPageLink     String?
+  SKU                 String?
+  SKUDescription      String?
+
+  // step-11
+  productName       String?
+  category          String?
+  howToProduce      String?
+  materialNeedToUse String?
+
+  // step-12
+  groupAnnouncementAllDepartments String?
+  announcementOfRndWorkshopGroup  String?
+
+  // field-step
+  checkFields CheckField[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("field_subprocesses")
 }

@@ -10,7 +10,7 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { Type } from 'class-transformer';
-import { OutputType } from '@prisma/client';
+import { OutputType, CheckField } from '@prisma/client';
 
 class SubprocessDto {
   @ApiProperty({ required: false })
@@ -60,6 +60,12 @@ class SubprocessDto {
   @IsInt()
   @IsOptional()
   departmentId?: number;
+
+  @ApiProperty({ type: [String], enum: CheckField, required: false })
+  @IsArray()
+  @IsEnum(CheckField, { each: true })
+  @IsOptional()
+  checkFields?: CheckField[];
 }
 
 export class SameAssignDto {

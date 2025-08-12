@@ -7,21 +7,26 @@ import { CreateRequestDto } from './dto/create-request.dto';
 import { UpdateRequestDto } from './dto/update-request.dto';
 import { FilterRequestDto } from './dto/filter-request.dto';
 import { PrismaService } from 'src/common/prisma/prisma.service';
-import { NotificationAdminService } from 'src/notification-admin/notification-admin.service';
+import { BroadcastService } from 'src/broadcast/broadcast.service';
 import { UpdateRequestStatusDto } from './dto/update-request-status.dto';
 import {
   AddMaterialToRequestDto,
   RemoveMaterialFromRequestDto,
 } from './dto/create-request.dto';
 import { SaveOutputDto } from './dto/save-output.dto';
-import { RequestStatus, OutputType, MaterialType } from '@prisma/client';
+import {
+  RequestStatus,
+  OutputType,
+  MaterialType,
+  NotificationType,
+} from '@prisma/client';
 import { CodeGenerationService } from 'src/common/code-generation/code-generation.service';
 
 @Injectable()
 export class RequestService {
   constructor(
     private readonly prismaService: PrismaService,
-    private readonly notificationAdminService: NotificationAdminService,
+    private readonly notificationAdminService: BroadcastService,
     private readonly codeGenerationService: CodeGenerationService,
   ) {}
 
@@ -174,6 +179,7 @@ export class RequestService {
           include: {
             subprocessesHistory: {
               include: {
+                fieldSubprocess: true,
                 user: {
                   select: {
                     fullName: true,
@@ -314,7 +320,7 @@ export class RequestService {
           where: { id: createdById },
         });
 
-        await this.notificationAdminService.create({
+        await this.notificationAdminService.create(createdById || 0, {
           title: 'Yêu cầu mới',
           content: `Yêu cầu mới bởi ${infoCreatedBy?.fullName}`,
           type: 'REQUEST',
@@ -494,11 +500,14 @@ export class RequestService {
           where: { id: existingRequest.createdById },
         });
 
-        await this.notificationAdminService.create({
-          title: 'Yêu cầu cập nhật',
-          content: `Yêu cầu cập nhật bởi ${infoCreatedBy?.fullName}`,
-          type: 'REQUEST',
-        });
+        await this.notificationAdminService.create(
+          existingRequest.createdById || 0,
+          {
+            title: 'Yêu cầu cập nhật',
+            content: `Yêu cầu cập nhật bởi ${infoCreatedBy?.fullName}`,
+            type: 'REQUEST',
+          },
+        );
 
         // Return updated request with all relations
         return await this.findByIdInternal(id, this.prismaService);
@@ -792,13 +801,26 @@ export class RequestService {
       );
 
       // 4. Xử lý procedure history nếu cần
-      await this.handleProcedureHistory(
+      const assignedUserIds = await this.handleProcedureHistory(
         prisma,
         updatedRequest,
         dto.statusProductId,
       );
 
       await this.handleRequestApprovalInfo(prisma, id, dto);
+
+      // 5. Tạo thông báo cho các user được gán ngẫu nhiên (nếu có)
+      if (assignedUserIds && assignedUserIds.length > 0) {
+        const uniqueUserIds = Array.from(new Set(assignedUserIds));
+        await prisma.broadcast.createMany({
+          data: uniqueUserIds.map((userId) => ({
+            title: 'Phân công mới',
+            content: `Bạn được phân công xử lý yêu cầu ${updatedRequest.code}`,
+            type: NotificationType.REQUEST,
+            userId,
+          })),
+        });
+      }
 
       return updatedRequest;
     });
@@ -884,7 +906,7 @@ export class RequestService {
     prisma: any,
     request: any,
     newStatusProductId?: number,
-  ) {
+  ): Promise<number[] | void> {
     const statusProductId = newStatusProductId ?? request.statusProductId;
 
     if (!statusProductId) {
@@ -904,16 +926,16 @@ export class RequestService {
       return;
     }
 
-    const procedureHistory = await this.createProcedureSnapshot(
-      prisma,
-      statusProduct.procedure,
-    );
+    const { procedureHistory, assignedUserIds } =
+      await this.createProcedureSnapshot(prisma, statusProduct.procedure);
 
     await this.linkProcedureHistoryToRequest(
       prisma,
       request.id,
       procedureHistory.id,
     );
+
+    return assignedUserIds;
   }
 
   private async getStatusProductWithProcedure(
@@ -941,15 +963,16 @@ export class RequestService {
       },
     });
 
+    let assignedUserIds: number[] = [];
     if (procedure.subprocesses?.length > 0) {
-      await this.createSubprocessHistories(
+      assignedUserIds = await this.createSubprocessHistories(
         prisma,
         procedure.subprocesses,
         procedureHistory.id,
       );
     }
 
-    return procedureHistory;
+    return { procedureHistory, assignedUserIds };
   }
 
   private async createSubprocessHistories(
@@ -957,26 +980,55 @@ export class RequestService {
     subprocesses: any[],
     procedureHistoryId: number,
   ) {
-    const departmentUserMap = new Map<number, number>();
-
+    const departmentUserMap = new Map<number, number[]>(); // Cache danh sách user theo department
     const subprocessHistoryData = [];
+    const assignedUserIds: number[] = [];
 
     for (const subprocess of subprocesses) {
       let userId = null;
 
       if (subprocess.departmentId) {
-        if (departmentUserMap.has(subprocess.departmentId)) {
-          userId = departmentUserMap.get(subprocess.departmentId);
-        } else {
-          const randomUser = await this.getRandomUserByDepartmentIdInternal(
-            prisma,
-            subprocess.departmentId,
-          );
-          if (randomUser) {
-            userId = randomUser.id;
-            departmentUserMap.set(subprocess.departmentId, userId);
+        if (!departmentUserMap.has(subprocess.departmentId)) {
+          // Lấy tất cả user trong department và cache lại
+          const users = await prisma.user.findMany({
+            where: {
+              departmentId: subprocess.departmentId,
+              isVerifiedAccount: true,
+            },
+            select: { id: true },
+          });
+
+          if (users.length === 0) {
+            throw new BadRequestException(
+              `Department ${subprocess.departmentId} không có user nào được verify. Không thể tạo procedure history.`,
+            );
           }
+
+          departmentUserMap.set(
+            subprocess.departmentId,
+            users.map((u) => u.id),
+          );
         }
+
+        // Random user từ danh sách đã cache
+        const userIds = departmentUserMap.get(subprocess.departmentId);
+        if (userIds && userIds.length > 0) {
+          const randomIndex = Math.floor(Math.random() * userIds.length);
+          userId = userIds[randomIndex];
+        }
+      } else {
+        // Subprocess không có departmentId: Tìm user mặc định
+        const defaultUser = await this.findDefaultUser(prisma);
+        if (defaultUser) {
+          userId = defaultUser.id;
+        }
+      }
+
+      // Validate trước khi tạo - đảm bảo không bao giờ có userId = null
+      if (!userId) {
+        throw new BadRequestException(
+          `Không thể tìm thấy user phù hợp cho subprocess: ${subprocess.name} (step: ${subprocess.step})`,
+        );
       }
 
       subprocessHistoryData.push({
@@ -989,14 +1041,86 @@ export class RequestService {
         isStepWithCost: subprocess.isStepWithCost,
         step: subprocess.step,
         departmentId: subprocess.departmentId ?? null,
-        userId: userId,
+        userId: userId, // Đảm bảo không bao giờ null
         procedureHistoryId,
       });
+
+      assignedUserIds.push(userId);
     }
 
-    await prisma.subprocessHistory.createMany({
-      data: subprocessHistoryData,
+    const createdSubprocessHistories =
+      await prisma.subprocessHistory.createMany({
+        data: subprocessHistoryData,
+      });
+
+    // Sau khi tạo SubprocessHistory, tự động tạo FieldSubprocess với subprocessesHistoryId
+    if (createdSubprocessHistories.count > 0) {
+      await this.createFieldSubprocessForSubprocessHistories(
+        prisma,
+        subprocesses,
+        procedureHistoryId,
+      );
+    }
+
+    return assignedUserIds;
+  }
+
+  private async findDefaultUser(prisma: any) {
+    // 1. Tìm user có role ADMIN hoặc SUPER_ADMIN
+    const adminUser = await prisma.user.findFirst({
+      where: {
+        role: { in: ['ADMIN', 'SUPER_ADMIN'] },
+        isVerifiedAccount: true,
+      },
+      select: { id: true },
     });
+
+    if (adminUser) {
+      return adminUser;
+    }
+
+    // 2. Tìm user đầu tiên được verify
+    const verifiedUser = await prisma.user.findFirst({
+      where: {
+        isVerifiedAccount: true,
+      },
+      select: { id: true },
+    });
+
+    return verifiedUser;
+  }
+
+  private async createFieldSubprocessForSubprocessHistories(
+    prisma: any,
+    subprocesses: any[],
+    procedureHistoryId: number,
+  ) {
+    for (const subprocess of subprocesses) {
+      // Tìm FieldSubprocess hiện có với subprocessId
+      const existingFieldSubprocess = await prisma.fieldSubprocess.findUnique({
+        where: { subprocessId: subprocess.id },
+      });
+
+      if (existingFieldSubprocess) {
+        // Tìm SubprocessHistory tương ứng với step này
+        const subprocessHistory = await prisma.subprocessHistory.findFirst({
+          where: {
+            procedureHistoryId,
+            step: subprocess.step,
+          },
+        });
+
+        if (subprocessHistory) {
+          // Cập nhật FieldSubprocess hiện có để gán subprocessesHistoryId
+          await prisma.fieldSubprocess.update({
+            where: { id: existingFieldSubprocess.id },
+            data: {
+              subprocessesHistoryId: subprocessHistory.id,
+            },
+          });
+        }
+      }
+    }
   }
 
   private async linkProcedureHistoryToRequest(
