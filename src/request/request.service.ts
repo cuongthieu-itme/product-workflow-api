@@ -14,6 +14,7 @@ import {
   RemoveMaterialFromRequestDto,
 } from './dto/create-request.dto';
 import { SaveOutputDto } from './dto/save-output.dto';
+import { CreateNewMaterialDto } from './dto/create-request-material.dto';
 import {
   RequestStatus,
   OutputType,
@@ -356,6 +357,237 @@ export class RequestService {
       // Generic error
       throw new BadRequestException(
         'Tạo yêu cầu thất bại. Vui lòng kiểm tra lại dữ liệu và thử lại.',
+      );
+    }
+  }
+
+  async createRequestAndMaterial(
+    requestData: CreateRequestDto,
+    materialsData: CreateNewMaterialDto[],
+  ) {
+    // Validate materials data
+    if (!materialsData || materialsData.length === 0) {
+      throw new BadRequestException(
+        'Danh sách nguyên vật liệu không được để trống',
+      );
+    }
+
+    // Validate origins exist
+    const originIds = materialsData.map((m) => m.originId);
+    const origins = await this.prismaService.origin.findMany({
+      where: { id: { in: originIds } },
+      select: { id: true },
+    });
+    const foundOriginIds = origins.map((o) => o.id);
+    const missingOriginIds = originIds.filter(
+      (id) => !foundOriginIds.includes(id),
+    );
+    if (missingOriginIds.length > 0) {
+      throw new NotFoundException(
+        `Không tìm thấy origin với ID: ${missingOriginIds.join(', ')}`,
+      );
+    }
+
+    // Validate relationships for request
+    await this.validateRelationships(requestData);
+
+    try {
+      return await this.prismaService.$transaction(async (prisma) => {
+        // 1. Generate request code
+        const generatedCode =
+          await this.codeGenerationService.generateRequestCode(
+            requestData.source,
+          );
+
+        if (!generatedCode) {
+          throw new BadRequestException(
+            'Không thể tạo mã yêu cầu (code). Vui lòng kiểm tra lại source hoặc cấu hình sinh mã.',
+          );
+        }
+
+        // 2. Create materials first
+        const createdMaterials = [];
+        for (const materialData of materialsData) {
+          // Generate material code
+          const materialCode =
+            await this.codeGenerationService.generateMaterialCode(
+              materialData.type,
+            );
+
+          if (!materialCode) {
+            throw new BadRequestException(
+              'Không thể tạo mã nguyên vật liệu. Vui lòng kiểm tra lại cấu hình sinh mã.',
+            );
+          }
+
+          const newMaterial = await prisma.material.create({
+            data: {
+              name: materialData.name,
+              code: materialCode,
+              quantity: materialData.quantity,
+              unit: materialData.unit,
+              description: materialData.description || null,
+              image: materialData.image || [],
+              type: materialData.type,
+              originId: materialData.originId,
+              isActive: true,
+            },
+          });
+
+          // Create RequestInput if provided
+          if (materialData.requestInput) {
+            await prisma.requestInput.create({
+              data: {
+                quantity: materialData.requestInput.quantity || null,
+                expectedDate: materialData.requestInput.expectedDate
+                  ? new Date(materialData.requestInput.expectedDate)
+                  : null,
+                supplier: materialData.requestInput.supplier || null,
+                sourceCountry: materialData.requestInput.sourceCountry || null,
+                price: materialData.requestInput.price || null,
+                reason: materialData.requestInput.reason || null,
+                materialId: newMaterial.id,
+              },
+            });
+          }
+
+          createdMaterials.push(newMaterial);
+        }
+
+        // 3. Create request
+        const {
+          title,
+          description,
+          productLink,
+          media,
+          source,
+          priority,
+          createdById,
+          customerId,
+          sourceOtherId,
+          statusProductId,
+        } = requestData;
+
+        const newRequest = await prisma.request.create({
+          data: {
+            title,
+            description: description || null,
+            productLink: productLink || [],
+            media: media || [],
+            source,
+            priority,
+            status: 'PENDING',
+            createdById: createdById || null,
+            customerId: customerId || null,
+            sourceOtherId: sourceOtherId || null,
+            statusProductId: statusProductId || null,
+            code: generatedCode,
+          },
+        });
+
+        // 4. Create RequestMaterial relationships
+        await prisma.requestMaterial.createMany({
+          data: createdMaterials.map((material) => ({
+            requestId: newRequest.id,
+            materialId: material.id,
+            quantity: material.quantity,
+          })),
+        });
+
+        // 5. Create notification
+        if (createdById) {
+          const infoCreatedBy = await prisma.user.findUnique({
+            where: { id: createdById },
+          });
+
+          await this.notificationAdminService.create(createdById, {
+            title: 'Yêu cầu mới với nguyên vật liệu',
+            content: `Yêu cầu mới với ${createdMaterials.length} nguyên vật liệu bởi ${infoCreatedBy?.fullName}`,
+            type: 'REQUEST',
+          });
+        }
+
+        // 6. Return complete request with all relations
+        const completeRequest = await prisma.request.findUnique({
+          where: { id: newRequest.id },
+          include: {
+            createdBy: {
+              select: {
+                id: true,
+                fullName: true,
+                userName: true,
+                email: true,
+              },
+            },
+            customer: {
+              select: {
+                id: true,
+                fullName: true,
+                phoneNumber: true,
+                email: true,
+              },
+            },
+            sourceOther: {
+              select: {
+                id: true,
+                name: true,
+                specifically: true,
+              },
+            },
+            statusProduct: {
+              select: {
+                id: true,
+                name: true,
+                description: true,
+                color: true,
+              },
+            },
+            requestMaterials: {
+              include: {
+                material: {
+                  include: {
+                    origin: true,
+                    requestInput: true,
+                  },
+                },
+              },
+            },
+          },
+        });
+
+        return {
+          message: `Tạo yêu cầu thành công với ${createdMaterials.length} nguyên vật liệu`,
+          data: completeRequest,
+          materials: createdMaterials,
+        };
+      });
+    } catch (error) {
+      console.error('Lỗi khi tạo yêu cầu và nguyên vật liệu:', error);
+
+      // Re-throw known exceptions
+      if (
+        error instanceof BadRequestException ||
+        error instanceof NotFoundException
+      ) {
+        throw error;
+      }
+
+      // Handle Prisma errors
+      if (error.code === 'P2002') {
+        throw new BadRequestException(
+          'Dữ liệu bị trùng lặp. Vui lòng kiểm tra lại thông tin.',
+        );
+      }
+
+      if (error.code === 'P2003') {
+        throw new BadRequestException(
+          'Dữ liệu tham chiếu không hợp lệ. Vui lòng kiểm tra lại các ID.',
+        );
+      }
+
+      // Generic error
+      throw new BadRequestException(
+        'Tạo yêu cầu và nguyên vật liệu thất bại. Vui lòng kiểm tra lại dữ liệu và thử lại.',
       );
     }
   }

@@ -20,6 +20,7 @@ import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AddMaterialToRequestDto } from './dto/create-request.dto';
 import { RemoveMaterialFromRequestDto } from './dto/create-request.dto';
+import { CreateNewMaterialDto } from './dto/create-request-material.dto';
 
 @ApiTags('Request')
 @AuthGuard()
@@ -52,6 +53,24 @@ export class RequestController {
   @Post()
   async create(@Body() createRequestDto: CreateRequestDto) {
     return this.requestService.create(createRequestDto);
+  }
+
+  @ApiOperation({
+    summary: 'Tạo yêu cầu mới với nguyên vật liệu mới',
+  })
+  @HttpCode(HttpStatus.CREATED)
+  @Post('with-materials')
+  async createRequestAndMaterial(
+    @Body()
+    body: {
+      requestData: CreateRequestDto;
+      materialsData: CreateNewMaterialDto[];
+    },
+  ) {
+    return this.requestService.createRequestAndMaterial(
+      body.requestData,
+      body.materialsData,
+    );
   }
 
   @ApiOperation({
