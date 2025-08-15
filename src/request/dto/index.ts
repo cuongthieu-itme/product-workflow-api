@@ -3,3 +3,4 @@ export * from './update-request.dto';
 export * from './filter-request.dto';
 export * from './update-request-status.dto';
 export * from './save-output.dto';
+export * from './create-request-material.dto';

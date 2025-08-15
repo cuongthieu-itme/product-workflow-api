@@ -1,5 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsArray, IsBoolean, IsEnum, IsInt, IsNotEmpty, IsOptional, IsPositive, IsString, MinLength } from 'class-validator';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsNotEmpty,
+  IsOptional,
+  IsPositive,
+  IsString,
+  MinLength,
+} from 'class-validator';
 import { MaterialType, Prisma } from '@prisma/client';
 
 export class CreateMaterialDto {
@@ -50,4 +60,9 @@ export class CreateMaterialDto {
   @IsInt()
   @IsPositive()
   originId: number;
+
+  @ApiProperty()
+  @IsInt()
+  @IsPositive()
+  price: number;
 }

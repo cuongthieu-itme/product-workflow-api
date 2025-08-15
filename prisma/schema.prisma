@@ -169,6 +169,12 @@ enum CheckField {
   ANNOUNCEMENT_OF_RND_WORKSHOP_GROUP
 }
 
+enum RequestMaterialStatus {
+  AVAILABLE_IN_STOCK
+  SENDING_REQUEST
+  CANCELLED
+}
+
 model User {
   id                Int       @id @default(autoincrement())
   fullName          String
@@ -555,6 +561,10 @@ model Material {
 
   // Output
   request Request? @relation("request_material_output_relation")
+
+  // Request Material
+  status RequestMaterialStatus @default(AVAILABLE_IN_STOCK)
+  price  Int?
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
