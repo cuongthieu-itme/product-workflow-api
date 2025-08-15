@@ -1328,29 +1328,23 @@ export class RequestService {
     procedureHistoryId: number,
   ) {
     for (const subprocess of subprocesses) {
-      // Tìm FieldSubprocess hiện có với subprocessId
-      const existingFieldSubprocess = await prisma.fieldSubprocess.findUnique({
-        where: { subprocessId: subprocess.id },
+      // Tìm SubprocessHistory tương ứng với step này
+      const subprocessHistory = await prisma.subprocessHistory.findFirst({
+        where: {
+          procedureHistoryId,
+          step: subprocess.step,
+        },
       });
 
-      if (existingFieldSubprocess) {
-        // Tìm SubprocessHistory tương ứng với step này
-        const subprocessHistory = await prisma.subprocessHistory.findFirst({
-          where: {
-            procedureHistoryId,
-            step: subprocess.step,
+      if (subprocessHistory) {
+        // Tạo FieldSubprocess mới gắn với SubprocessHistory (không dùng lại template)
+        await prisma.fieldSubprocess.create({
+          data: {
+            subprocessesHistoryId: subprocessHistory.id,
+            // Dữ liệu mới hoàn toàn
+            checkFields: [],
           },
         });
-
-        if (subprocessHistory) {
-          // Cập nhật FieldSubprocess hiện có để gán subprocessesHistoryId
-          await prisma.fieldSubprocess.update({
-            where: { id: existingFieldSubprocess.id },
-            data: {
-              subprocessesHistoryId: subprocessHistory.id,
-            },
-          });
-        }
       }
     }
   }
