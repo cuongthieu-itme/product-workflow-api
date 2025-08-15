@@ -160,6 +160,7 @@ export class RequestService {
             },
           },
         },
+        material: true,
         requestMaterials: {
           include: {
             material: {
@@ -1337,12 +1338,9 @@ export class RequestService {
       });
 
       if (subprocessHistory) {
-        // Tạo FieldSubprocess mới gắn với SubprocessHistory (không dùng lại template)
         await prisma.fieldSubprocess.create({
           data: {
             subprocessesHistoryId: subprocessHistory.id,
-            // Dữ liệu mới hoàn toàn
-            checkFields: [],
           },
         });
       }
