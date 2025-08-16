@@ -83,6 +83,23 @@ export class ProductService {
         manufacturingProcess: true,
         categoryId: true,
         requestId: true,
+        productMaterials: {
+          select: {
+            id: true,
+            materialId: true,
+            quantity: true,
+            material: {
+              select: {
+                id: true,
+                name: true,
+                unit: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
         category: {
           select: {
             id: true,
@@ -141,6 +158,12 @@ export class ProductService {
         categoryId: dto.categoryId,
         manufacturingProcess: dto.manufacturingProcess,
         requestId: dto.requestId,
+        productMaterials: {
+          create: dto.productMaterials?.map((material) => ({
+            materialId: material.materialId,
+            quantity: material.quantity,
+          })),
+        },
       },
       select: {
         id: true,
@@ -211,7 +234,22 @@ export class ProductService {
 
     const updatedProduct = await this.prismaService.product.update({
       where: { id },
-      data: dto,
+      data: {
+        name: dto.name,
+        sku: dto.sku,
+        description: dto.description,
+        manufacturingProcess: dto.manufacturingProcess,
+        categoryId: dto.categoryId,
+        requestId: dto.requestId,
+        productMaterials: {
+          deleteMany: {}, // Xóa tất cả nguyên liệu cũ
+          create: dto.productMaterials?.map((material) => ({
+            materialId: material.materialId,
+            quantity: material.quantity,
+          })),
+        },
+      },
+
       select: {
         id: true,
         sku: true,

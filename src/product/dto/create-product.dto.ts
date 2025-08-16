@@ -8,6 +8,19 @@ import {
   ValidateNested,
 } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+
+class ProductMaterialDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  materialId: number;
+
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsInt()
+  quantity: number;
+}
 
 export class CreateProductDto {
   @ApiProperty({
@@ -51,4 +64,11 @@ export class CreateProductDto {
   @IsOptional()
   @IsInt()
   requestId?: number;
+
+  @ApiProperty({ type: [ProductMaterialDto], required: false })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductMaterialDto)
+  productMaterials?: ProductMaterialDto[];
 }
