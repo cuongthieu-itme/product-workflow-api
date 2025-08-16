@@ -221,7 +221,7 @@ export class FieldSubprocessService {
           type: 'date',
           field: 'approvedTime',
         },
-        PURCHASER: { label: 'Người mua', type: 'input', field: 'purchaser' },
+        PURCHASER: { label: 'Người mua', type: 'select', field: 'purchaser' },
         PURCHASING_TIME: {
           label: 'Thời gian mua',
           type: 'date',
@@ -239,7 +239,7 @@ export class FieldSubprocessService {
         },
         CHECKED_BY: {
           label: 'Người kiểm tra',
-          type: 'input',
+          type: 'select',
           field: 'checkedBy',
         },
         CHECKED_TIME: {
@@ -260,7 +260,7 @@ export class FieldSubprocessService {
         },
         SAMPLE_MAKER: {
           label: 'Người làm mẫu',
-          type: 'input',
+          type: 'select',
           field: 'sampleMaker',
         },
         SAMPLE_STATUS: {
@@ -290,8 +290,8 @@ export class FieldSubprocessService {
           field: 'productManufacturingPlan',
         },
         PRODUCT_FEEDBACK_RESPONDER: {
-          label: 'Người phản hồi phản hồi sản phẩm',
-          type: 'input',
+          label: 'Người phản hồi sản phẩm',
+          type: 'select',
           field: 'productFeedbackResponder',
         },
         DEADLINE_CHECKING: {
@@ -311,7 +311,7 @@ export class FieldSubprocessService {
         },
         SAMPLE_FEEDBACK_RESPONDER: {
           label: 'Người phản hồi phản hồi mẫu',
-          type: 'input',
+          type: 'select',
           field: 'sampleFeedbackResponder',
         },
         DEMO_PRICE: { label: 'Giá demo', type: 'number', field: 'demoPrice' },
@@ -369,7 +369,7 @@ export class FieldSubprocessService {
         },
         WAREHOUSE_CHECKER: {
           label: 'Người kiểm tra kho',
-          type: 'input',
+          type: 'select',
           field: 'warehouseChecker',
         },
         QUANTITY_RECEIVED: {
@@ -383,8 +383,8 @@ export class FieldSubprocessService {
           field: 'checkedDate',
         },
         MATERIAL_SENT_TO_RD: {
-          label: 'Vật liệu gửi đến RD',
-          type: 'input',
+          label: 'Đã gửi mẫu đến R&D chưa',
+          type: 'select',
           field: 'materialSentToRD',
         },
         SENT_DATE_TO_RD: {
@@ -399,7 +399,7 @@ export class FieldSubprocessService {
         },
         RD_MATERIAL_CHECKER: {
           label: 'Người kiểm tra vật liệu RD',
-          type: 'input',
+          type: 'select',
           field: 'RDMaterialChecker',
         },
         SAMPLE_QUALITY_FEEDBACK: {
@@ -424,7 +424,7 @@ export class FieldSubprocessService {
         },
         TEMPLATE_CHECKER: {
           label: 'Người kiểm tra template',
-          type: 'input',
+          type: 'select',
           field: 'templateChecker',
         },
         TEMPLATE_CHECKING_STATUS: {
@@ -434,7 +434,7 @@ export class FieldSubprocessService {
         },
         MOCKUP_CHECKER: {
           label: 'Người kiểm tra mockup',
-          type: 'input',
+          type: 'select',
           field: 'mockupChecker',
         },
         MOCKUP_CHECKING_STATUS: {
@@ -444,13 +444,13 @@ export class FieldSubprocessService {
         },
         // Step 9 fields
         PRICE_CALCULATOR: {
-          label: 'Máy tính giá',
-          type: 'number',
+          label: 'Người tính giá',
+          type: 'select',
           field: 'priceCalculator',
         },
         PRICE_LIST: {
           label: 'Danh sách giá',
-          type: 'input',
+          type: 'number_array',
           field: 'priceList',
         },
         PRODUCT_DESCRIPTION: {

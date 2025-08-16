@@ -66,12 +66,14 @@ export class ProcedureService {
               isRequired: true,
               isStepWithCost: true,
               step: true,
+              isShowRequestMaterial: true, // Include isShowRequestMaterial
               department: {
                 select: {
                   id: true,
                   name: true,
                 },
               },
+              fieldSubprocess: true, // Include fieldSubprocess để lấy checkFields
             },
             orderBy: {
               step: 'asc',
@@ -122,6 +124,7 @@ export class ProcedureService {
               isRequired: true,
               isStepWithCost: true,
               step: true,
+              isShowRequestMaterial: true,
               department: {
                 select: {
                   id: true,
@@ -327,7 +330,7 @@ export class ProcedureService {
         if (subprocesses.length) {
           await tx.subprocess.createMany({
             data: subprocesses.map((sp) => {
-              const { id: _, checkFields: __, ...subprocessData } = sp;
+              const { id: _, ...subprocessData } = sp;
               return {
                 ...subprocessData,
                 procedureId: created.id,

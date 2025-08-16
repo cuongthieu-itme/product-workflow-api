@@ -148,6 +148,7 @@ export class RequestService {
     const data = await this.prismaService.request.findUnique({
       where: { id },
       include: {
+        product: true,
         createdBy: true,
         customer: true,
         sourceOther: true,
@@ -1180,7 +1181,11 @@ export class RequestService {
       include: {
         procedure: {
           include: {
-            subprocesses: true,
+            subprocesses: {
+              include: {
+                fieldSubprocess: true, // Include fieldSubprocess để lấy checkFields
+              },
+            },
           },
         },
       },
@@ -1276,6 +1281,7 @@ export class RequestService {
         departmentId: subprocess.departmentId ?? null,
         userId: userId, // Đảm bảo không bao giờ null
         procedureHistoryId,
+        isShowRequestMaterial: subprocess.isShowRequestMaterial,
       });
 
       assignedUserIds.push(userId);
@@ -1338,9 +1344,12 @@ export class RequestService {
       });
 
       if (subprocessHistory) {
+        // Tạo FieldSubprocess mới gắn với SubprocessHistory và copy checkFields từ procedure template
+        const checkFields = subprocess.fieldSubprocess?.checkFields || [];
         await prisma.fieldSubprocess.create({
           data: {
             subprocessesHistoryId: subprocessHistory.id,
+            checkFields: checkFields, // Copy checkFields từ procedure template
           },
         });
       }
@@ -1705,12 +1714,6 @@ export class RequestService {
 
     if (!request) {
       throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
-    }
-
-    if (request.productId || request.materialId) {
-      throw new BadRequestException(
-        'Yêu cầu này đã có output. Không thể thêm output mới.',
-      );
     }
 
     const { outputType } = saveOutputDto;

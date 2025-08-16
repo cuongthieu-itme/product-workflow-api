@@ -8,6 +8,7 @@ import {
   IsDateString,
   IsEnum,
   IsBoolean,
+  IsNumber,
 } from 'class-validator';
 import { CheckField } from '@prisma/client';
 import { Transform } from 'class-transformer';
@@ -438,8 +439,8 @@ export class CreateFieldSubprocessDto {
 
   @ApiProperty({ required: false })
   @IsOptional()
-  @IsString()
-  category?: string;
+  @IsNumber()
+  category?: number;
 
   @ApiProperty({ required: false })
   @IsOptional()
