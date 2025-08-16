@@ -22,7 +22,7 @@ import { CheckFieldOptionsResponseDto } from './dto/check-field-options-response
 import { AuthGuard } from 'src/common/decorators';
 import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
 
-@ApiTags('FieldSubprocess')
+@ApiTags('Field Subprocess')
 @AuthGuard()
 @Controller('field-subprocess')
 export class FieldSubprocessController {
