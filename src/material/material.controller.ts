@@ -40,6 +40,12 @@ export class MaterialController {
     return this.materialService.create(dto);
   }
 
+  @ApiOperation({ summary: 'Cập nhật trạng thái nhiều vật liệu' })
+  @Put('update-status')
+  async updateStatus(@Body() dto: UpdateMaterialStatusDto) {
+    return this.materialService.updateStatus(dto);
+  }
+
   @ApiOperation({ summary: 'Cập nhật vật liệu' })
   @Put(':id')
   async update(@Param('id') id: number, @Body() dto: UpdateMaterialDto) {
@@ -50,11 +56,5 @@ export class MaterialController {
   @Delete(':id')
   async remove(@Param('id') id: number) {
     return this.materialService.remove(id);
-  }
-
-  @ApiOperation({ summary: 'Cập nhật trạng thái nhiều vật liệu' })
-  @Put('update-status')
-  async updateStatus(@Body() dto: UpdateMaterialStatusDto) {
-    return this.materialService.updateStatus(dto);
   }
 }
