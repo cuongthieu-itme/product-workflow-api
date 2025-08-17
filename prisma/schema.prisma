@@ -496,13 +496,16 @@ model SourceOther {
 }
 
 model RequestMaterial {
-  id         Int @id @default(autoincrement())
-  requestId  Int
-  materialId Int
-  quantity   Int
+  id                    Int  @id @default(autoincrement())
+  requestId             Int?
+  materialId            Int?
+  materialFromRequestId Int?
+  quantity              Int?
 
-  request  Request  @relation(fields: [requestId], references: [id], onDelete: Cascade, name: "request_materials_relation")
-  material Material @relation(fields: [materialId], references: [id], name: "request_materials_relation")
+  request  Request?  @relation(fields: [requestId], references: [id], onDelete: Cascade, name: "request_materials_relation")
+  material Material? @relation(fields: [materialId], references: [id], name: "request_materials_relation")
+
+  materialFromRequest Request? @relation(fields: [materialFromRequestId], references: [id], name: "request_materials_from_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -544,6 +547,8 @@ model Request {
   // Add field
   priority PriorityType @default(NORMAL)
   code     String
+
+  materialFromRequests RequestMaterial[] @relation("request_materials_from_request_relation")
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

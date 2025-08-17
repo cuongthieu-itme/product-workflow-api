@@ -65,11 +65,13 @@ export class RequestController {
     body: {
       requestData: CreateRequestDto;
       materialsData: CreateNewMaterialDto[];
+      requestId: number;
     },
   ) {
     return this.requestService.createRequestAndMaterial(
       body.requestData,
       body.materialsData,
+      body.requestId,
     );
   }
 

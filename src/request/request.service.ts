@@ -366,6 +366,7 @@ export class RequestService {
   async createRequestAndMaterial(
     requestData: CreateRequestDto,
     materialsData: CreateNewMaterialDto[],
+    requestId: number,
   ) {
     // Validate materials data
     if (!materialsData || materialsData.length === 0) {
@@ -388,6 +389,13 @@ export class RequestService {
       throw new NotFoundException(
         `Không tìm thấy origin với ID: ${missingOriginIds.join(', ')}`,
       );
+    }
+
+    const request = await this.prismaService.request.findUnique({
+      where: { id: requestId },
+    });
+    if (!request) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
     }
 
     // Validate relationships for request
@@ -435,6 +443,16 @@ export class RequestService {
               isActive: true,
             },
           });
+
+          if (requestId) {
+            await prisma.requestMaterial.create({
+              data: {
+                requestId,
+                materialFromRequestId: newMaterial.id,
+                quantity: materialData.quantity,
+              },
+            });
+          }
 
           // Create RequestInput if provided
           if (materialData.requestInput) {
