@@ -326,7 +326,7 @@ model Product {
   statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "product_status_product_relation")
 
   requestId Int?     @unique
-  request   Request? @relation(fields: [requestId], references: [id])
+  request   Request? @relation(fields: [requestId], references: [id], name: "request_product_relation")
 
   // Add many-to-many relation with Material
   productMaterials ProductMaterial[]
@@ -539,7 +539,7 @@ model Request {
   requestMaterials RequestMaterial[]    @relation("request_materials_relation")
   evaluates        Evaluate[]           @relation("request_evaluate_relation")
   approvalInfo     RequestApprovalInfo? @relation("request_approval_info_relation")
-  product          Product?
+  product          Product?             @relation("request_product_relation")
 
   // Add field
   priority PriorityType @default(NORMAL)
