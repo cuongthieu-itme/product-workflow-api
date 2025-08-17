@@ -165,11 +165,14 @@ export class RequestController {
 
   @ApiOperation({ summary: 'Cập nhật trạng thái yêu cầu' })
   @HttpCode(HttpStatus.OK)
-  @Put(':id/by-status')
+  @Put(':id/by-status/updated')
   async updateStatusRequest(
     @Param('id') id: number,
-    @Body() status: RequestStatus,
+    @Body() updateStatusDto: UpdateRequestStatusDto,
   ) {
-    return this.requestService.updateStatusRequest(Number(id), status);
+    return this.requestService.updateStatusRequest(
+      Number(id),
+      updateStatusDto.status,
+    );
   }
 }
