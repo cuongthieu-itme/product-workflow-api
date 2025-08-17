@@ -165,7 +165,7 @@ export class RequestController {
 
   @ApiOperation({ summary: 'Cập nhật trạng thái yêu cầu' })
   @HttpCode(HttpStatus.OK)
-  @Put(':id/status/by-request')
+  @Put(':id/by-status')
   async updateStatusRequest(
     @Param('id') id: number,
     @Body() status: RequestStatus,
