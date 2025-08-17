@@ -138,6 +138,7 @@ export class RequestService {
           },
         },
         approvalInfo: true,
+        materialRequestSubprocessHistories: true,
       },
     });
 
@@ -200,6 +201,7 @@ export class RequestService {
           },
         },
         approvalInfo: true,
+        materialRequestSubprocessHistories: true,
       },
     });
 

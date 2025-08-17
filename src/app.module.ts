@@ -25,6 +25,7 @@ import { EvaluateModule } from './evaluate/evaluate.module';
 import { SubprocessesHistoryModule } from './subprocesses-history/subprocesses-history.module';
 import { RequestApprovalInfoModule } from './request-approval-info/request-approval-info.module';
 import { FieldSubprocessModule } from './field-subprocess/field-subprocess.module';
+import { MaterialRequestsSubprocessHistoryModule } from './material-requests-subprocess-history/material-requests-subprocess-history.module';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { FieldSubprocessModule } from './field-subprocess/field-subprocess.modul
     SubprocessesHistoryModule,
     RequestApprovalInfoModule,
     FieldSubprocessModule,
+    MaterialRequestsSubprocessHistoryModule,
   ],
 })
 export class AppModule {}
