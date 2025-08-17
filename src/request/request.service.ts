@@ -148,6 +148,12 @@ export class RequestService {
     const data = await this.prismaService.request.findUnique({
       where: { id },
       include: {
+        materialFromRequests: {
+          include: {
+            material: true,
+            materialFromRequest: true,
+          },
+        },
         product: true,
         createdBy: true,
         customer: true,
@@ -448,7 +454,8 @@ export class RequestService {
             await prisma.requestMaterial.create({
               data: {
                 requestId,
-                materialFromRequestId: newMaterial.id,
+                materialId: newMaterial.id,
+                materialFromRequestId: requestId,
                 quantity: materialData.quantity,
               },
             });
