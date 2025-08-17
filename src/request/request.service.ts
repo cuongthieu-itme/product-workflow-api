@@ -1893,4 +1893,11 @@ export class RequestService {
       );
     }
   }
+
+  async updateStatusRequest(requestId: number, status: RequestStatus) {
+    return this.prismaService.request.update({
+      where: { id: requestId },
+      data: { status },
+    });
+  }
 }
