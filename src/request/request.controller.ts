@@ -21,6 +21,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 import { AddMaterialToRequestDto } from './dto/create-request.dto';
 import { RemoveMaterialFromRequestDto } from './dto/create-request.dto';
 import { CreateNewMaterialDto } from './dto/create-request-material.dto';
+import { RequestStatus } from '@prisma/client';
 
 @ApiTags('Request')
 @AuthGuard()
@@ -65,11 +66,13 @@ export class RequestController {
     body: {
       requestData: CreateRequestDto;
       materialsData: CreateNewMaterialDto[];
+      requestId: number;
     },
   ) {
     return this.requestService.createRequestAndMaterial(
       body.requestData,
       body.materialsData,
+      body.requestId,
     );
   }
 
@@ -158,5 +161,18 @@ export class RequestController {
     @Body() saveOutputDto: SaveOutputDto,
   ) {
     return this.requestService.saveOutput(Number(id), saveOutputDto);
+  }
+
+  @ApiOperation({ summary: 'Cập nhật trạng thái yêu cầu' })
+  @HttpCode(HttpStatus.OK)
+  @Put(':id/by-status/updated')
+  async updateStatusRequest(
+    @Param('id') id: number,
+    @Body() updateStatusDto: UpdateRequestStatusDto,
+  ) {
+    return this.requestService.updateStatusRequest(
+      Number(id),
+      updateStatusDto.status,
+    );
   }
 }

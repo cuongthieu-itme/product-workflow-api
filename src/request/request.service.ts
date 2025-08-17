@@ -148,6 +148,12 @@ export class RequestService {
     const data = await this.prismaService.request.findUnique({
       where: { id },
       include: {
+        materialFromRequests: {
+          include: {
+            material: true,
+            materialFromRequest: true,
+          },
+        },
         product: true,
         createdBy: true,
         customer: true,
@@ -366,6 +372,7 @@ export class RequestService {
   async createRequestAndMaterial(
     requestData: CreateRequestDto,
     materialsData: CreateNewMaterialDto[],
+    requestId: number,
   ) {
     // Validate materials data
     if (!materialsData || materialsData.length === 0) {
@@ -388,6 +395,13 @@ export class RequestService {
       throw new NotFoundException(
         `Không tìm thấy origin với ID: ${missingOriginIds.join(', ')}`,
       );
+    }
+
+    const request = await this.prismaService.request.findUnique({
+      where: { id: requestId },
+    });
+    if (!request) {
+      throw new NotFoundException(`Không tìm thấy yêu cầu với ID ${requestId}`);
     }
 
     // Validate relationships for request
@@ -435,6 +449,17 @@ export class RequestService {
               isActive: true,
             },
           });
+
+          if (requestId) {
+            await prisma.requestMaterial.create({
+              data: {
+                requestId,
+                materialId: newMaterial.id,
+                materialFromRequestId: requestId,
+                quantity: materialData.quantity,
+              },
+            });
+          }
 
           // Create RequestInput if provided
           if (materialData.requestInput) {
@@ -1867,5 +1892,12 @@ export class RequestService {
         'Tạo output thất bại. Vui lòng kiểm tra lại dữ liệu và thử lại.',
       );
     }
+  }
+
+  async updateStatusRequest(requestId: number, status: RequestStatus) {
+    return this.prismaService.request.update({
+      where: { id: requestId },
+      data: { status },
+    });
   }
 }

@@ -12,6 +12,7 @@ import { MaterialService } from './material.service';
 import { CreateMaterialDto } from './dto/create-material.dto';
 import { UpdateMaterialDto } from './dto/update-material.dto';
 import { FilterMaterialDto } from './dto/filter-material.dto';
+import { UpdateMaterialStatusDto } from './dto/update-material-status.dto';
 import { AuthGuard } from 'src/common/decorators';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -37,6 +38,12 @@ export class MaterialController {
   @Post()
   async create(@Body() dto: CreateMaterialDto) {
     return this.materialService.create(dto);
+  }
+
+  @ApiOperation({ summary: 'Cập nhật trạng thái nhiều vật liệu' })
+  @Put('update-status')
+  async updateStatus(@Body() dto: UpdateMaterialStatusDto) {
+    return this.materialService.updateStatus(dto);
   }
 
   @ApiOperation({ summary: 'Cập nhật vật liệu' })
