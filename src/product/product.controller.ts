@@ -47,6 +47,7 @@ export class ProductController {
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(@Body() createProductDto: CreateProductDto) {
+    console.log('createProductDto', createProductDto);
     return this.productService.create(createProductDto);
   }
 

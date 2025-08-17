@@ -45,13 +45,23 @@ export class ProductService {
       orderBy: { createdAt: 'desc' },
       select: {
         id: true,
+        sku: true,
         name: true,
         description: true,
+        manufacturingProcess: true,
         categoryId: true,
+        requestId: true,
         category: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        request: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
           },
         },
         createdAt: true,
@@ -67,13 +77,40 @@ export class ProductService {
       where: { id },
       select: {
         id: true,
+        sku: true,
         name: true,
         description: true,
+        manufacturingProcess: true,
         categoryId: true,
+        requestId: true,
+        productMaterials: {
+          select: {
+            id: true,
+            materialId: true,
+            quantity: true,
+            material: {
+              select: {
+                id: true,
+                name: true,
+                unit: true,
+                description: true,
+                createdAt: true,
+                updatedAt: true,
+              },
+            },
+          },
+        },
         category: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        request: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
           },
         },
         createdAt: true,
@@ -100,21 +137,53 @@ export class ProductService {
       );
     }
 
+    // Kiểm tra request tồn tại nếu có requestId
+    if (dto.requestId) {
+      const request = await this.prismaService.request.findUnique({
+        where: { id: dto.requestId },
+      });
+
+      if (!request) {
+        throw new NotFoundException(
+          `Không tìm thấy yêu cầu với ID ${dto.requestId}`,
+        );
+      }
+    }
+
     const newProduct = await this.prismaService.product.create({
       data: {
         name: dto.name,
+        sku: dto.sku,
         description: dto.description,
         categoryId: dto.categoryId,
+        manufacturingProcess: dto.manufacturingProcess,
+        requestId: dto.requestId,
+        productMaterials: {
+          create: dto.productMaterials?.map((material) => ({
+            materialId: material.materialId,
+            quantity: material.quantity,
+          })),
+        },
       },
       select: {
         id: true,
+        sku: true,
         name: true,
         description: true,
+        manufacturingProcess: true,
         categoryId: true,
+        requestId: true,
         category: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        request: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
           },
         },
         createdAt: true,
@@ -150,18 +219,56 @@ export class ProductService {
       }
     }
 
+    // Kiểm tra request tồn tại nếu có thay đổi requestId
+    if (dto.requestId && dto.requestId !== existingProduct.requestId) {
+      const request = await this.prismaService.request.findUnique({
+        where: { id: dto.requestId },
+      });
+
+      if (!request) {
+        throw new NotFoundException(
+          `Không tìm thấy yêu cầu với ID ${dto.requestId}`,
+        );
+      }
+    }
+
     const updatedProduct = await this.prismaService.product.update({
       where: { id },
-      data: dto,
+      data: {
+        name: dto.name,
+        sku: dto.sku,
+        description: dto.description,
+        manufacturingProcess: dto.manufacturingProcess,
+        categoryId: dto.categoryId,
+        requestId: dto.requestId,
+        productMaterials: {
+          deleteMany: {}, // Xóa tất cả nguyên liệu cũ
+          create: dto.productMaterials?.map((material) => ({
+            materialId: material.materialId,
+            quantity: material.quantity,
+          })),
+        },
+      },
+
       select: {
         id: true,
+        sku: true,
         name: true,
         description: true,
+        manufacturingProcess: true,
         categoryId: true,
+        requestId: true,
         category: {
           select: {
             id: true,
             name: true,
+          },
+        },
+        request: {
+          select: {
+            id: true,
+            title: true,
+            code: true,
           },
         },
         createdAt: true,

@@ -211,58 +211,9 @@ export class FieldSubprocessService {
         string,
         { label: string; type: string; field: string }
       > = {
-        MATERIAL_CODE: {
-          label: 'Mã vật liệu',
-          type: 'input',
-          field: 'materialCode',
-        },
-        MATERIAL_NAME: {
-          label: 'Tên vật liệu',
-          type: 'input',
-          field: 'materialName',
-        },
-        REQUEST_ID: { label: 'ID yêu cầu', type: 'input', field: 'requestId' },
-        REQUEST_DATE: {
-          label: 'Ngày yêu cầu',
-          type: 'date',
-          field: 'requestDate',
-        },
-        PRIORITY: { label: 'Độ ưu tiên', type: 'select', field: 'priority' },
-        CREATED_BY: { label: 'Người tạo', type: 'input', field: 'createdBy' },
-        REQUEST_SOURCE: {
-          label: 'Nguồn yêu cầu',
-          type: 'select',
-          field: 'requestSource',
-        },
-        CHECKER: { label: 'Người kiểm tra', type: 'input', field: 'checker' },
-        DESCRIPTION_MATERIAL: {
-          label: 'Mô tả vật liệu',
-          type: 'textarea',
-          field: 'descriptionMaterial',
-        },
-        STATUS: { label: 'Trạng thái', type: 'select', field: 'status' },
-        QUANTITY: { label: 'Số lượng', type: 'number', field: 'quantity' },
-        UNIT: { label: 'Đơn vị', type: 'input', field: 'unit' },
-        COLOR: { label: 'Màu sắc', type: 'input', field: 'color' },
-        MATERIAL_TYPE: {
-          label: 'Loại vật liệu',
-          type: 'select',
-          field: 'materialType',
-        },
-        MEDIA: { label: 'Tệp đa phương tiện', type: 'file', field: 'media' },
-        PURCHASE_LINK: {
-          label: 'Liên kết mua hàng',
-          type: 'input',
-          field: 'purchaseLink',
-        },
-        ADDITIONAL_NOTE: {
-          label: 'Ghi chú bổ sung',
-          type: 'textarea',
-          field: 'additionalNote',
-        },
         APPROVED_BY: {
           label: 'Người phê duyệt',
-          type: 'input',
+          type: 'select',
           field: 'approvedBy',
         },
         APPROVED_TIME: {
@@ -270,7 +221,7 @@ export class FieldSubprocessService {
           type: 'date',
           field: 'approvedTime',
         },
-        PURCHASER: { label: 'Người mua', type: 'input', field: 'purchaser' },
+        PURCHASER: { label: 'Người mua', type: 'select', field: 'purchaser' },
         PURCHASING_TIME: {
           label: 'Thời gian mua',
           type: 'date',
@@ -288,7 +239,7 @@ export class FieldSubprocessService {
         },
         CHECKED_BY: {
           label: 'Người kiểm tra',
-          type: 'input',
+          type: 'select',
           field: 'checkedBy',
         },
         CHECKED_TIME: {
@@ -301,17 +252,7 @@ export class FieldSubprocessService {
           type: 'textarea',
           field: 'sampleProductionPlan',
         },
-        DESIGNER: { label: 'Nhà thiết kế', type: 'input', field: 'designer' },
-        START_TIME: {
-          label: 'Thời gian bắt đầu',
-          type: 'date',
-          field: 'startTime',
-        },
-        COMPLETED_TIME: {
-          label: 'Thời gian hoàn thành',
-          type: 'date',
-          field: 'completedTime',
-        },
+        DESIGNER: { label: 'Nhà thiết kế', type: 'select', field: 'designer' },
         PRODUCTION_FILE_LINK: {
           label: 'Liên kết tệp sản xuất',
           type: 'input',
@@ -319,7 +260,7 @@ export class FieldSubprocessService {
         },
         SAMPLE_MAKER: {
           label: 'Người làm mẫu',
-          type: 'input',
+          type: 'select',
           field: 'sampleMaker',
         },
         SAMPLE_STATUS: {
@@ -349,8 +290,8 @@ export class FieldSubprocessService {
           field: 'productManufacturingPlan',
         },
         PRODUCT_FEEDBACK_RESPONDER: {
-          label: 'Người phản hồi phản hồi sản phẩm',
-          type: 'input',
+          label: 'Người phản hồi sản phẩm',
+          type: 'select',
           field: 'productFeedbackResponder',
         },
         DEADLINE_CHECKING: {
@@ -370,7 +311,7 @@ export class FieldSubprocessService {
         },
         SAMPLE_FEEDBACK_RESPONDER: {
           label: 'Người phản hồi phản hồi mẫu',
-          type: 'input',
+          type: 'select',
           field: 'sampleFeedbackResponder',
         },
         DEMO_PRICE: { label: 'Giá demo', type: 'number', field: 'demoPrice' },
@@ -428,7 +369,7 @@ export class FieldSubprocessService {
         },
         WAREHOUSE_CHECKER: {
           label: 'Người kiểm tra kho',
-          type: 'input',
+          type: 'select',
           field: 'warehouseChecker',
         },
         QUANTITY_RECEIVED: {
@@ -442,8 +383,8 @@ export class FieldSubprocessService {
           field: 'checkedDate',
         },
         MATERIAL_SENT_TO_RD: {
-          label: 'Vật liệu gửi đến RD',
-          type: 'input',
+          label: 'Đã gửi mẫu đến R&D chưa',
+          type: 'select',
           field: 'materialSentToRD',
         },
         SENT_DATE_TO_RD: {
@@ -458,7 +399,7 @@ export class FieldSubprocessService {
         },
         RD_MATERIAL_CHECKER: {
           label: 'Người kiểm tra vật liệu RD',
-          type: 'input',
+          type: 'select',
           field: 'RDMaterialChecker',
         },
         SAMPLE_QUALITY_FEEDBACK: {
@@ -470,12 +411,6 @@ export class FieldSubprocessService {
           label: 'Ngày phản hồi',
           type: 'date',
           field: 'feedbackDate',
-        },
-        // Step 8 fields
-        STARTED_TIME: {
-          label: 'Thời gian bắt đầu',
-          type: 'date',
-          field: 'startedTime',
         },
         ASSIGNED_TO: {
           label: 'Giao cho',
@@ -489,7 +424,7 @@ export class FieldSubprocessService {
         },
         TEMPLATE_CHECKER: {
           label: 'Người kiểm tra template',
-          type: 'input',
+          type: 'select',
           field: 'templateChecker',
         },
         TEMPLATE_CHECKING_STATUS: {
@@ -499,7 +434,7 @@ export class FieldSubprocessService {
         },
         MOCKUP_CHECKER: {
           label: 'Người kiểm tra mockup',
-          type: 'input',
+          type: 'select',
           field: 'mockupChecker',
         },
         MOCKUP_CHECKING_STATUS: {
@@ -509,13 +444,13 @@ export class FieldSubprocessService {
         },
         // Step 9 fields
         PRICE_CALCULATOR: {
-          label: 'Máy tính giá',
-          type: 'number',
+          label: 'Người tính giá',
+          type: 'select',
           field: 'priceCalculator',
         },
         PRICE_LIST: {
           label: 'Danh sách giá',
-          type: 'input',
+          type: 'number_array',
           field: 'priceList',
         },
         PRODUCT_DESCRIPTION: {

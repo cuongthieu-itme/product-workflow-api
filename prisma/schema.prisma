@@ -75,20 +75,22 @@ enum PriorityType {
 }
 
 enum CheckField {
+  IS_SHOW_REQUEST_INFORMATION
+  IS_REQUIRE_MATERIAL
   MATERIAL_CODE
   MATERIAL_NAME
+  DESCRIPTION_MATERIAL
+  QUANTITY
+  UNIT
+  COLOR
+  MATERIAL_TYPE
   REQUEST_ID
   REQUEST_DATE
   PRIORITY
   CREATED_BY
   REQUEST_SOURCE
   CHECKER
-  DESCRIPTION_MATERIAL
   STATUS
-  QUANTITY
-  UNIT
-  COLOR
-  MATERIAL_TYPE
   MEDIA
   PURCHASE_LINK
   ADDITIONAL_NOTE
@@ -167,6 +169,12 @@ enum CheckField {
   // Step 12 fields
   GROUP_ANNOUNCEMENT_ALL_DEPARTMENTS
   ANNOUNCEMENT_OF_RND_WORKSHOP_GROUP
+}
+
+enum RequestMaterialStatus {
+  AVAILABLE_IN_STOCK
+  SENDING_REQUEST
+  CANCELLED
 }
 
 model User {
@@ -306,24 +314,45 @@ model Category {
 }
 
 model Product {
-  id          Int     @id @default(autoincrement())
-  name        String
-  description String?
-
-  categoryId Int
-  category   Category @relation(fields: [categoryId], references: [id], name: "category_product_relation")
+  id                   Int      @id @default(autoincrement())
+  sku                  String?  @unique
+  name                 String
+  description          String?
+  categoryId           Int
+  category             Category @relation(fields: [categoryId], references: [id], name: "category_product_relation")
+  manufacturingProcess String?
 
   statusProductId Int?
   statusProduct   StatusProduct? @relation(fields: [statusProductId], references: [id], name: "product_status_product_relation")
 
-  // Output
-  request Request? @relation("request_product_output_relation")
+  requestId Int?     @unique
+  request   Request? @relation(fields: [requestId], references: [id], name: "request_product_relation")
+
+  // Add many-to-many relation with Material
+  productMaterials ProductMaterial[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
   @@index([categoryId])
   @@map("products")
+}
+
+// Add junction table for many-to-many relation
+model ProductMaterial {
+  id         Int @id @default(autoincrement())
+  productId  Int
+  materialId Int
+  quantity   Int @default(1)
+
+  product  Product  @relation(fields: [productId], references: [id])
+  material Material @relation(fields: [materialId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+
+  @@unique([productId, materialId])
+  @@map("product_materials")
 }
 
 model Procedure {
@@ -346,15 +375,16 @@ model Procedure {
 }
 
 model Subprocess {
-  id                         Int     @id @default(autoincrement())
+  id                         Int      @id @default(autoincrement())
   name                       String
   description                String?
   estimatedNumberOfDays      Int
   numberOfDaysBeforeDeadline Int?
   roleOfThePersonInCharge    String?
-  isRequired                 Boolean @default(false)
-  isStepWithCost             Boolean @default(false)
+  isRequired                 Boolean  @default(false)
+  isStepWithCost             Boolean  @default(false)
   step                       Int
+  isShowRequestMaterial      Boolean? @default(false)
 
   procedureId Int
   procedure   Procedure @relation(fields: [procedureId], references: [id], name: "procedure_subprocess_relation")
@@ -407,15 +437,16 @@ model ProcedureHistory {
 }
 
 model SubprocessHistory {
-  id                         Int     @id @default(autoincrement())
+  id                         Int      @id @default(autoincrement())
   name                       String
   description                String?
   estimatedNumberOfDays      Int
   numberOfDaysBeforeDeadline Int?
   roleOfThePersonInCharge    String?
-  isRequired                 Boolean @default(false)
-  isStepWithCost             Boolean @default(false)
+  isRequired                 Boolean  @default(false)
+  isStepWithCost             Boolean  @default(false)
   step                       Int
+  isShowRequestMaterial      Boolean? @default(false)
 
   procedureHistoryId Int
   procedureHistory   ProcedureHistory @relation(fields: [procedureHistoryId], references: [id], name: "procedure_history_subprocess_history_relation")
@@ -501,14 +532,14 @@ model Request {
   procedureHistory   ProcedureHistory? @relation(fields: [procedureHistoryId], references: [id], name: "request_procedure_history_relation")
 
   // Output
-  productId  Int?      @unique
-  product    Product?  @relation(fields: [productId], references: [id], name: "request_product_output_relation")
+
   materialId Int?      @unique
   material   Material? @relation(fields: [materialId], references: [id], name: "request_material_output_relation")
 
   requestMaterials RequestMaterial[]    @relation("request_materials_relation")
   evaluates        Evaluate[]           @relation("request_evaluate_relation")
   approvalInfo     RequestApprovalInfo? @relation("request_approval_info_relation")
+  product          Product?             @relation("request_product_relation")
 
   // Add field
   priority PriorityType @default(NORMAL)
@@ -555,6 +586,13 @@ model Material {
 
   // Output
   request Request? @relation("request_material_output_relation")
+
+  // Request Material
+  status RequestMaterialStatus @default(AVAILABLE_IN_STOCK)
+  price  Int?
+
+  // Add many-to-many relation with Product
+  productMaterials ProductMaterial[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -645,6 +683,7 @@ model FieldSubprocess {
 
   // step-1
   isShowRequestInformation Boolean   @default(false)
+  isRequireMaterial        Boolean   @default(false)
   materialCode             String?
   materialName             String?
   descriptionMaterial      String?
@@ -738,7 +777,7 @@ model FieldSubprocess {
 
   // step-11
   productName       String?
-  category          String?
+  category          Int?
   howToProduce      String?
   materialNeedToUse String?
 

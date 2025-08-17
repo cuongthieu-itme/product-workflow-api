@@ -66,6 +66,11 @@ class SubprocessDto {
   @IsEnum(CheckField, { each: true })
   @IsOptional()
   checkFields?: CheckField[];
+
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  isShowRequestMaterial?: boolean;
 }
 
 export class SameAssignDto {

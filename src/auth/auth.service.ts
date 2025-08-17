@@ -369,7 +369,7 @@ export class AuthService {
     try {
       const user = await this.userService.findUserById(userId);
       if (!user) {
-        throw new NotFoundException('Người dùng không tồn tại');
+        throw new BadRequestException('Người dùng không tồn tại');
       }
 
       if (!user.isVerifiedAccount) {
@@ -383,7 +383,7 @@ export class AuthService {
         user.password,
       );
       if (!isOldPasswordValid) {
-        throw new UnauthorizedException('Mật khẩu hiện tại không đúng');
+        throw new BadRequestException('Mật khẩu hiện tại không đúng');
       }
 
       const isSamePassword = await this.hashService.compare(
@@ -408,11 +408,7 @@ export class AuthService {
           'Mật khẩu đã được thay đổi thành công. Vui lòng đăng nhập lại.',
       };
     } catch (error) {
-      if (
-        error instanceof NotFoundException ||
-        error instanceof BadRequestException ||
-        error instanceof UnauthorizedException
-      ) {
+      if (error instanceof BadRequestException) {
         throw error;
       }
       throw new BadRequestException(`Đổi mật khẩu thất bại: ${error.message}`);
